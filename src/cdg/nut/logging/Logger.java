@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.fusesource.jansi.AnsiConsole;
+import org.lwjgl.opengl.GL11;
 
 public abstract class Logger {
 	
@@ -309,8 +310,6 @@ public abstract class Logger {
 	 */
 	public static void log(String text, LogLevel lvl, String location, boolean suppressTime)
 	{
-		AnsiConsole.systemInstall();
-		
 		if(Logger.logfile == null)
 		{
 			try {
@@ -424,11 +423,32 @@ public abstract class Logger {
 	 */
 	public static void createCrashDump(String message, String location, Exception e)
 	{		
+		Logger.createCrashDump(message, location, e, false);
+	}
+	
+	
+	
+	/** Creates a crashdump file
+	 * 
+	 * @param message			Custom message
+	 * @param location			Location of exception (classname.methodname)
+	 * @param e					Exception that caused the crash
+	 * @param glinfo			True if crashdump should contain info about gl version, renderer etc.
+	 */
+	public static void createCrashDump(String message, String location, Exception e, boolean glinfo)
+	{	
 		try {
 			PrintWriter writer = new PrintWriter("crashdump_"+crashDumpDateFormat.format(new Date())+".txt", "UTF-8");
 			writer.println(e.getMessage()+" in "+location+": "+message); //first of all, tell us what it is all about
 			writer.println("OS: "+System.getProperty("os.name")+" ("+System.getProperty("os.arch")+") "+System.getProperty("os.version")); //give some os information
 			writer.println("Java: "+System.getProperty("java.vendor")+" "+System.getProperty("java.version")); //give some java version
+			
+			if(glinfo) { //gl info is always nice
+				writer.println("GLVendor: "+GL11.glGetString(GL11.GL_VENDOR));
+				writer.println("Renderer: "+GL11.glGetString(GL11.GL_RENDERER));
+				writer.println("Version: "+GL11.glGetString(GL11.GL_VERSION));
+			}
+			
 			writer.println("-----------------------------------------------------");
 			writer.println("Stacktrace:");
 			writer.println(e.getMessage()+" in "+location);
@@ -446,5 +466,4 @@ public abstract class Logger {
 			System.exit(-1);
 		}
 	}
-	
 }
