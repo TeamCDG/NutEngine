@@ -18,6 +18,9 @@ import cdg.nut.util.gl.GLTexture;
 
 public abstract class Globals {
 	
+	//TODO: move to HashMap
+	//TODO: Javadoc
+	
 	private static Matrix4x4 windowMatrix = Matrix4x4.getIdentity();
 	
 	//---- REGION VERSION -----

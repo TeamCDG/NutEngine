@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL13;
 
 import cdg.nut.util.gl.GLTexture;
 
+//TODO: Javadoc
 public class BitmapFont 
 {
 	private ArrayList<FontChar> font;

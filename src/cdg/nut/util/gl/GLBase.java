@@ -6,6 +6,8 @@ import cdg.nut.util.Vertex2;
 import cdg.nut.util.Vertex3;
 import cdg.nut.util.VertexData;
 
+//TODO: finalize()
+//TODO: Javadoc
 public abstract class GLBase implements IGL{
 	
 	private boolean selectable = false;

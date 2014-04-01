@@ -1,5 +1,6 @@
 package cdg.nut.util;
 
+//TODO: lots of Javadoc
 public class VertexData {
 	
 	// Vertex data

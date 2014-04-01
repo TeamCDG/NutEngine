@@ -20,6 +20,9 @@ import cdg.nut.logging.Logger;
 
 public class Sound implements IVolumeChangedListener {
 	
+	//TODO: Javadoc
+	//TODO: finalize()
+	
 	private int src = -1;
 	private int buf = -1;
 	//private ISoundFinishListener lis;

@@ -2,6 +2,7 @@ package cdg.nut.util;
 
 import java.util.Random;
 
+//TODO: Javadoc
 public class AdvancedRandom extends Random 
 {
 	

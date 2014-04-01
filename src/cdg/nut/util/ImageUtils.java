@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
+//TODO: Javadoc
 public abstract class ImageUtils 
 {
 	 public static BufferedImage scaleExact(BufferedImage img, int width, int height, Object interpolation) 

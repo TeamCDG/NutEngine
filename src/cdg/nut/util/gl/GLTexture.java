@@ -18,6 +18,7 @@ import cdg.nut.util.ImageUtils;
 import de.matthiasmann.twl.utils.PNGDecoder;
 import de.matthiasmann.twl.utils.PNGDecoder.Format;
 
+//TODO: Javadoc
 public class GLTexture implements IntIntChangedListener
 {
 	

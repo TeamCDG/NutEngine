@@ -7,7 +7,10 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import cdg.nut.interfaces.IMatrix;
+import cdg.nut.util.gl.GLColor;
 
+
+//TODO: Javadoc
 public final class ShaderProgram {
 	
 	private int shaderProgrammId;
@@ -168,6 +171,11 @@ public final class ShaderProgram {
 	public void pass4f(String locationName, float value1, float value2, float value3, float value4)
 	{
 		GL20.glUniform4f(GL20.glGetUniformLocation(this.shaderProgrammId, locationName), value1, value2, value3, value4);
+	}
+	
+	public void passColor(String locationName, GLColor color)
+	{
+		this.pass4f(locationName, color.toArray());
 	}
 	
 	public void bind()
