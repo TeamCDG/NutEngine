@@ -37,7 +37,9 @@ public class GLImage extends GLObject{
 	//TODO: Javadoc
 	public GLImage(GLColor color, GLTexture image, float width, float height, int id)
 	{
-		//TODO: implement constructor
+		super(id, width, height);
+		this.color = color;
+		this.image = image;
 	}
 
 

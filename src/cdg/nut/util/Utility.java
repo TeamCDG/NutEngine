@@ -322,4 +322,14 @@ public abstract class Utility
 		return src;
 		
 	}
+
+	public static int[] glToPixel(float x, float y) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static float[] pixelToGL(int x, int i) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
