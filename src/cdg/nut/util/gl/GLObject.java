@@ -22,6 +22,8 @@ public abstract class GLObject implements ISelectable {
 
 	private int id;
 	
+	private float angle = 0;
+	
 	private float x;
 	private float y;
 	
@@ -35,6 +37,8 @@ public abstract class GLObject implements ISelectable {
 	private int VBO;
 	private int iVBO;	
 	private ShaderProgram shader;
+	
+	private boolean drawing = false;
 	
 	
 
@@ -80,7 +84,12 @@ public abstract class GLObject implements ISelectable {
 	
 	public GLObject(int id,float x, float y, float width, float height)
 	{
-		
+		this.id = id;
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.setupGL();
 	}
 	
 	private void setupGL()
@@ -151,9 +160,33 @@ public abstract class GLObject implements ISelectable {
 	}
 	
 	
+	private void updateId()
+	{
+		while(drawing) { } //don't change the VBO if we are currently drawing and wait until drawing has finished
+		
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBO);
+		
+		for(int i = 0; i < 4; i++)
+		{
+			//for every point that our GLObject has, pack the new id as a color in a float buffer
+			FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(VertexData.COLOR_ELEMENT_COUNT);
+			colorBuffer.put(Utility.idToGlColor(this.id, false));
+			colorBuffer.rewind(); 
+			
+			//upload it to the GPU memory overriding the old value(s)
+			GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, i * VertexData.STRIDE + VertexData.COLOR_BYTE_OFFSET, colorBuffer);
+		}
+		
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); //unbind cause we are done
+	}
+	
+	
 	//TODO: Javadoc
 	private void draw(boolean selection)
 	{
+		
+		this.drawing = true;
+		
 		this.shader.bind();
 		
 		if(!selection)
@@ -185,19 +218,21 @@ public abstract class GLObject implements ISelectable {
 			this.unbindTextures();
 		
 		this.shader.unbind();
+		
+		this.drawing = false;
 	}
 	
-	public void bindTextures()
+	protected void bindTextures()
 	{
 		// nothing todo here, let the user decide if he wants to bind textures..
 	}	
 	
-	public void unbindTextures()
+	protected void unbindTextures()
 	{
 		// nothing todo here, let the user decide if he wants to unbind textures..
 	}
 	
-	public void passUniforms()
+	protected void passUniforms()
 	{
 		// nothing todo here, let the user decide if he wants to pass uniforms..
 	}
@@ -259,7 +294,8 @@ public abstract class GLObject implements ISelectable {
 	//TODO: Javadoc
 	@Override
 	public void setId(int id) {
-		this.id = id;		
+		this.id = id;	
+		this.updateId();
 	}
 
 	//TODO: Javadoc
@@ -279,6 +315,17 @@ public abstract class GLObject implements ISelectable {
 	public boolean isSelected() {
 		return this.selected;
 	}
+	
+	@Override
+	public boolean checkId(int id) {
+		
+		if(this.id == id)
+			this.setSelected(true);
+		else
+			this.setSelected(false);
+		
+		return this.selected;
+	}
 
 	public ShaderProgram getShader() {
 		return shader;
@@ -287,5 +334,7 @@ public abstract class GLObject implements ISelectable {
 	public void setShader(ShaderProgram shader) {
 		this.shader = shader;
 	}
+	
+	
 
 }

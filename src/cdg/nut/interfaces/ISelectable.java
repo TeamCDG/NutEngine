@@ -12,4 +12,6 @@ public interface ISelectable extends IDrawable {
 	
 	public boolean isSelected();
 	
+	public boolean checkId(int id);
+	
 }
