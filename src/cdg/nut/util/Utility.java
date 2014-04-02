@@ -28,8 +28,7 @@ public abstract class Utility
 		try {
 			br = new BufferedReader(new FileReader(filename));
 		} catch (FileNotFoundException e1) {
-			System.err.println("Error creating FileReader for \""+filename+"\" in Utility.loadInfoTxt");
-			e1.printStackTrace();
+			Logger.log(e1, "Utility.loadInfoTxt", "Error creating FileReader for \""+filename);
 		}
 	    try {
 	        String line = br.readLine();
@@ -41,14 +40,12 @@ public abstract class Utility
 	        }
 	        
 	    } catch (IOException e) {
-	    	System.err.println("Error reading file \""+filename+"\" in Utility.loadInfoTxt");
-			e.printStackTrace();
+	    	Logger.log(e, "Utility.loadInfoTxt", "Error reading file for \""+filename);
 		} finally {
 	        try {
 				br.close();
 			} catch (IOException e) {
-				System.err.println("Error closing FileReader for \""+filename+"\" in Utility.loadInfoTxt");
-				e.printStackTrace();
+				Logger.log(e, "Utility.loadInfoTxt", "Error closing FileReader for \""+filename);
 			}
 	    }
 		return values;
