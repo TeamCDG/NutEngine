@@ -1,12 +1,14 @@
 package cdg.nut.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import cdg.nut.interfaces.IMatrix;
+import cdg.nut.logging.Logger;
 import cdg.nut.util.gl.GLColor;
 
 
@@ -23,20 +25,45 @@ public final class ShaderProgram {
 	private int windowMatrixLocation;
 	private int camMatrixLocation;
 	
+	public ShaderProgram(File vertexShader, File fragmentShader) 
+	{
+		// Load the vertex shader
+		this.vertexShaderId = ShaderProgram.loadShader(vertexShader, GL20.GL_VERTEX_SHADER);
+		// Load the fragment shader
+		this.fragmentShaderId = ShaderProgram.loadShader(fragmentShader, GL20.GL_FRAGMENT_SHADER);
+				
+		this.setup();
+	}
+	
 	public ShaderProgram(String vertexShaderPath, String fragmentShaderPath) 
 	{
 		// Load the vertex shader
-		this.vertexShaderId = ShaderProgram.loadShader(vertexShaderPath, GL20.GL_VERTEX_SHADER);
+		this.vertexShaderId = ShaderProgram.loadShader(new File(vertexShaderPath), GL20.GL_VERTEX_SHADER);
 		// Load the fragment shader
-		this.fragmentShaderId = ShaderProgram.loadShader(fragmentShaderPath, GL20.GL_FRAGMENT_SHADER);
+		this.fragmentShaderId = ShaderProgram.loadShader(new File(fragmentShaderPath), GL20.GL_FRAGMENT_SHADER);
 				
+		this.setup();
+	}
+	
+	public ShaderProgram(String vertexShader, String fragmentShader, String name) 
+	{
+		// Load the vertex shader
+		this.vertexShaderId = ShaderProgram.loadShader(vertexShader, name, GL20.GL_VERTEX_SHADER);
+		// Load the fragment shader
+		this.fragmentShaderId = ShaderProgram.loadShader(fragmentShader, name, GL20.GL_FRAGMENT_SHADER);
+				
+		this.setup();
+	}
+	
+	private void setup()
+	{
 		// Create a new shader program that links both shaders
 		this.shaderProgrammId = GL20.glCreateProgram();
-		
+			
 		GL20.glAttachShader(this.shaderProgrammId, this.vertexShaderId);
 		GL20.glAttachShader(this.shaderProgrammId, this.fragmentShaderId);
-		
-		
+				
+				
 		// Position information will be attribute 0
 		GL20.glBindAttribLocation(this.shaderProgrammId, 0, "in_Position");
 		// Color information will be attribute 1
@@ -55,41 +82,59 @@ public final class ShaderProgram {
 		this.camMatrixLocation = GL20.glGetUniformLocation(this.shaderProgrammId, "cam_Matrix");
 	}
 	
-	@SuppressWarnings("deprecation")
-	/**
-	 * @param filename location of the shader source file
-	 * @param type type of the shader: either GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
-	 */
-	public static int loadShader(String filename, int type) 
+	private static String read(File file)
 	{
-		String[] split = filename.split("/");
-		System.out.println("loading "+split[split.length-1]);
 		StringBuilder shaderSource = new StringBuilder();
-		int shaderID = 0;
 		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(filename));
+			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String line;
 			while ((line = reader.readLine()) != null) {
 				shaderSource.append(line).append("\n");
 			}
 			reader.close();
 		} catch (IOException e) {
-			System.err.println("Could not read file.");
-			e.printStackTrace();
+			Logger.log(e, "ShaderProgram.read", "Unable to read shader file ("+file.getAbsolutePath()+")");
+			Logger.createCrashDump("Unable to read shader file ("+file.getAbsolutePath()+")", "ShaderProgram.read", e);
 			System.exit(-1);
 		}
-		
-		shaderID = GL20.glCreateShader(type);
-		GL20.glShaderSource(shaderID, shaderSource);
+		return shaderSource.toString();
+	}
+	
+	private static int compile(String src, String name, int type)
+	{
+		int shaderID = GL20.glCreateShader(type);
+		GL20.glShaderSource(shaderID, src);
 		GL20.glCompileShader(shaderID);
 		
-		if (GL20.glGetShader(shaderID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
-			System.err.println("Could not compile shader.");
+		if (GL20.glGetShaderi(shaderID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
+			Logger.error("Unable to compile shader: "+GL20.glGetShaderInfoLog(shaderID, GL20.glGetShaderi(shaderID, GL20.GL_INFO_LOG_LENGTH))+" ("+name+")", "ShaderProgram.compile");
+			Logger.createCrashDump("Unable to compile shader: "+GL20.glGetShaderInfoLog(shaderID, GL20.glGetShaderi(shaderID, GL20.GL_INFO_LOG_LENGTH))+" ("+name+")", "ShaderProgram.compile", null, true, src);
 			System.exit(-1);
 		}
 		
 		return shaderID;
+	}
+	
+	/**
+	 * @param file location of the shader source file
+	 * @param type type of the shader: either GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
+	 */
+	public static int loadShader(File file, int type) 
+	{
+		Logger.info("loading shader: "+file.getName());
+		return compile(read(file), file.getAbsolutePath(), type);	
+	}
+	
+	/**
+	 * @param src  source code of the shader
+	 * @param name name of the shader
+	 * @param type type of the shader: either GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
+	 */
+	public static int loadShader(String src, String name, int type) 
+	{
+		Logger.info("loading shader: "+name+(type==GL20.GL_VERTEX_SHADER?".vert":".frag"));
+		return compile(src, name+(type==GL20.GL_VERTEX_SHADER?".vert":".frag"), type);		
 	}
 	
 	/**
