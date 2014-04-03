@@ -14,26 +14,28 @@ public abstract class Cmd {
 	
 	public static void exec(String command)
 	{		
-		if(command.startsWith("#"))  //woops we have a comment here
-		{
-			return;
-		}
-		
-		
-		command = command.trim();	        	
-    	String key = command.split(" ")[0];
-    	List<String> parameter = new LinkedList<String>();
-    	command = command.replace(key, "").trim();
-    	
-    	while(command.length() != 0)
-    	{
-    		String param = "";
-    		if(command.startsWith("\""))
-    		{
-    			int secInd = 0;
-    			int c = 0;
-    			
-    			do
+		command = command.trim();  
+		 if(command.startsWith("#") || command.isEmpty())  //woops we have a comment here
+        {
+            return;
+        }
+        Logger.info("executing: "+command,"Cmd.exec");
+                     
+        String key = command.split(" ")[0];
+        List<String> parameter = new LinkedList<String>();
+        command = command.replace(key, "").trim();
+        //System.out.println("----------------------------------------------");
+        while(command.length() != 0)
+        {
+            String param = "";
+            //System.out.println("now: "+command);
+            if(command.startsWith("\""))
+            {
+                int secInd = 0;
+                //System.out.println("initial: "+command.indexOf('"')+" / "+secInd);
+	                
+                int c = 0;
+                do
                 {
                     c = 0;
                     secInd = command.indexOf('"', secInd+1);
@@ -41,31 +43,40 @@ public abstract class Cmd {
                     {
                         c++;
                     }
-                    
-                } while(c%2 != 0);
-    			
-    			param = command.substring(command.indexOf('"'), secInd+1);
-    		}
-			else if(command.startsWith("#")) //woops we have a comment here
-			{
-				break;
-			}
-    		else
-    		{
-    			param = command.split(" ")[0];
-    		}
-    		
-    		command = command.replace(param, "").trim();
-    		parameter.add(Utility.unescape(param.startsWith("\"") && param.endsWith("\"")?param.substring(1, param.length()-1):param));
-    		
-    	}
+                    //System.out.println(secInd+" / "+c+" / "+(c+1)+" / "+command.charAt(secInd-(c+1)));
+                    //break;
+                }while(c%2 != 0);
+	                //System.out.println("final: "+command.indexOf('"')+" / "+secInd);
+                param = command.substring(command.indexOf('"'), secInd+1);
+            }
+            else if(command.startsWith("#")) //woops we have a comment here
+            {
+                break;
+            }
+            else
+            {
+                param = command.split(" ")[0];
+            }
+            //System.out.println("found: "+param);
+            command = command.substring(param.length(), command.length()).trim();//command.replace(param, "").trim();
+            parameter.add(Utility.unescape(param.startsWith("\"") && param.endsWith("\"")?param.substring(1, param.length()-1):param));
+            //System.out.println("----------------------------------------------");
+        }
+
+        //System.out.println("Command: "+key);
+        //System.out.println("Parameter: ");
+
+        
+        //for(int i = 0; i < parameter.size(); i++)
+        //{
+        //    System.out.println(parameter.get(i));
+        //}
     	
     	Cmd.exec(key, parameter);
 	}
 	
 	public static void exec(String key, List<String> parameter)
-	{
-		
+	{		
 		if(SetKeys.valueOf(key.toUpperCase()).getType() == SettingsType.SETTING) //we have to change settings now :)
 		{
 			Class<?> c = SetKeys.valueOf(key.toUpperCase()).getCls();
