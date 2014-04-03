@@ -2,10 +2,10 @@ package cdg.nut.util.gl;
 
 import cdg.nut.interfaces.IDrawable;
 
-public abstract class GLImage extends GLObject{
+public class GLImage extends GLObject{
 
-	GLTexture image;
-	GLColor color;
+	private GLTexture image;
+	private GLColor color;
 	
 	//TODO: get/set image
 	//TODO: get/set color
@@ -76,6 +76,22 @@ public abstract class GLImage extends GLObject{
 		this(color, null, 0, 0, width, height, -1);
 	}
 	
+	public GLTexture getImage() {
+		return image;
+	}
+
+	public void setImage(GLTexture image) {
+		this.image = image;
+	}
+
+	public GLColor getColor() {
+		return color;
+	}
+
+	public void setColor(GLColor color) {
+		this.color = color;
+	}
+
 	//TODO: Javadoc
 	public GLImage(GLColor color, int x, int y, int width, int height)
 	{
