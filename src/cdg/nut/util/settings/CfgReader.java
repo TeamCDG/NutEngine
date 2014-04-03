@@ -26,36 +26,7 @@ public abstract class CfgReader {
 
 	        while (line != null) {
 	        	
-	        	line = line.trim();	        	
-	        	String key = line.split(" ")[0];
-	        	List<String> parameter = new LinkedList<String>();
-	        	line = line.replace(key, "").trim();
-	        	
-	        	while(line.length() != 0)
-	        	{
-	        		String param = "";
-	        		if(line.startsWith("\""))
-	        		{
-	        			int secInd = line.indexOf('"', line.indexOf('"')+1)+1;
-	        			
-	        			while(secInd == line.indexOf("\\\"")+2)
-	        			{
-	        				secInd = line.indexOf('"', secInd+2)+1;
-	        			}
-	        			
-	        			param = line.substring(line.indexOf('"'), secInd);
-	        		}
-	        		else
-	        		{
-	        			param = line.split(" ")[0];
-	        		}
-	        		
-	        		line = line.replace(param, "").trim();
-	        		parameter.add(param.startsWith("\"") && param.endsWith("\"")?param.substring(1, param.length()-1):param);
-	        		
-	        	}
-	        	
-	        	Cmd.exec(key, parameter);
+	        	Cmd.exec(line);
 	            line = br.readLine();	            
 	        }
 	        
