@@ -20,7 +20,11 @@ public enum SetKeys {
 		public void exec(List<String> parameter) {
 			Settings.setWindowResolution(Settings.get(SetKeys.WIN_WIDTH, int.class), Integer.parseInt(parameter.get(0)));
 		}}),
-	WIN_FULLSCREEN("<boolean>", "true if window is fullscreen", boolean.class),
+	WIN_FULLSCREEN("<boolean>", "true if window is fullscreen", boolean.class, new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			Settings.setFullscreen(Boolean.valueOf(parameter.get(0)));
+		}}),
 	WIN_ASPECT_RATIO("<float>", "aspect ration of window", float.class),
 	WIN_RESOLUTION_CHANGED("the resolution of the window has changed"),
 	WIN_RESOLUTION("<int> <int>", "set the window resolution", new ICommandExecuter(){
@@ -32,8 +36,9 @@ public enum SetKeys {
 	//----- REGION GUI ------
 	GUI_CMP_BACKGROUND_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of components", GLColor.class),
 	GUI_CMP_BACKGROUND_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight background color of components", GLColor.class),
-	GUI_CMP_FRAME_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default frame color of components", GLColor.class),
-	GUI_CMP_FRAME_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight frame color of components", GLColor.class),
+	GUI_CMP_BORDER_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of components", GLColor.class),
+	GUI_CMP_BORDER_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight border color of components", GLColor.class),
+	GUI_CMP_BORDER_SIZE("<int>", "default size of borders", int.class),
 	GUI_CMP_FONT("<string>", "default font of components", BitmapFont.class),
 	GUI_CMP_FONT_SIZE("<int>/<float>", "default font of components", int.class),
 	GUI_CMP_FONT_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default text color of components", GLColor.class),

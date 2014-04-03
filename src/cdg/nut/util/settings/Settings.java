@@ -127,4 +127,15 @@ public class Settings {
 		Display.update();
 		fire(SetKeys.WIN_RESOLUTION_CHANGED);
 	}
+
+	public static void setFullscreen(Boolean value) {
+		settings.put(SetKeys.WIN_FULLSCREEN, value);
+		try {
+			Display.setFullscreen(value);
+			Display.update();
+		} catch (LWJGLException e) {
+			e.printStackTrace();
+		}
+		
+	}
 }
