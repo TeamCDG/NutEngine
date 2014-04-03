@@ -160,6 +160,37 @@ public abstract class Logger {
 	}
 
 	
+	/** Logs text with default level of SPAM
+	 * 
+	 * @param text				Message to log
+	 */
+	public static void spam(String text)
+	{
+		log(text, LogLevel.SPAM, null, false);
+	}
+
+	
+	/** Logs text with default level of SPAM
+	 * 
+	 * @param text				Message to log
+	 * @param suppressTime 		true if time should not be printed
+	 */
+	public static void spam(String text, boolean suppressTime)
+	{
+		log(text, LogLevel.SPAM, null, suppressTime);
+	}
+	
+	
+	/** Logs text with default level of SPAM
+	 * 
+	 * @param text				Message to log
+	 * @param location			Location of message (classname.methodname)
+	 */
+	public static void spam(String text, String location)
+	{
+		log(text, LogLevel.SPAM, location, false);
+	}
+	
 	
 	/** Logs text with default level of DEBUG
 	 * 
@@ -423,7 +454,7 @@ public abstract class Logger {
 	 */
 	public static void createCrashDump(String message, String location, Exception e)
 	{		
-		Logger.createCrashDump(message, location, e, false);
+		createCrashDump(message, location, e, false, "");
 	}
 	
 	
@@ -437,9 +468,22 @@ public abstract class Logger {
 	 */
 	public static void createCrashDump(String message, String location, Exception e, boolean glinfo)
 	{	
+		createCrashDump(message, location, e, glinfo, "");
+	}
+	
+	/** Creates a crashdump file
+	 * 
+	 * @param message			Custom message
+	 * @param location			Location of exception (classname.methodname)
+	 * @param e					Exception that caused the crash
+	 * @param glinfo			True if crashdump should contain info about gl version, renderer etc.
+	 * @param appendix			Custom message that will be appended on the bottom
+	 */
+	public static void createCrashDump(String message, String location, Exception e, boolean glinfo, String appendix)
+	{	
 		try {
 			PrintWriter writer = new PrintWriter("crashdump_"+crashDumpDateFormat.format(new Date())+".txt", "UTF-8");
-			writer.println(e.getMessage()+" in "+location+": "+message); //first of all, tell us what it is all about
+			writer.println((e!=null?e.getMessage()+" in ":"")+location+": "+message); //first of all, tell us what it is all about
 			writer.println("OS: "+System.getProperty("os.name")+" ("+System.getProperty("os.arch")+") "+System.getProperty("os.version")); //give some os information
 			writer.println("Java: "+System.getProperty("java.vendor")+" "+System.getProperty("java.version")); //give some java version
 			
@@ -449,15 +493,23 @@ public abstract class Logger {
 				writer.println("Version: "+GL11.glGetString(GL11.GL_VERSION));
 			}
 			
-			writer.println("-----------------------------------------------------");
-			writer.println("Stacktrace:");
-			writer.println(e.getMessage()+" in "+location);
-			e.printStackTrace(writer); //cook with stacktrace 
-			/*
-			for(StackTraceElement el : e.getStackTrace())
+			
+			if(e != null)
 			{
-				writer.println("     in "+el.getClassName()+"."+el.getMethodName()+(el.isNativeMethod()?" (native method)":":"+el.getLineNumber()));
-			}*/
+				writer.println("-----------------------------------------------------");
+				writer.println("Stacktrace:");
+				writer.println(e.getMessage()+" in "+location);
+				e.printStackTrace(writer); //cook with stacktrace 
+				/*
+				for(StackTraceElement el : e.getStackTrace())
+				{
+					writer.println("     in "+el.getClassName()+"."+el.getMethodName()+(el.isNativeMethod()?" (native method)":":"+el.getLineNumber()));
+				}*/
+			}
+			
+			writer.println("-----------------------------------------------------");
+			writer.println(appendix);
+			
 			writer.flush();
 			writer.close(); //finally close
 			

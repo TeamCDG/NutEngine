@@ -4,7 +4,7 @@ package cdg.nut.logging;
  * Enumeration of different Logging/Debug Levels.
  */
 public enum LogLevel {
-	DEBUG(3, "DEBUG"), INFO(2, "INFO"), ERROR(1, "ERROR"), NONE(0, "NUTS_ARE_AMAZING");
+	SPAM(4, "SPAM"), DEBUG(3, "DEBUG"), INFO(2, "INFO"), ERROR(1, "ERROR"), NONE(0, "NUTS_ARE_AMAZING");
 	
 	private int level;
 	private String str;
