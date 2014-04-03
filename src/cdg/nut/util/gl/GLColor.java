@@ -1,5 +1,7 @@
 package cdg.nut.util.gl;
 
+import java.util.Random;
+
 import cdg.nut.util.Utility;
 
 public class GLColor {
@@ -91,6 +93,17 @@ public class GLColor {
 		this.a = a;
 	}
 	
+	public static GLColor random()
+	{
+		return random(false);
+	}
 	
+	public static GLColor random(boolean alpha)
+	{
+		if(alpha)
+			return new GLColor(new Random().nextFloat(),new Random().nextFloat(),new Random().nextFloat(),new Random().nextFloat());
+		else
+			return new GLColor(new Random().nextFloat(),new Random().nextFloat(),new Random().nextFloat());
+	}
 
 }
