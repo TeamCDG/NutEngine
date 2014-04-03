@@ -11,6 +11,8 @@ import org.lwjgl.opengl.GL30;
 
 import cdg.nut.interfaces.IDrawable;
 import cdg.nut.interfaces.ISelectable;
+import cdg.nut.logging.Logger;
+import cdg.nut.util.DefaultShader;
 import cdg.nut.util.ShaderProgram;
 import cdg.nut.util.Utility;
 import cdg.nut.util.VertexData;
@@ -32,11 +34,11 @@ public abstract class GLObject implements ISelectable {
 	
 	private boolean selected;
 
-	private int iCount;
-	private int VAO;
-	private int VBO;
-	private int iVBO;	
-	private ShaderProgram shader;
+	private int iCount = -1;
+	private int VAO = -1;
+	private int VBO = -1;
+	private int iVBO = -1;
+	private ShaderProgram shader = DefaultShader.simple;
 	
 	private boolean drawing = false;
 	
@@ -44,22 +46,22 @@ public abstract class GLObject implements ISelectable {
 
 	public GLObject(int width, int height)
 	{
-		this(0, 0.0f, 0.0f, Utility.pixelToGL(width, height)[0], Utility.pixelToGL(width, height)[0]);
+		this(0, 0.0f, 0.0f, Utility.pixelSizeToGLSize(width, height)[0], Utility.pixelSizeToGLSize(width, height)[1]);
 	}
 	
 	public GLObject(int id, int width, int height)
 	{
-		this(id, 0.0f, 0.0f, Utility.pixelToGL(width, height)[0], Utility.pixelToGL(width, height)[0]);
+		this(id, 0.0f, 0.0f, Utility.pixelSizeToGLSize(width, height)[0], Utility.pixelSizeToGLSize(width, height)[1]);
 	}
 	
 	public GLObject(int x, int y, int width, int height)
 	{
-		this(0, Utility.pixelToGL(x, y)[0], Utility.pixelToGL(x, y)[1], Utility.pixelToGL(width, height)[0], Utility.pixelToGL(width, height)[0]);
+		this(0, Utility.pixelToGL(x, y)[0], Utility.pixelToGL(x, y)[1], Utility.pixelSizeToGLSize(width, height)[0], Utility.pixelSizeToGLSize(width, height)[1]);
 	}
 	
 	public GLObject(int id, int x, int y, int width, int height)
 	{
-		this(id, Utility.pixelToGL(x, y)[0], Utility.pixelToGL(x, y)[1], Utility.pixelToGL(width, height)[0], Utility.pixelToGL(width, height)[0]);
+		this(id, Utility.pixelToGL(x, y)[0], Utility.pixelToGL(x, y)[1], Utility.pixelSizeToGLSize(width, height)[0], Utility.pixelSizeToGLSize(width, height)[1]);
 	}
 	
 	public GLObject(int id)
@@ -94,17 +96,21 @@ public abstract class GLObject implements ISelectable {
 	
 	private void setupGL()
 	{
+		Logger.debug("A("+this.x+"/"+this.y+"); "+
+					 "B("+this.x+"/"+(this.y+this.height)+"); "+
+					 "C("+(this.x+this.width)+"/"+(this.y+this.height)+"); "+
+					 "D("+(this.x+this.width)+"/"+this.y+"); ","GLObject.setupGL");
 		VertexData[] points = new VertexData[]{
-				   new VertexData(new float[]{0.0f,0.0f,0.0f,1.0f}, 
+				   new VertexData(new float[]{this.x,this.y,0.0f,1.0f}, 
 					   Utility.idToGlColor(this.id, false), new float[]{1.0f, 0.0f}),
 					   
-				   new VertexData(new float[]{0.0f,-this.height,0.0f,1.0f}, 
+				   new VertexData(new float[]{this.x,this.y+this.height,0.0f,1.0f}, 
 					   Utility.idToGlColor(this.id, false), new float[]{1.0f, 1.0f}),
 					   
-				   new VertexData(new float[]{this.width,-this.height,0.0f,1.0f}, 
+				   new VertexData(new float[]{this.x+this.width,this.y+this.height,0.0f,1.0f}, 
 					   Utility.idToGlColor(this.id, false), new float[]{0.0f, 1.0f}),
 					   
-				   new VertexData(new float[]{this.width,0.0f,0.0f,1.0f}, 
+				   new VertexData(new float[]{this.x+this.width,this.y,0.0f,1.0f}, 
 					   Utility.idToGlColor(this.id, false), new float[]{0.0f, 0.0f})};
 			byte[] indices = {
 				0, 1, 2,
@@ -126,8 +132,7 @@ public abstract class GLObject implements ISelectable {
 			
 			// Create a new Vertex Array Object in memory and select it (bind)
 			if(this.VAO == -1)
-				VAO = GL30.glGenVertexArrays();
-			
+				VAO = GL30.glGenVertexArrays();			
 			GL30.glBindVertexArray(VAO);
 			
 			// Create a new Vertex Buffer Object in memory and select it (bind)
@@ -180,6 +185,47 @@ public abstract class GLObject implements ISelectable {
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); //unbind cause we are done
 	}
 	
+	protected void move()
+	{
+		while(drawing) { } //don't change the VBO if we are currently drawing and wait until drawing has finished
+		
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBO);
+		
+		for(int i = 0; i < 4; i++)
+		{
+			float[] pos = new float[2];
+			if(i == 0)
+			{
+				pos[0] = this.x;
+				pos[1] = this.y;
+			}
+			else if (i == 1)
+			{
+				pos[0] = this.x;
+				pos[1] = (this.y-this.height);
+			}
+			else if (i == 2)
+			{
+				pos[0] = (this.x+this.width);
+				pos[1] = (this.y-this.height);
+			}
+			else
+			{
+				pos[0] = (this.x+this.width);
+				pos[1] = this.y;
+			}
+			
+			//for every point that our GLObject has, pack the new id as a color in a float buffer
+			FloatBuffer posBuffer = BufferUtils.createFloatBuffer(2);
+			posBuffer.put(pos);
+			posBuffer.rewind(); 
+			
+			//upload it to the GPU memory overriding the old value(s)
+			GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, i * VertexData.STRIDE + 0, posBuffer);
+		}
+		
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); //unbind cause we are done
+	}
 	
 	//TODO: Javadoc
 	private void draw(boolean selection)
@@ -219,6 +265,8 @@ public abstract class GLObject implements ISelectable {
 		
 		this.shader.unbind();
 		
+		this.drawChildren();
+		
 		this.drawing = false;
 	}
 	
@@ -237,7 +285,10 @@ public abstract class GLObject implements ISelectable {
 		// nothing todo here, let the user decide if he wants to pass uniforms..
 	}
 	
-	
+	protected void drawChildren()
+	{
+		// nothing todo here, let the user decide if he wants to unbind textures..
+	}
 	
 	public float getX() { return x; }
 	
@@ -245,10 +296,10 @@ public abstract class GLObject implements ISelectable {
 
 	public void setX(float x) {
 		this.x = x;
-		//TODO: move
+		this.move();
 	}
 	
-	public void setX(int x) { this.x = Utility.pixelToGL(x, 0)[0]; }
+	public void setX(int x) { this.x = Utility.pixelToGL(x, 0)[0]; this.move();}
 
 	public float getY() { return y; }
 	
@@ -256,13 +307,28 @@ public abstract class GLObject implements ISelectable {
 
 	public void setY(float y) {
 		this.y = y;
-		//TODO: move
+		this.move();
 	}
 	
-	public void setY(int y) { this.y = Utility.pixelToGL(0, y)[1]; }
+	public void setY(int y) { this.y = Utility.pixelToGL(0, y)[1]; this.move();}
 
 	public float getWidth() {
 		return width;
+	}
+	
+	public void setPosition(int x, int y)
+	{
+		float[] tmp = Utility.pixelToGL(x, y);
+		this.x = tmp[0];
+		this.y = tmp[1];
+		this.move();
+	}
+	
+	public void setPosition(float x, float y)
+	{
+		this.x = x;
+		this.y = y;
+		this.move();
 	}
 
 	public void setWidth(float width) {
