@@ -329,4 +329,18 @@ public abstract class Utility
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public static String unescape(String esc) {
+		int i = esc.indexOf("\\");
+        while(i != -1 && i < esc.length())
+        {
+            if(i == 0)
+                esc = esc.substring(i, esc.length());
+            else
+                esc = esc.substring(0, i) + esc.substring(i+1, esc.length()); 
+                
+            i = esc.indexOf("\\", i+1);
+        }        
+        return esc;
+	}
 }
