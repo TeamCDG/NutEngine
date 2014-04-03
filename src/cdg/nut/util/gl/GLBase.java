@@ -1,6 +1,6 @@
 package cdg.nut.util.gl;
 
-import cdg.nut.interfaces.IGL;
+import cdg.nut.interfaces.ISelectable;
 import cdg.nut.util.ShaderProgram;
 import cdg.nut.util.Vertex2;
 import cdg.nut.util.Vertex3;
@@ -8,7 +8,7 @@ import cdg.nut.util.VertexData;
 
 //TODO: finalize()
 //TODO: Javadoc
-public abstract class GLBase implements IGL{
+public abstract class GLBase implements ISelectable{
 	
 	private boolean selectable = false;
 	private int id;
@@ -151,7 +151,6 @@ public abstract class GLBase implements IGL{
 		
 	}
 
-	@Override
 	public void select() {
 		
 		if(!this.selectable)
@@ -159,10 +158,6 @@ public abstract class GLBase implements IGL{
 		
 	}
 
-	@Override
-	public boolean selectable() {
-		return this.selectable;
-	}
 
 	public abstract void passShaderParams();
 	
