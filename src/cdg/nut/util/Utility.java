@@ -17,6 +17,8 @@ import org.lwjgl.openal.ALC10;
 import org.lwjgl.util.WaveData;
 
 import cdg.nut.logging.Logger;
+import cdg.nut.util.settings.SetKeys;
+import cdg.nut.util.settings.Settings;
 
 public abstract class Utility 
 {
@@ -321,13 +323,31 @@ public abstract class Utility
 	}
 
 	public static int[] glToPixel(float x, float y) {
-		// TODO Auto-generated method stub
+		
+		return null;
+	}
+	
+	public static int[] glSizeToPixelSize(float x, float y) {
+		
 		return null;
 	}
 
-	public static float[] pixelToGL(int x, int i) {
-		// TODO Auto-generated method stub
-		return null;
+	public static float[] pixelToGL(int x, int y) {
+		float glx = (((float)x*(2.0f/(float)Settings.get(SetKeys.WIN_WIDTH, Integer.class)))-1.0f);
+		float gly = (((float)y*(2.0f/(float)Settings.get(SetKeys.WIN_HEIGHT, Integer.class)))-1.0f)*-1.0f;
+		
+		Logger.spam("Pixel("+x+"/"+y+") = GL("+glx+"/"+gly+")");
+		
+		return new float[]{glx, gly};
+	}
+	
+	public static float[] pixelSizeToGLSize(int x, int y) {
+		float glx = ((float)x*(2.0f/(float)Settings.get(SetKeys.WIN_WIDTH, Integer.class)));//*(1.0f/Settings.get(SetKeys.WIN_ASPECT_RATIO, Float.class));
+		float gly = ((float)y*(2.0f/(float)Settings.get(SetKeys.WIN_HEIGHT, Integer.class)))*-1.0f;
+		
+		Logger.spam("Pixel-->("+x+"/"+y+") = GL-->("+glx+"/"+gly+")");
+		
+		return new float[]{glx, gly};
 	}
 
 	public static String unescape(String esc) {
