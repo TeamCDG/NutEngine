@@ -65,10 +65,10 @@ public abstract class Cmd {
 	
 	public static void exec(String key, List<String> parameter)
 	{
-		Class<?> c = SettingsKeys.valueOf(key.toUpperCase()).getCls();
 		
-		if(c != null) //we have to change settings now :)
+		if(SetKeys.valueOf(key.toUpperCase()).getType() == SettingsType.SETTING) //we have to change settings now :)
 		{
+			Class<?> c = SetKeys.valueOf(key.toUpperCase()).getCls();
 			Object val = null;
 			
 			if(parameter.isEmpty()) //cannot work..
@@ -189,6 +189,11 @@ public abstract class Cmd {
 			
 			Settings.set(key, val);
 		}
+		else if(SetKeys.valueOf(key.toUpperCase()).getType() == SettingsType.COMMAND || SetKeys.valueOf(key.toUpperCase()).getType() == SettingsType.COMMAND_AND_SETTING)
+		{
+			SetKeys.valueOf(key.toUpperCase()).execute(parameter);
+		}
+		
 	}
 	
 	public static boolean isInteger(String s) {

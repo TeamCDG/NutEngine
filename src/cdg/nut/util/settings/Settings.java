@@ -16,56 +16,45 @@ import cdg.nut.util.Globals;
 
 //TODO: Javadoc
 public class Settings {
-	private static HashMap<SettingsKeys, Object> settings = new HashMap<SettingsKeys, Object>();
+	private static HashMap<SetKeys, Object> settings = new HashMap<SetKeys, Object>();
 	private static List<ISettingsListener> listener = new ArrayList<ISettingsListener>();
 	
-	public static void set(SettingsKeys key, Object value)
+	@SuppressWarnings("unchecked")
+	public static void set(SetKeys key, Object value)
 	{
-		if(key.getAccess() == SettingsAccess.PUBLIC)
+		if(key.getType() == SettingsType.SETTING)
 		{
 			settings.put(key, value);
 		}
-		
-		if(key == SettingsKeys.WIN_WIDTH)
+		else if(key.getType() == SettingsType.COMMAND_AND_SETTING)
 		{
-			setWindowResolution((Integer) value, Settings.get(SettingsKeys.WIN_HEIGHT, int.class));
-		}
-		else if(key == SettingsKeys.WIN_HEIGHT)
-		{
-			setWindowResolution(Settings.get(SettingsKeys.WIN_WIDTH, int.class), (Integer) value);
-		}
-		else
-		{
-			for(int i = 0; i < listener.size(); i++)
-			{
-				listener.get(i).valueChanged(key, key.getCls().cast(value));
-			}
+			key.execute((List<String>) value);
 		}
 	}
 	
 	public static void set(String key, Object value)
 	{
-		Settings.set(SettingsKeys.valueOf(key.toUpperCase()), value);		
+		Settings.set(SetKeys.valueOf(key.toUpperCase()), value);		
 	}
 	
 	public static Object get(String key)
 	{
-		return Settings.get(SettingsKeys.valueOf(key.toUpperCase()));
+		return Settings.get(SetKeys.valueOf(key.toUpperCase()));
 	}
 	
 	public static <T> T get(String key, Class<T> c)
 	{
-		return Settings.get(SettingsKeys.valueOf(key.toUpperCase()), c);
+		return Settings.get(SetKeys.valueOf(key.toUpperCase()), c);
 	}
 	
 	
-	public static Object get(SettingsKeys key)
+	public static Object get(SetKeys key)
 	{
 		
 		return settings.get(key);
 	}
 	
-	public static <T> T get(SettingsKeys key, Class<T> c)
+	public static <T> T get(SetKeys key, Class<T> c)
 	{
 		return c.cast(settings.get(key));
 	}
@@ -78,11 +67,24 @@ public class Settings {
 		Settings.listener.add(lis);
 	}
 	
+	private static void fire(SetKeys event)
+	{
+		fire(event, null);
+	}
+	
+	private static void fire(SetKeys event, Object value)
+	{
+		for(int i = 0; i < listener.size(); i++)
+		{
+			listener.get(i).valueChanged(event, event.getCls().cast(value));
+		}
+	}
+	
 	public static void setWindowResolution(int width, int height){
-		settings.put(SettingsKeys.WIN_WIDTH, width);
-		settings.put(SettingsKeys.WIN_HEIGHT, height);
-		settings.put(SettingsKeys.WIN_ASPECT_RATIO, (float) width/ (float) height);
-		Settings.set(SettingsKeys.WIN_RESOLUTION_CHANGED, null);
+		settings.put(SetKeys.WIN_WIDTH, width);
+		settings.put(SetKeys.WIN_HEIGHT, height);
+		settings.put(SetKeys.WIN_ASPECT_RATIO, (float) width/ (float) height);
+		
 			/*Globals.windowMatrix.set(1/Globals.aspectRatio, 0.0f, 0.0f, 0.0f,
 												  0.0f, 1.0f, 0.0f, 0.0f,
 													  0.0f, 0.0f, 1.0f, 0.0f,
@@ -123,5 +125,6 @@ public class Settings {
 			//TODO: use logger
 		}
 		Display.update();
+		fire(SetKeys.WIN_RESOLUTION_CHANGED);
 	}
 }
