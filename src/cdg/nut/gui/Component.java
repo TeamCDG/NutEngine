@@ -29,7 +29,7 @@ public abstract class Component extends GLImage {
 	protected void move()
 	{
 		super.move();
-		this.border.setPosition(this.getPixelX(), this.getPixelY());
+		//this.border.setPosition(this.getPixelX(), this.getPixelY());
 	}
 	
 	@Override

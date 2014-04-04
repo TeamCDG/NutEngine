@@ -1,6 +1,8 @@
 package cdg.nut.util.gl;
 
 import cdg.nut.interfaces.IDrawable;
+import cdg.nut.util.Utility;
+import cdg.nut.util.VertexData;
 
 public class GLImage extends GLObject{
 
@@ -60,6 +62,31 @@ public class GLImage extends GLObject{
 	public GLImage(GLColor color, GLTexture image, float x, float y, float width, float height, int id)
 	{
 		super(id, x, y, width, height);
+		this.color = color;
+		this.image = image;
+	}
+	
+	public GLImage(GLColor color, float width, float height, VertexData[] vertices)
+	{
+		super(width, height, vertices, Utility.createQuadIndicesByte(vertices.length/4));
+		this.color = color;
+	}
+	
+	public GLImage(GLColor color, float width, float height, VertexData[] vertices, byte[] indices)
+	{
+		super(width, height, vertices, indices);
+		this.color = color;
+	}
+	
+	public GLImage(GLTexture image, float width, float height, VertexData[] vertices, byte[] indices)
+	{
+		super(width, height, vertices, indices);
+		this.image = image;
+	}
+	
+	public GLImage(GLColor color, GLTexture image, float width, float height, VertexData[] vertices, byte[] indices)
+	{
+		super(width, height, vertices, indices);
 		this.color = color;
 		this.image = image;
 	}

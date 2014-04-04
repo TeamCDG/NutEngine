@@ -15,6 +15,7 @@ import cdg.nut.logging.Logger;
 import cdg.nut.util.DefaultShader;
 import cdg.nut.util.ShaderProgram;
 import cdg.nut.util.Utility;
+import cdg.nut.util.Vertex4;
 import cdg.nut.util.VertexData;
 
 
@@ -25,6 +26,7 @@ public abstract class GLObject implements ISelectable {
 	private int id;
 	
 	private float angle = 0;
+	private Vertex4[] points;
 	
 	private float x;
 	private float y;
@@ -94,74 +96,78 @@ public abstract class GLObject implements ISelectable {
 		this.setupGL();
 	}
 	
+	public GLObject(float width, float height, VertexData[] vertices, byte[] indices)
+	{
+		this.id = -1;
+		this.x = vertices[0].getXYZ()[0];
+		this.y = vertices[0].getXYZ()[1];
+		this.width = width;
+		this.height = height;
+		this.points = Utility.extractPoints(vertices);
+		this.setupGL(vertices, indices);
+	}
+	
 	private void setupGL()
 	{
-		Logger.debug("A("+this.x+"/"+this.y+"); "+
+		Logger.spam("A("+this.x+"/"+this.y+"); "+
 					 "B("+this.x+"/"+(this.y+this.height)+"); "+
 					 "C("+(this.x+this.width)+"/"+(this.y+this.height)+"); "+
 					 "D("+(this.x+this.width)+"/"+this.y+"); ","GLObject.setupGL");
-		VertexData[] points = new VertexData[]{
-				   new VertexData(new float[]{this.x,this.y,0.0f,1.0f}, 
-					   Utility.idToGlColor(this.id, false), new float[]{1.0f, 0.0f}),
-					   
-				   new VertexData(new float[]{this.x,this.y+this.height,0.0f,1.0f}, 
-					   Utility.idToGlColor(this.id, false), new float[]{1.0f, 1.0f}),
-					   
-				   new VertexData(new float[]{this.x+this.width,this.y+this.height,0.0f,1.0f}, 
-					   Utility.idToGlColor(this.id, false), new float[]{0.0f, 1.0f}),
-					   
-				   new VertexData(new float[]{this.x+this.width,this.y,0.0f,1.0f}, 
-					   Utility.idToGlColor(this.id, false), new float[]{0.0f, 0.0f})};
-			byte[] indices = {
-				0, 1, 2,
-				2, 3, 0
-			};
-			// Put each 'Vertex' in one FloatBuffer
-			FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(points.length *
-					VertexData.ELEMENT_COUNT);
-			for (int i = 0; i < points.length; i++) {
-				// Add position, color and texture floats to the buffer
-				verticesBuffer.put(points[i].getElements());
-			}
-			verticesBuffer.flip();	
+		
+			this.points = Utility.generateQuadPoints(this.x, this.y, this.width, this.height);		
+			VertexData[] vertices = Utility.generateQuadData(this.points, new GLColor(id));
+			byte[] indices = Utility.createQuadIndicesByte(1);
+			setupGL(vertices, indices);
 			
-			this.iCount = indices.length;
-			ByteBuffer indicesBuffer = BufferUtils.createByteBuffer(iCount);
-			indicesBuffer.put(indices);
-			indicesBuffer.flip();
+	}
+	
+	private void setupGL(VertexData[] vertices, byte[] indices)
+	{
+		FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(vertices.length *
+				VertexData.ELEMENT_COUNT);
+		for (int i = 0; i < vertices.length; i++) {
+			// Add position, color and texture floats to the buffer
+			verticesBuffer.put(vertices[i].getElements());
+		}
+		verticesBuffer.flip();	
+		
+		this.iCount = indices.length;
+		ByteBuffer indicesBuffer = BufferUtils.createByteBuffer(iCount);
+		indicesBuffer.put(indices);
+		indicesBuffer.flip();
+		
+		// Create a new Vertex Array Object in memory and select it (bind)
+		if(this.VAO == -1)
+			VAO = GL30.glGenVertexArrays();			
+		GL30.glBindVertexArray(VAO);
+		
+		// Create a new Vertex Buffer Object in memory and select it (bind)
+		if(this.VBO == -1)
+			VBO = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBO);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, verticesBuffer, GL15.GL_STATIC_DRAW);
 			
-			// Create a new Vertex Array Object in memory and select it (bind)
-			if(this.VAO == -1)
-				VAO = GL30.glGenVertexArrays();			
-			GL30.glBindVertexArray(VAO);
+		// Put the position coordinates in attribute list 0
+		GL20.glVertexAttribPointer(0, VertexData.POSITION_ELEMENT_COUNT, GL11.GL_FLOAT, 
+				false, VertexData.STRIDE, VertexData.POSITION_BYTE_OFFSET);
+		// Put the color components in attribute list 1
+		GL20.glVertexAttribPointer(1, VertexData.COLOR_ELEMENT_COUNT, GL11.GL_FLOAT, 
+				false, VertexData.STRIDE, VertexData.COLOR_BYTE_OFFSET);
+		// Put the texture coordinates in attribute list 2
+		GL20.glVertexAttribPointer(2, VertexData.COLOR_ELEMENT_COUNT, GL11.GL_FLOAT, 
+				false, VertexData.STRIDE, VertexData.TEXTURE_BYTE_OFFSET);
 			
-			// Create a new Vertex Buffer Object in memory and select it (bind)
-			if(this.VBO == -1)
-				VBO = GL15.glGenBuffers();
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBO);
-			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, verticesBuffer, GL15.GL_STATIC_DRAW);
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 				
-			// Put the position coordinates in attribute list 0
-			GL20.glVertexAttribPointer(0, VertexData.POSITION_ELEMENT_COUNT, GL11.GL_FLOAT, 
-					false, VertexData.STRIDE, VertexData.POSITION_BYTE_OFFSET);
-			// Put the color components in attribute list 1
-			GL20.glVertexAttribPointer(1, VertexData.COLOR_ELEMENT_COUNT, GL11.GL_FLOAT, 
-					false, VertexData.STRIDE, VertexData.COLOR_BYTE_OFFSET);
-			// Put the texture coordinates in attribute list 2
-			GL20.glVertexAttribPointer(2, VertexData.COLOR_ELEMENT_COUNT, GL11.GL_FLOAT, 
-					false, VertexData.STRIDE, VertexData.TEXTURE_BYTE_OFFSET);
+		// Deselect (bind to 0) the VAO
+		GL30.glBindVertexArray(0);
 				
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-					
-			// Deselect (bind to 0) the VAO
-			GL30.glBindVertexArray(0);
-					
-			// Create a new VBO for the indices and select it (bind) - INDICES
-			if(this.iVBO == -1)
-				this.iVBO = GL15.glGenBuffers();
-			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, this.iVBO);
-			GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
-			GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+		// Create a new VBO for the indices and select it (bind) - INDICES
+		if(this.iVBO == -1)
+			this.iVBO = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, this.iVBO);
+		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 	
 	
@@ -171,7 +177,7 @@ public abstract class GLObject implements ISelectable {
 		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBO);
 		
-		for(int i = 0; i < 4; i++)
+		for(int i = 0; i < points.length; i++)
 		{
 			//for every point that our GLObject has, pack the new id as a color in a float buffer
 			FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(VertexData.COLOR_ELEMENT_COUNT);
@@ -190,31 +196,13 @@ public abstract class GLObject implements ISelectable {
 		while(drawing) { } //don't change the VBO if we are currently drawing and wait until drawing has finished
 		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBO);
-		
-		for(int i = 0; i < 4; i++)
+		float xm = this.points[0].getX()-this.x;
+		float ym = this.points[0].getY()-this.y;
+		for(int i = 0; i < points.length; i++)
 		{
 			float[] pos = new float[2];
-			if(i == 0)
-			{
-				pos[0] = this.x;
-				pos[1] = this.y;
-			}
-			else if (i == 1)
-			{
-				pos[0] = this.x;
-				pos[1] = (this.y-this.height);
-			}
-			else if (i == 2)
-			{
-				pos[0] = (this.x+this.width);
-				pos[1] = (this.y-this.height);
-			}
-			else
-			{
-				pos[0] = (this.x+this.width);
-				pos[1] = this.y;
-			}
-			
+			pos[0] = this.points[i].getX()-xm;
+			pos[1] = this.points[i].getY()-ym;
 			//for every point that our GLObject has, pack the new id as a color in a float buffer
 			FloatBuffer posBuffer = BufferUtils.createFloatBuffer(2);
 			posBuffer.put(pos);

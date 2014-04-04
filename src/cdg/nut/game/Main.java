@@ -42,7 +42,7 @@ public class Main {
 	{
 		//Cmd.exec("win_resolution 800 800");
 		CfgReader.read("settings.cfg");
-		GL11.glClearColor(1.0f,1.0f,1.0f,1.0f);
+		GL11.glClearColor(0.0f,0.0f,0.0f,1.0f);
 		
 		//Logger.setOutputLevel(LogLevel.SPAM);
 		
@@ -52,6 +52,7 @@ public class Main {
 		ArrayList<ColorBox> boxes = new ArrayList<ColorBox>(c);
 		int y = 0;
 		int x = 0;
+		
 		for(int i = 0; i< c; i++)
 		{
 			x+=s;
@@ -62,6 +63,16 @@ public class Main {
 			}
 			boxes.add(new ColorBox(x, y, s, s, GLColor.random()));
 		}
+		
+		/*
+		for(int i = 0; i< c; i++)
+		{
+			boxes.add(new ColorBox(s, s, s, s, GLColor.random()));
+			//if(new Random().nextInt(100) == 42) boxes.get(i).setPosition(20,20);
+			//if(new Random().nextInt(100) == 43) boxes.get(i).setPosition(0,20);
+			//if(new Random().nextInt(100) == 44) boxes.get(i).setPosition(20,0);
+			
+		}*/
 		//b.setShader(DefaultShader.simple);
 		while (!Display.isCloseRequested()) {
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -71,6 +82,7 @@ public class Main {
 			for(int i = 0; i < boxes.size(); i++)
 			{
 				if(new Random().nextInt(100) == 420) boxes.get(i).setPosition(new Random().nextInt(Settings.get(SetKeys.WIN_WIDTH, Integer.class)-40)+20, new Random().nextInt(Settings.get(SetKeys.WIN_HEIGHT, Integer.class)-40)+20);
+				if(new Random().nextInt(100) == 42) boxes.get(i).setColor(GLColor.random());
 				boxes.get(i).draw();
 			}
 			

@@ -17,6 +17,7 @@ import org.lwjgl.openal.ALC10;
 import org.lwjgl.util.WaveData;
 
 import cdg.nut.logging.Logger;
+import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 
@@ -362,5 +363,83 @@ public abstract class Utility
             i = esc.indexOf("\\", i+1);
         }        
         return esc;
+	}
+	
+	public static byte[] createQuadIndicesByte(int quadCount)
+    {
+		byte[] in = new byte[quadCount * 6];
+        for(int i = 0; i < quadCount; i++)
+        {
+            in[i*6] = (byte) (i*6);
+            in[i*6+1] = (byte) ((i*6)+1);
+            in[i*6+2] = (byte) ((i*6)+2);
+            in[i*6+3] = (byte) ((i*6)+2);
+            in[i*6+4] = (byte) ((i*6)+3);
+            in[i*6+5] = (byte) (i*6);
+        }
+        
+        for(int y = 0; y < in.length; y++)
+        {
+           	Logger.spam("Indices for "+quadCount+" quads: "+in[y]+", ");
+        }
+        return in;
+    }
+	
+	public static int[] createQuadIndicesInt(int quadCount)
+    {
+		int[] in = new int[quadCount * 6];
+        for(int i = 0; i < quadCount; i++)
+        {
+            in[i*6] = (i*6);
+            in[i*6+1] = ((i*6)+1);
+            in[i*6+2] = ((i*6)+2);
+            in[i*6+3] = ((i*6)+2);
+            in[i*6+4] = ((i*6)+3);
+            in[i*6+5] = (i*6);
+        }
+        
+        for(int y = 0; y < in.length; y++)
+        {
+           	Logger.spam("Indices for "+quadCount+" quads: "+in[y]+", ");
+        }
+        return in;
+        
+    }
+	
+	public static VertexData[] generateQuadData(float x, float y, float width, float height, GLColor idColor)
+	{
+		Vertex4[] qp = generateQuadPoints(x, y, width, height);
+		return generateQuadData(qp, idColor);
+	}
+	
+	public static VertexData[] generateQuadData(Vertex4[] qp, GLColor idColor)
+	{
+		return new VertexData[]{
+				   new VertexData(qp[0].toArray(), 
+					   idColor.toArray(), new float[]{1.0f, 0.0f}),
+					   
+				   new VertexData(qp[1].toArray(), 
+						   idColor.toArray(), new float[]{1.0f, 1.0f}),
+					   
+				   new VertexData(qp[2].toArray(), 
+						   idColor.toArray(), new float[]{0.0f, 1.0f}),
+					   
+				   new VertexData(qp[3].toArray(), 
+						   idColor.toArray(), new float[]{0.0f, 0.0f})};
+	}
+	
+	public static Vertex4[] generateQuadPoints(float x, float y, float width, float height)
+	{
+		return new Vertex4[]{new Vertex4(x,y,0.0f,1.0f),  new Vertex4(x,y+height,0.0f,1.0f), new Vertex4(x+width,y+height,0.0f,1.0f), new Vertex4(x+width,y,0.0f,1.0f)};
+		
+	}
+
+	public static Vertex4[] extractPoints(VertexData[] vertices) {
+		Vertex4[] points = new Vertex4[vertices.length];
+		for(int i = 0; i < vertices.length; i++)
+		{
+			points[i] = new Vertex4(vertices[i].getXYZW());
+		}
+		return points;
 	}
 }
