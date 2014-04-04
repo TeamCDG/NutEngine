@@ -17,6 +17,10 @@ public class Vertex4 implements IVertex {
 		this(vertex2.getX(), vertex2.getY(), 0.0f, 1.0f);
 	}
 
+	public Vertex4(float[] xyzw) {
+		this(xyzw[0], xyzw[1], xyzw[2], xyzw[3]);
+	}
+
 	public float getX() {
 		return this.x;
 	}
@@ -63,6 +67,11 @@ public class Vertex4 implements IVertex {
 				   v.getZ() < this.getZ())
 							return true;
 		return false;
+	}
+
+	@Override
+	public float[] toArray() {
+		return new float[]{this.x,this.y,this.z,this.w};
 	}
 
 }

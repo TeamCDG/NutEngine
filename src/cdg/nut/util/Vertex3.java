@@ -65,4 +65,9 @@ public class Vertex3 implements IVertex {
 		return false;
 	}
 
+	@Override
+	public float[] toArray() {
+		return new float[]{this.x,this.y,this.z,this.w};
+	}
+	
 }

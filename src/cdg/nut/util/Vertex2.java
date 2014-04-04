@@ -59,5 +59,10 @@ public class Vertex2 implements IVertex {
 	public Vertex2 getVertex2() {
 		return new Vertex2(this.x, this.y);
 	}
+	
+	@Override
+	public float[] toArray() {
+		return new float[]{this.x,this.y,this.z,this.w};
+	}
 
 }

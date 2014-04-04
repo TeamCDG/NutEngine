@@ -7,6 +7,8 @@ public interface IVertex
 	public float getZ();
 	public float getW();
 	
+	public float[] toArray();
+	
 	public boolean isGreater(IVertex v);
 	public boolean isEqual(IVertex v);
 	public boolean isLess(IVertex v);
