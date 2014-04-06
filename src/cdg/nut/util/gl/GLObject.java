@@ -2,6 +2,7 @@ package cdg.nut.util.gl;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -123,6 +124,7 @@ public abstract class GLObject implements ISelectable {
 	
 	private void setupGL(VertexData[] vertices, byte[] indices)
 	{
+		
 		FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(vertices.length *
 				VertexData.ELEMENT_COUNT);
 		for (int i = 0; i < vertices.length; i++) {

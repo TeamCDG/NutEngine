@@ -1,6 +1,7 @@
 package cdg.nut.gui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import cdg.nut.interfaces.IDrawable;
@@ -16,6 +17,8 @@ public class Border extends GLImage {
 	public Border(float x, float y, float width, float height)
 	{
 		super(Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class), width, height, makeData(x,y,width,height));
+		//super(GLColor.random(), width, height,  Utility.generateQuadData(x, y, width, height, GLColor.random()));
+		//super(GLColor.random(), x, y ,width, height);
 	}
 	
 	public Border(int x, int y, int width, int height)
@@ -28,10 +31,15 @@ public class Border extends GLImage {
 		float sx = Utility.pixelSizeToGLSize(Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class),0)[0];
 		float sy = Utility.pixelSizeToGLSize(0,Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class))[1];
 		ArrayList<VertexData> res = new ArrayList<VertexData>(16);
-		addAll(res, Utility.generateQuadData(x, y, width, sy, new GLColor(0,0,0,0))); //north
-		addAll(res, Utility.generateQuadData(x+(width-sx), y, sx, height, new GLColor(0,0,0,0))); //east
-		addAll(res, Utility.generateQuadData(x, y-(height-sy), width, sy, new GLColor(0,0,0,0))); //south
-		addAll(res, Utility.generateQuadData(x, y, sx, height, new GLColor(0,0,0,0))); //west
+		
+		GLColor c = new GLColor(0,0,0,0);
+		
+		addAll(res, Utility.generateQuadData(x, y, width, sy, c)); //north
+		addAll(res, Utility.generateQuadData(x+(width-sx), y, sx, height, c)); //east
+		addAll(res, Utility.generateQuadData(x, y+(height-sy), width, sy, c)); //south
+		addAll(res, Utility.generateQuadData(x, y, sx, height, c)); //west
+		
+		
 		return res.toArray(new VertexData[1]);
 	}
 	

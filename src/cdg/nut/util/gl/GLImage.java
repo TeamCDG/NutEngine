@@ -76,6 +76,7 @@ public class GLImage extends GLObject{
 	{
 		super(width, height, vertices, indices);
 		this.color = color;
+		
 	}
 	
 	public GLImage(GLTexture image, float width, float height, VertexData[] vertices, byte[] indices)

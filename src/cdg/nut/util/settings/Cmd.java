@@ -140,7 +140,7 @@ public abstract class Cmd {
 					else
 					{
 						float[] values = new float[4];
-						for(int i = 0; i < 3; i++)
+						for(int i = 0; i < 4; i++)
 						{
 							try {
 								values[i] = Float.parseFloat(parameter.get(i));		

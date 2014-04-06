@@ -87,6 +87,11 @@ public class GLColor {
 		return this.a;
 	}
 	
+	@Override
+	public String toString() {
+		return "GLColor [r=" + r + ", g=" + g + ", b=" + b + ", a=" + a + "]";
+	}
+
 	//TODO: Javadoc
 	public void setA(float a)
 	{

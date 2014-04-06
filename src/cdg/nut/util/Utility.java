@@ -370,17 +370,17 @@ public abstract class Utility
 		byte[] in = new byte[quadCount * 6];
         for(int i = 0; i < quadCount; i++)
         {
-            in[i*6] = (byte) (i*6);
-            in[i*6+1] = (byte) ((i*6)+1);
-            in[i*6+2] = (byte) ((i*6)+2);
-            in[i*6+3] = (byte) ((i*6)+2);
-            in[i*6+4] = (byte) ((i*6)+3);
-            in[i*6+5] = (byte) (i*6);
+            in[i*6] = (byte) (i*4);
+            in[i*6+1] = (byte) ((i*4)+1);
+            in[i*6+2] = (byte) ((i*4)+2);
+            in[i*6+3] = (byte) ((i*4)+2);
+            in[i*6+4] = (byte) ((i*4)+3);
+            in[i*6+5] = (byte) (i*4);
         }
         
         for(int y = 0; y < in.length; y++)
         {
-           	Logger.spam("Indices for "+quadCount+" quads: "+in[y]+", ");
+           	//Logger.spam("Indices for "+quadCount+" quads: "+in[y]+", ");
         }
         return in;
     }
@@ -390,17 +390,16 @@ public abstract class Utility
 		int[] in = new int[quadCount * 6];
         for(int i = 0; i < quadCount; i++)
         {
-            in[i*6] = (i*6);
-            in[i*6+1] = ((i*6)+1);
-            in[i*6+2] = ((i*6)+2);
-            in[i*6+3] = ((i*6)+2);
-            in[i*6+4] = ((i*6)+3);
-            in[i*6+5] = (i*6);
+            in[i*6] = (i*4);
+            in[i*6+1] = ((i*4)+1);
+            in[i*6+2] = ((i*4)+2);
+            in[i*6+3] = ((i*4)+2);
+            in[i*6+4] = ((i*4)+3);
+            in[i*6+5] = (i*4);
         }
         
         for(int y = 0; y < in.length; y++)
         {
-           	Logger.spam("Indices for "+quadCount+" quads: "+in[y]+", ");
         }
         return in;
         

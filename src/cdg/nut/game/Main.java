@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.glu.GLU;
 
+import cdg.nut.gui.Border;
 import cdg.nut.gui.components.ColorBox;
 import cdg.nut.gui.components.ImageBox;
 import cdg.nut.logging.LogLevel;
@@ -42,12 +43,14 @@ public class Main {
 	{
 		//Cmd.exec("win_resolution 800 800");
 		CfgReader.read("settings.cfg");
+		
+		Logger.log("gui_cmp_border_color: "+Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class).toString());
 		GL11.glClearColor(0.0f,0.0f,0.0f,1.0f);
 		
-		//Logger.setOutputLevel(LogLevel.SPAM);
+		Logger.setOutputLevel(LogLevel.SPAM);
 		
 		
-		int c=  2000;
+		int c=  20;
 		int s = 20;
 		ArrayList<ColorBox> boxes = new ArrayList<ColorBox>(c);
 		int y = 0;
@@ -55,13 +58,15 @@ public class Main {
 		
 		for(int i = 0; i< c; i++)
 		{
-			x+=s;
+			
 			if(x > 9*128.0f)
 			{
 				x=0;
 				y+=s;
 			}
 			boxes.add(new ColorBox(x, y, s, s, GLColor.random()));
+			
+			x+=s;
 		}
 		
 		/*
@@ -85,6 +90,7 @@ public class Main {
 				if(new Random().nextInt(100) == 42) boxes.get(i).setColor(GLColor.random());
 				boxes.get(i).draw();
 			}
+			
 			
 			Display.update();
 			Display.sync(60);
