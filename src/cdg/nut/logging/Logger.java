@@ -24,107 +24,107 @@ public abstract class Logger {
         private static ConsoleColor errorColor = ConsoleColor.RED;
 
         private static PrintWriter logfile = null;
-        
+
         public static LogLevel getLogfileLevel() {
-			return logfileLevel;
-		}
+                return logfileLevel;
+        }
 
 
-		public static void setLogfileLevel(LogLevel logfileLevel) {
-			Logger.logfileLevel = logfileLevel;
-		}
+        public static void setLogfileLevel(LogLevel logfileLevel) {
+                Logger.logfileLevel = logfileLevel;
+        }
 
 
-		public static LogLevel getOutputLevel() {
-			return outputLevel;
-		}
+        public static LogLevel getOutputLevel() {
+                return outputLevel;
+        }
 
 
-		public static void setOutputLevel(LogLevel outputLevel) {
-			Logger.outputLevel = outputLevel;
-		}
+        public static void setOutputLevel(LogLevel outputLevel) {
+                Logger.outputLevel = outputLevel;
+        }
 
 
-		public static DateFormat getCrashDumpDateFormat() {
-			return crashDumpDateFormat;
-		}
+        public static DateFormat getCrashDumpDateFormat() {
+                return crashDumpDateFormat;
+        }
 
 
-		public static void setCrashDumpDateFormat(DateFormat crashDumpDateFormat) {
-			Logger.crashDumpDateFormat = crashDumpDateFormat;
-		}
+        public static void setCrashDumpDateFormat(DateFormat crashDumpDateFormat) {
+                Logger.crashDumpDateFormat = crashDumpDateFormat;
+        }
 
 
-		public static DateFormat getDateFormat() {
-			return dateFormat;
-		}
+        public static DateFormat getDateFormat() {
+                return dateFormat;
+        }
 
 
-		public static void setDateFormat(DateFormat dateFormat) {
-			Logger.dateFormat = dateFormat;
-		}
+        public static void setDateFormat(DateFormat dateFormat) {
+                Logger.dateFormat = dateFormat;
+        }
 
 
-		public static String getLogfileLocation() {
-			return logfileLocation;
-		}
+        public static String getLogfileLocation() {
+                return logfileLocation;
+        }
 
-		/**
-         * Sets the location at which the logfile will be stored. 
+        /**
+         * Sets the location at which the logfile will be stored.
          *
          * @param logfileLocation Location of logfile. passing 'null' will close the stream.
          **/
-		public static void setLogfileLocation(String logfileLocation) {
-			if(logfileLocation == null && Logger.logfile != null)
-				 Logger.logfile.close();
-			else
-			{
-				 try {
-					Logger.logfile = new PrintWriter(new BufferedWriter(new FileWriter(Logger.logfileLocation, true)));
-				 } catch (IOException e) { }
-			}
-			
-			Logger.logfileLocation = logfileLocation;
-		}
-		
-		/**
+        public static void setLogfileLocation(String logfileLocation) {
+                if(logfileLocation == null && Logger.logfile != null)
+                        Logger.logfile.close();
+                else
+                {
+                        try {
+                                Logger.logfile = new PrintWriter(new BufferedWriter(new FileWriter(Logger.logfileLocation, true)));
+                        } catch (IOException e) { }
+                }
+
+                Logger.logfileLocation = logfileLocation;
+        }
+
+        /**
          * ErrorColor is normally blue.
          *
          * @return DEBUG-Messages color as {@link ConsoleColor}
          **/
-		public static ConsoleColor getDebugColor() {
-			return debugColor;
-		}
+        public static ConsoleColor getDebugColor() {
+                return debugColor;
+        }
 
-		/**
-         * Sets the color in which DEBUG-Messages should be printed. <br {>You have 8 Colors to choose from {@link ConsoleColor}
+        /**
+         * Sets the color in which DEBUG-Messages should be printed. <br />You have 8 Colors to choose from {@link ConsoleColor}
          *
          * @param debugColor as {@link ConsoleColor}
          **/
-		public static void setDebugColor(ConsoleColor debugColor) {
-			Logger.debugColor = debugColor;
-		}
+        public static void setDebugColor(ConsoleColor debugColor) {
+                Logger.debugColor = debugColor;
+        }
 
-		/**
+        /**
          * ErrorColor is normally white.
          *
          * @return INFO-Messages color as {@link ConsoleColor}
          **/
-		public static ConsoleColor getInfoColor() {
-			return infoColor;
-		}
+        public static ConsoleColor getInfoColor() {
+                return infoColor;
+        }
 
-		/**
+        /**
          * Sets the color in which INFO-Messages should be printed. <br />You have 8 Colors to choose from {@link ConsoleColor}
          *
          * @param infoColor as {@link ConsoleColor}
          **/
-		public static void setInfoColor(ConsoleColor infoColor) {
-			Logger.infoColor = infoColor;
-		}
+        public static void setInfoColor(ConsoleColor infoColor) {
+                Logger.infoColor = infoColor;
+        }
 
 
-		/**
+        /**
          * ErrorColor is normally red.
          *
          * @return ERROR-Messages color as {@link ConsoleColor}
