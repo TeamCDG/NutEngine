@@ -1,5 +1,6 @@
 package cdg.nut.game;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -14,10 +15,13 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.glu.GLU;
 
 import cdg.nut.gui.Border;
+import cdg.nut.gui.FontObject;
 import cdg.nut.gui.components.ColorBox;
 import cdg.nut.gui.components.ImageBox;
 import cdg.nut.logging.LogLevel;
 import cdg.nut.logging.Logger;
+import cdg.nut.logging.ConsoleColor;
+import cdg.nut.util.BitmapFont;
 import cdg.nut.util.Colors;
 import cdg.nut.util.DefaultShader;
 import cdg.nut.util.ShaderProgram;
@@ -32,16 +36,18 @@ public class Main {
 
 	/**
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		
 		new Main();
 
 	}
 	
-	public Main()
+	public Main() throws IOException
 	{
-		//Cmd.exec("win_resolution 800 800");
+		Settings.flashDefaults();
+		Settings.addFont(new BitmapFont("res/font/consolas.txt"));
 		CfgReader.read("settings.cfg");
 		GL11.glClearColor(0.0f,0.0f,0.0f,1.0f);
 		
@@ -49,7 +55,7 @@ public class Main {
 		
 		
 		int c=  20;
-		int s = 20;
+		int s = 40;
 		ArrayList<ColorBox> boxes = new ArrayList<ColorBox>(c);
 		int y = 0;
 		int x = 0;
@@ -66,6 +72,12 @@ public class Main {
 			
 			x+=s;
 		}
+		
+		
+		
+		Logger.debug("gui_cmp_font_size: "+Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Integer.class));
+		
+		FontObject f = new FontObject(0, 0, "N"+ConsoleColor.RED.getAnsiColor()+"Ü"+ConsoleColor.GREEN.getAnsiColor()+"SS"+ConsoleColor.BLUE.getAnsiColor()+"E"+ConsoleColor.RESET.getAnsiColor());
 		
 		/*
 		for(int i = 0; i< c; i++)
@@ -89,6 +101,7 @@ public class Main {
 				boxes.get(i).draw();
 			}
 			
+			f.draw();
 			
 			Display.update();
 			Display.sync(60);
