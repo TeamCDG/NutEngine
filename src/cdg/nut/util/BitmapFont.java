@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL13;
 
 import cdg.nut.util.gl.GLTexture;
@@ -14,10 +16,17 @@ import cdg.nut.util.gl.GLTexture;
 public class BitmapFont 
 {
 	private ArrayList<FontChar> font;
-	private int fontTextureId;
+	private GLTexture fontTex;
 	private String fontName;
+	private String fontPath;
 	private float staticHeight;
 	private float fontSpace = 0.005f;
+	
+	private float height = 0.1f;
+	
+	public static final BitmapFont EMPTY = new BitmapFont();
+	
+	private BitmapFont() { } 
 	
 	public BitmapFont(String fontInfoFilePath) throws IOException
 	{
@@ -34,7 +43,10 @@ public class BitmapFont
 		}
 		reader.close();
 		
-		this.fontTextureId = GLTexture.loadPNGTexture(f.getPath().replace(f.getName(),"")+"\\"+this.fontName+".png", GL13.GL_TEXTURE0, true);
+		this.fontPath = f.getPath().replace(f.getName(),"")+"\\"+this.fontName+".png";
+		
+		if(Display.isCreated())
+			this.fontTex = new GLTexture(f.getPath().replace(f.getName(),"")+"\\"+this.fontName+".png", GL13.GL_TEXTURE0, true);
 		
 		this.font.add(new FontChar(" ", 0, 0, this.getChar("A").getWidth(), 0));
 	}
@@ -55,7 +67,10 @@ public class BitmapFont
 		}
 		reader.close();
 		
-		this.fontTextureId = GLTexture.loadPNGTexture(imagePath, GL13.GL_TEXTURE0, true);
+		this.fontPath = imagePath;
+		
+		if(Display.isCreated())
+			this.fontTex = new GLTexture(imagePath, GL13.GL_TEXTURE0, true);
 		
 		this.font.add(new FontChar(" ", 0, 0, this.getChar("#").getWidth(), 0));
 		
@@ -87,10 +102,6 @@ public class BitmapFont
 		}
 	}
 	
-	public int getFontTextureID()
-	{
-		return this.fontTextureId;
-	}
 	
 	public float getX(String c)
 	{
@@ -125,5 +136,25 @@ public class BitmapFont
 	public float getStaticHeight() {
 		return staticHeight;
 	}
+
+	public float getHeight() {
+		return height;
+	}
+
+	public void setHeight(float height) {
+		this.height = height;
+	}
+	
+	public void setHeight(int height) {
+		this.height = Utility.pixelSizeToGLSize(0, height)[1];
+	}
+
+	public GLTexture getFontTex() {
+		if(this.fontTex == null)
+			this.fontTex = new GLTexture(this.fontPath, GL13.GL_TEXTURE0, true);
+		
+		return fontTex;
+	}
+
 
 }
