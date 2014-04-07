@@ -43,8 +43,6 @@ public class Main {
 	{
 		//Cmd.exec("win_resolution 800 800");
 		CfgReader.read("settings.cfg");
-		
-		Logger.log("gui_cmp_border_color: "+Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class).toString());
 		GL11.glClearColor(0.0f,0.0f,0.0f,1.0f);
 		
 		Logger.setOutputLevel(LogLevel.SPAM);

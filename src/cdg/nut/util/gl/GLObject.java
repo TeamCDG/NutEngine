@@ -2,6 +2,7 @@ package cdg.nut.util.gl;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.Arrays;
 
 import org.lwjgl.BufferUtils;
@@ -42,6 +43,7 @@ public abstract class GLObject implements ISelectable {
 	private int VBO = -1;
 	private int iVBO = -1;
 	private ShaderProgram shader = DefaultShader.simple;
+	private boolean intIndicies = false;
 	
 	private boolean drawing = false;
 	
@@ -108,6 +110,20 @@ public abstract class GLObject implements ISelectable {
 		this.setupGL(vertices, indices);
 	}
 	
+	public GLObject(VertexData[] vertices, byte[] indices)
+	{
+		this.id = -1;
+		this.x = vertices[0].getXYZ()[0];
+		this.y = vertices[0].getXYZ()[1];
+		this.points = Utility.extractPoints(vertices);
+		this.setupGL(vertices, indices);
+	}
+	
+	protected GLObject()
+	{
+		this.id = -1;
+	}
+	
 	private void setupGL()
 	{
 		Logger.spam("A("+this.x+"/"+this.y+"); "+
@@ -122,9 +138,9 @@ public abstract class GLObject implements ISelectable {
 			
 	}
 	
-	private void setupGL(VertexData[] vertices, byte[] indices)
+	protected final void setupGL(VertexData[] vertices, byte[] indices)
 	{
-		
+		this.intIndicies = false;
 		FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(vertices.length *
 				VertexData.ELEMENT_COUNT);
 		for (int i = 0; i < vertices.length; i++) {
@@ -135,6 +151,56 @@ public abstract class GLObject implements ISelectable {
 		
 		this.iCount = indices.length;
 		ByteBuffer indicesBuffer = BufferUtils.createByteBuffer(iCount);
+		indicesBuffer.put(indices);
+		indicesBuffer.flip();
+		
+		// Create a new Vertex Array Object in memory and select it (bind)
+		if(this.VAO == -1)
+			VAO = GL30.glGenVertexArrays();			
+		GL30.glBindVertexArray(VAO);
+		
+		// Create a new Vertex Buffer Object in memory and select it (bind)
+		if(this.VBO == -1)
+			VBO = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBO);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, verticesBuffer, GL15.GL_STATIC_DRAW);
+			
+		// Put the position coordinates in attribute list 0
+		GL20.glVertexAttribPointer(0, VertexData.POSITION_ELEMENT_COUNT, GL11.GL_FLOAT, 
+				false, VertexData.STRIDE, VertexData.POSITION_BYTE_OFFSET);
+		// Put the color components in attribute list 1
+		GL20.glVertexAttribPointer(1, VertexData.COLOR_ELEMENT_COUNT, GL11.GL_FLOAT, 
+				false, VertexData.STRIDE, VertexData.COLOR_BYTE_OFFSET);
+		// Put the texture coordinates in attribute list 2
+		GL20.glVertexAttribPointer(2, VertexData.COLOR_ELEMENT_COUNT, GL11.GL_FLOAT, 
+				false, VertexData.STRIDE, VertexData.TEXTURE_BYTE_OFFSET);
+			
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+				
+		// Deselect (bind to 0) the VAO
+		GL30.glBindVertexArray(0);
+				
+		// Create a new VBO for the indices and select it (bind) - INDICES
+		if(this.iVBO == -1)
+			this.iVBO = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, this.iVBO);
+		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
+		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+	
+	protected final void setupGL(VertexData[] vertices, int[] indices)
+	{
+		this.intIndicies = true;
+		FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(vertices.length *
+				VertexData.ELEMENT_COUNT);
+		for (int i = 0; i < vertices.length; i++) {
+			// Add position, color and texture floats to the buffer
+			verticesBuffer.put(vertices[i].getElements());
+		}
+		verticesBuffer.flip();	
+		
+		this.iCount = indices.length;
+		IntBuffer indicesBuffer = BufferUtils.createIntBuffer(iCount);
 		indicesBuffer.put(indices);
 		indicesBuffer.flip();
 		
@@ -220,6 +286,8 @@ public abstract class GLObject implements ISelectable {
 	//TODO: Javadoc
 	private void draw(boolean selection)
 	{
+		if(this.VAO == -1)
+			return;
 		
 		this.drawing = true;
 		
@@ -240,7 +308,7 @@ public abstract class GLObject implements ISelectable {
 		this.shader.pass1i("selection", selection?1:0);
 		//this.mainShader.pass4f("visible_Area",this.visibleArea.getX(),this.visibleArea.getY(),this.visibleArea.getZ(),this.visibleArea.getW());
 		// Draw the vertices
-		GL11.glDrawElements(GL11.GL_TRIANGLES, this.iCount, GL11.GL_UNSIGNED_BYTE, 0); //finallay draw
+		GL11.glDrawElements(GL11.GL_TRIANGLES, this.iCount, this.intIndicies?GL11.GL_UNSIGNED_INT:GL11.GL_UNSIGNED_BYTE, 0); //finallay draw
 				
 		//reset everything (undpoint pointing pointers... ;) )
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0); 
@@ -286,7 +354,7 @@ public abstract class GLObject implements ISelectable {
 
 	public void setX(float x) {
 		this.x = x;
-		this.move();
+		if(this.VAO != -1) this.move();
 	}
 	
 	public void setX(int x) { this.x = Utility.pixelToGL(x, 0)[0]; this.move();}
@@ -297,7 +365,7 @@ public abstract class GLObject implements ISelectable {
 
 	public void setY(float y) {
 		this.y = y;
-		this.move();
+		if(this.VAO != -1) this.move();
 	}
 	
 	public void setY(int y) { this.y = Utility.pixelToGL(0, y)[1]; this.move();}
@@ -311,16 +379,20 @@ public abstract class GLObject implements ISelectable {
 		float[] tmp = Utility.pixelToGL(x, y);
 		this.x = tmp[0];
 		this.y = tmp[1];
-		this.move();
+		if(this.VAO != -1) this.move();
 	}
 	
 	public void setPosition(float x, float y)
 	{
 		this.x = x;
 		this.y = y;
-		this.move();
+		if(this.VAO != -1) this.move();
 	}
 
+	public void setWidthSupEvent(float width) {
+		this.width = width;
+	}
+	
 	public void setWidth(float width) {
 		this.width = width;
 		//TODO: actually change width
@@ -329,7 +401,11 @@ public abstract class GLObject implements ISelectable {
 	public float getHeight() {
 		return height;
 	}
-
+	
+	public void setHeightSupEvent(float height) {
+		this.height = height;
+	}
+	
 	public void setHeight(float height) {
 		this.height = height;
 		//TODO: actually change height
