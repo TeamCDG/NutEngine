@@ -408,24 +408,28 @@ public abstract class Utility
 	public static VertexData[] generateQuadData(float x, float y, float width, float height, GLColor idColor)
 	{
 		Vertex4[] qp = generateQuadPoints(x, y, width, height);
-		return generateQuadData(qp, idColor);
+		return generateQuadData(qp, idColor, generateSTPoints(0, 0, 1.0f, 1.0f));
 	}
 	
 	public static VertexData[] generateQuadData(Vertex4[] qp, GLColor idColor)
 	{
-		return new VertexData[]{
-				   new VertexData(qp[0].toArray(), 
-					   idColor.toArray(), new float[]{1.0f, 0.0f}),
-					   
-				   new VertexData(qp[1].toArray(), 
-						   idColor.toArray(), new float[]{1.0f, 1.0f}),
-					   
-				   new VertexData(qp[2].toArray(), 
-						   idColor.toArray(), new float[]{0.0f, 1.0f}),
-					   
-				   new VertexData(qp[3].toArray(), 
-						   idColor.toArray(), new float[]{0.0f, 0.0f})};
+		return generateQuadData(qp, idColor, generateSTPoints(0, 0, 1.0f, 1.0f));
 	}
+	
+	public static VertexData[] generateQuadData(Vertex4[] qp, GLColor idColor, Vertex2[] st)
+	{
+		return new VertexData[]{new VertexData(qp[0], idColor, st[0]),
+								new VertexData(qp[1], idColor, st[1]),
+								new VertexData(qp[2], idColor, st[2]),
+								new VertexData(qp[3], idColor, st[3])};
+	}
+	
+	public static Vertex2[] generateSTPoints(float x, float y, float width, float height)
+	{
+		return new Vertex2[]{new Vertex2(x,y),  new Vertex2(x,y+height), new Vertex2(x+width,y+height), new Vertex2(x+width,y)};
+		
+	}
+
 	
 	public static Vertex4[] generateQuadPoints(float x, float y, float width, float height)
 	{
