@@ -1,6 +1,7 @@
 package cdg.nut.util.settings;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -12,24 +13,40 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 
 import cdg.nut.interfaces.ISettingsListener;
+import cdg.nut.logging.Logger;
+import cdg.nut.util.BitmapFont;
 import cdg.nut.util.Globals;
 
 //TODO: Javadoc
 public class Settings {
 	private static HashMap<SetKeys, Object> settings = new HashMap<SetKeys, Object>();
+	private static HashMap<String, BitmapFont> availableFonts = new HashMap<String, BitmapFont>();
 	private static List<ISettingsListener> listener = new ArrayList<ISettingsListener>();
 	
 	@SuppressWarnings("unchecked")
 	public static void set(SetKeys key, Object value)
 	{
+		Logger.debug("Setting '"+key.name().toLowerCase()+"' to '"+value+"'");
 		if(key.getType() == SettingsType.SETTING)
 		{
 			settings.put(key, value);
 		}
 		else if(key.getType() == SettingsType.COMMAND_AND_SETTING)
 		{
-			key.execute((List<String>) value);
+			if(value instanceof List<?>)
+				key.execute((List<String>) value);
+			else if(value != null)
+			{
+				ArrayList<String> l = new ArrayList<String>();
+				l.add(value.toString());
+				key.execute(l);
+			}
 		}
+	}
+	
+	public static void setSuppress(SetKeys key, Object value)
+	{
+		settings.put(key, value);
 	}
 	
 	public static void set(String key, Object value)
@@ -81,8 +98,18 @@ public class Settings {
 	}
 	
 	public static void setWindowResolution(int width, int height){
-		settings.put(SetKeys.WIN_WIDTH, width);
-		settings.put(SetKeys.WIN_HEIGHT, height);
+		if(Settings.get(SetKeys.WIN_WIDTH, Integer.class) != null && Settings.get(SetKeys.WIN_WIDTH, Integer.class) == width && Settings.get(SetKeys.WIN_HEIGHT, Integer.class) != null &&Settings.get(SetKeys.WIN_HEIGHT, Integer.class) == height)
+			return;
+		
+		if(width != 0)
+			settings.put(SetKeys.WIN_WIDTH, width);
+		
+		if(height != 0)
+			settings.put(SetKeys.WIN_HEIGHT, height);
+		
+		if(height == 0 || width == 0)
+			return;
+		
 		settings.put(SetKeys.WIN_ASPECT_RATIO, (float) width/ (float) height);
 		
 			/*Globals.windowMatrix.set(1/Globals.aspectRatio, 0.0f, 0.0f, 0.0f,
@@ -94,11 +121,11 @@ public class Settings {
 			//{
 			//	lis.onWindowResolutionChange(Globals.windowWidth, Globals.windowHeight);
 			//}
-			
+		DisplayMode finalMode = new DisplayMode(width, height);
 		try {
 			DisplayMode[] modes = Display.getAvailableDisplayModes();
 			
-			DisplayMode finalMode = new DisplayMode(width, height);
+			
 			
 			for (int i=0;i<modes.length;i++) {
 			    DisplayMode current = modes[i];
@@ -122,7 +149,8 @@ public class Settings {
 				
 			GL11.glViewport(0, 0, width,height);
 		} catch (LWJGLException e) {
-			//TODO: use logger
+			Logger.createCrashDump("Unable to create/update display", "Settings.setWindowResolution", e, true, "Resolution: "+width+"x"+height+"\nFullscreen capable: "+finalMode.isFullscreenCapable());
+			System.exit(-1);
 		}
 		Display.update();
 		fire(SetKeys.WIN_RESOLUTION_CHANGED);
@@ -137,5 +165,35 @@ public class Settings {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public static void addFont(BitmapFont f)
+	{
+		Settings.availableFonts.put(f.getFontName().toLowerCase(), f);
+	}
+	
+	public static void removeFont(BitmapFont f)
+	{
+		Settings.availableFonts.remove(f.getFontName().toLowerCase());
+	}
+	
+	public static BitmapFont getFont(String name)
+	{
+		BitmapFont b = Settings.availableFonts.get(name.toLowerCase());
+		if(b == null)
+			return BitmapFont.EMPTY;
+		else
+			return b;
+	}
+	
+	public static void flashDefaults()
+	{
+		for(SetKeys key : SetKeys.values())
+		{
+			if(key.getType() == SettingsType.SETTING || key.getType() == SettingsType.COMMAND_AND_SETTING)
+			{
+				Settings.set(key, key.getDefaultValue());
+			}
+		}
 	}
 }

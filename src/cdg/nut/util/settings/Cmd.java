@@ -62,8 +62,7 @@ public abstract class Cmd {
             parameter.add(Utility.unescape(param.startsWith("\"") && param.endsWith("\"")?param.substring(1, param.length()-1):param));
             //System.out.println("----------------------------------------------");
         }
-
-        //System.out.println("Command: "+key);
+        //System.out.println("Command: "+key+" ()");
         //System.out.println("Parameter: ");
 
         
@@ -164,9 +163,9 @@ public abstract class Cmd {
 			}
 			else if(c == BitmapFont.class)
 			{
-				//TODO: check for fonts
+				val = Settings.getFont(parameter.get(0));
 			}
-			else if(c == int.class)
+			else if(c == Integer.class)
 			{
 				try {
 					val = (int) Integer.parseInt(parameter.get(0));
@@ -175,7 +174,7 @@ public abstract class Cmd {
 					return;
 				}
 			}
-			else if(c == float.class)
+			else if(c == Float.class)
 			{
 				try {
 					val = (float) Float.parseFloat(parameter.get(0));
@@ -184,10 +183,10 @@ public abstract class Cmd {
 					return;
 				}
 			}
-			else if(c == boolean.class)
+			else if(c == Boolean.class)
 			{
 				try {
-					val = (boolean) Boolean.parseBoolean(parameter.get(0));
+					val = parameter.get(0).toLowerCase().equals("true") || parameter.get(0).toLowerCase().equals("1");
 				} catch (Exception e) {
 					Logger.error("Unable to change setting ("+key+"): illegel parameter 0 ("+parameter.get(0)+")", "CommandExecuter.exec");
 					return;
