@@ -1,5 +1,7 @@
 package cdg.nut.util;
 
+import cdg.nut.util.gl.GLColor;
+
 //TODO: lots of Javadoc
 public class VertexData {
 	
@@ -92,6 +94,24 @@ public class VertexData {
 	public VertexData(float[] xyzw)
 	{
 		this.xyzw = xyzw;
+	}
+	
+	public VertexData(Vertex4 xyzw, GLColor color, Vertex2 st)
+	{
+		this.xyzw = xyzw.toArray();
+		this.rgba = color.toArray();
+		this.st = st.toArray();
+	}
+	
+	public VertexData(Vertex4 xyzw, GLColor color)
+	{
+		this.xyzw = xyzw.toArray();
+		this.rgba = color.toArray();
+	}
+	
+	public VertexData(Vertex4 xyzw)
+	{
+		this.xyzw = xyzw.toArray();
 	}
 	
 	public VertexData() {
