@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Random;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -54,16 +56,18 @@ public abstract class Utility
 		return values;
 	}
 	
-	public static final float GL_COLOR_PER_BIT = 0.00390625f;
+	public static final float GL_COLOR_PER_BIT = 1.0f/255.0f;
 	
 	public static float[] idToGlColor(long l, boolean useAlpha)
 	{
-		byte[] val = new byte[4];
+		int[] val = new int[4];
 
-		val[0] = (byte) (l >> 24);
-		val[1] = (byte) (l >> 16);
-		val[2] = (byte) (l >> 8);
-		val[3] = (byte) (l >> 0);
+		val[0] = (int) (l >> 24 & 0xFF);
+		val[1] = (int) (l >> 16 & 0xFF);
+		val[2] = (int) (l >> 8 & 0xFF);
+		val[3] = (int) (l >> 0 & 0xFF);
+		
+		
 		
 		float[] col;
 		if(useAlpha)
@@ -77,7 +81,18 @@ public abstract class Utility
 								(float)val[1]*GL_COLOR_PER_BIT,
 								1.0f};
 		
+		System.out.println("color ("+l+") : "+Arrays.toString(col)+" "+Arrays.toString(val));
+		
 		return col;
+	}
+	
+	public static int glColorToId(int[] color, boolean useAlpha)
+	{
+		if(useAlpha)
+			return color[0]*1+color[1]*256+color[2]*65536+color[3]*16777216;
+		else
+			return color[0]*1+color[1]*256+color[2]*65536;
+		
 	}
 	
 	public static int glColorToId(byte[] color, boolean useAlpha)
@@ -324,13 +339,15 @@ public abstract class Utility
 	}
 
 	public static int[] glToPixel(float x, float y) {
-		
-		return null;
+		int px = (int)(((float)x*((float)Settings.get(SetKeys.WIN_WIDTH, Integer.class)/2.0f))-1.0f);
+		int py = (int)(((float)y*((float)Settings.get(SetKeys.WIN_HEIGHT, Integer.class)/2.0f))-1.0f)*-1;
+		return new int[]{px,py};
 	}
 	
 	public static int[] glSizeToPixelSize(float x, float y) {
-		
-		return null;
+		int px = (int)(((float)x*((float)Settings.get(SetKeys.WIN_WIDTH, Integer.class)/2.0f)));
+		int py = (int)(((float)y*((float)Settings.get(SetKeys.WIN_HEIGHT, Integer.class)/2.0f)))*-1;
+		return new int[]{px,py};
 	}
 
 	public static float[] pixelToGL(int x, int y) {
@@ -382,6 +399,8 @@ public abstract class Utility
         {
            	//Logger.spam("Indices for "+quadCount+" quads: "+in[y]+", ");
         }
+        
+        
         return in;
     }
 	
@@ -401,9 +420,13 @@ public abstract class Utility
         for(int y = 0; y < in.length; y++)
         {
         }
+        
+        
         return in;
         
     }
+	
+	
 	
 	public static VertexData[] generateQuadData(float x, float y, float width, float height, GLColor idColor)
 	{
@@ -424,9 +447,18 @@ public abstract class Utility
 								new VertexData(qp[3], idColor, st[3])};
 	}
 	
+	public static Vertex2[] generateSTPointsFlipped(float x, float y, float width, float height)
+	{
+		//return new Vertex2[]{new Vertex2(x,y),  new Vertex2(x,y+height), new Vertex2(x+width,y+height), new Vertex2(x+width,y)};
+		return new Vertex2[]{new Vertex2(x,y),  new Vertex2(x,y+height), new Vertex2(x+width,y+height), new Vertex2(x+width,y)};
+		
+		
+	}
+	
 	public static Vertex2[] generateSTPoints(float x, float y, float width, float height)
 	{
 		return new Vertex2[]{new Vertex2(x,y),  new Vertex2(x,y+height), new Vertex2(x+width,y+height), new Vertex2(x+width,y)};
+		//return new Vertex2[]{new Vertex2(x+width,y), new Vertex2(x,y), new Vertex2(x,y+height), new Vertex2(x+width,y+height)};
 		
 	}
 
@@ -444,5 +476,28 @@ public abstract class Utility
 			points[i] = new Vertex4(vertices[i].getXYZW());
 		}
 		return points;
+	}
+	
+	public static String randomString()
+	{
+		return randomString(5, "ABCDEFGHIJKLMNOPQRSTUVWXYZÜÖÄabcdefghijklmnopqrstuvwxyzüöä,.-;:_#+*'!\"§$%&/()=?<\\1234567890");
+	}
+	
+	public static String randomString(int length)
+	{
+		return randomString(length, "ABCDEFGHIJKLMNOPQRSTUVWXYZÜÖÄabcdefghijklmnopqrstuvwxyzüöä,.-;:_#+*'!\"§$%&/()=?<>|\\1234567890");
+	}
+	
+	public static String randomString(int length, String chars)
+	{
+		StringBuilder b = new StringBuilder();
+		
+		for(int i = 0; i < length; i++)
+		{
+			int r = new Random().nextInt(chars.length());
+			b.append(chars.substring(r,r+1));
+		}
+		
+		return b.toString();
 	}
 }

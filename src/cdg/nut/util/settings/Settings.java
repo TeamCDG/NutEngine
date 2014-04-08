@@ -19,7 +19,7 @@ import cdg.nut.util.Globals;
 
 //TODO: Javadoc
 public class Settings {
-	private static HashMap<SetKeys, Object> settings = new HashMap<SetKeys, Object>();
+	//private static HashMap<SetKeys, Object> settings = new HashMap<SetKeys, Object>();
 	private static HashMap<String, BitmapFont> availableFonts = new HashMap<String, BitmapFont>();
 	private static List<ISettingsListener> listener = new ArrayList<ISettingsListener>();
 	
@@ -29,7 +29,8 @@ public class Settings {
 		Logger.debug("Setting '"+key.name().toLowerCase()+"' to '"+value+"'");
 		if(key.getType() == SettingsType.SETTING)
 		{
-			settings.put(key, value);
+			key.setValue(value);
+			//settings.put(key, value);
 		}
 		else if(key.getType() == SettingsType.COMMAND_AND_SETTING)
 		{
@@ -46,7 +47,8 @@ public class Settings {
 	
 	public static void setSuppress(SetKeys key, Object value)
 	{
-		settings.put(key, value);
+		key.setValue(value);
+		//settings.put(key, value);
 	}
 	
 	public static void set(String key, Object value)
@@ -67,13 +69,14 @@ public class Settings {
 	
 	public static Object get(SetKeys key)
 	{
-		
-		return settings.get(key);
+		return key.getValue();
+		//return settings.get(key);
 	}
 	
 	public static <T> T get(SetKeys key, Class<T> c)
 	{
-		return c.cast(settings.get(key));
+		//return c.cast(settings.get(key));
+		return key.getValue(c);
 	}
 
 	public static void removeListener(ISettingsListener lis) {
@@ -102,15 +105,16 @@ public class Settings {
 			return;
 		
 		if(width != 0)
-			settings.put(SetKeys.WIN_WIDTH, width);
+			//settings.put(SetKeys.WIN_WIDTH, width);
+			SetKeys.WIN_WIDTH.setValue(width);
 		
 		if(height != 0)
-			settings.put(SetKeys.WIN_HEIGHT, height);
+			SetKeys.WIN_HEIGHT.setValue(height);
 		
 		if(height == 0 || width == 0)
 			return;
 		
-		settings.put(SetKeys.WIN_ASPECT_RATIO, (float) width/ (float) height);
+		SetKeys.WIN_ASPECT_RATIO.setValue((float) width/ (float) height);
 		
 			/*Globals.windowMatrix.set(1/Globals.aspectRatio, 0.0f, 0.0f, 0.0f,
 												  0.0f, 1.0f, 0.0f, 0.0f,
@@ -157,7 +161,7 @@ public class Settings {
 	}
 
 	public static void setFullscreen(Boolean value) {
-		settings.put(SetKeys.WIN_FULLSCREEN, value);
+		SetKeys.WIN_FULLSCREEN.setValue(value);
 		try {
 			Display.setFullscreen(value);
 			Display.update();
@@ -169,6 +173,8 @@ public class Settings {
 	
 	public static void addFont(BitmapFont f)
 	{
+		if(SetKeys.GUI_CMP_FONT.getValue(BitmapFont.class) == BitmapFont.EMPTY)
+			SetKeys.GUI_CMP_FONT.setValue(f);
 		Settings.availableFonts.put(f.getFontName().toLowerCase(), f);
 	}
 	

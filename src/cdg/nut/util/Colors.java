@@ -211,4 +211,9 @@ public enum Colors {
 	public GLColor getGlColor() {
 		return glColor;
 	}	
+	
+	public String toString()
+	{
+		return this.glColor.toString();
+	}
 }

@@ -39,6 +39,15 @@ public class GLColor {
 		
 	}
 	
+	public GLColor(int r, int g, int b, int a)
+	{
+		this.r = (1.0f/255.0f) * (float)r;
+		this.g = (1.0f/255.0f) * (float)g;
+		this.b = (1.0f/255.0f) * (float)b;
+		this.a = (1.0f/255.0f) * (float)a;
+		
+	}
+	
 	//TODO: Javadoc
 	public float[] toArray()
 	{
@@ -87,9 +96,12 @@ public class GLColor {
 		return this.a;
 	}
 	
+	public static final String TEXT_COLOR_IDENTIFIER = "\u0010";
+	public static final String TEXT_COLOR_RESET = "\u0011";
+	
 	@Override
 	public String toString() {
-		return "GLColor [r=" + r + ", g=" + g + ", b=" + b + ", a=" + a + "]";
+		return TEXT_COLOR_IDENTIFIER+((char)((int)(255.0f*this.r)))+((char)((int)(255.0f*this.g)))+((char)((int)(255.0f*this.b)))+((char)((int)(255.0f*this.a)));
 	}
 
 	//TODO: Javadoc

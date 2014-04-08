@@ -22,7 +22,7 @@ public abstract class DefaultShader {
 			"in vec2 pass_TextureCoord;\n"+
 			"out vec4 out_Color;\n"+
 			"void main(void) {\n"+
-			"	vec4 c = texture2D(texture_diffuse, pass_TextureCoord);\n"+
+			"	vec4 c = texture2D(texture_diffuse, vec2(pass_TextureCoord.x * -1, pass_TextureCoord.y));\n"+
 			"	if(selection == 0) {\n"+
 			"	if(c == vec4(0.0, 0.0, 0.0, 0.0)) {\n"+
 			"		out_Color = color;\n"+
