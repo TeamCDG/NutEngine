@@ -16,20 +16,30 @@ public class Border extends GLImage {
 
 	public Border(float x, float y, float width, float height)
 	{
-		super(Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class), width, height, makeData(x,y,width,height));
+		super(Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class),
+				width, height,
+				makeData(x,y,width,height));
 		//super(GLColor.random(), width, height,  Utility.generateQuadData(x, y, width, height, GLColor.random()));
 		//super(GLColor.random(), x, y ,width, height);
 	}
 
 	public Border(int x, int y, int width, int height)
 	{
-		this(Utility.pixelToGL(x, y)[0], Utility.pixelToGL(x, y)[1], Utility.pixelSizeToGLSize(width, height)[0], Utility.pixelSizeToGLSize(width, height)[1]);
+		this(Utility.pixelToGL(x, y)[0],
+				Utility.pixelToGL(x, y)[1],
+				Utility.pixelSizeToGLSize(width, height)[0],
+				Utility.pixelSizeToGLSize(width, height)[1]);
 	}
 
 	private static VertexData[] makeData(float x, float y, float width, float height)
 	{
-		float sx = Utility.pixelSizeToGLSize(Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class),0)[0];
-		float sy = Utility.pixelSizeToGLSize(0,Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class))[1];
+		float sx = Utility.pixelSizeToGLSize(
+				Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class),
+				0)[0];
+		float sy = Utility.pixelSizeToGLSize(
+				0,
+				Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)
+				)[1];
 		ArrayList<VertexData> res = new ArrayList<VertexData>(16);
 		GLColor c = new GLColor(0,0,0,0);
 
