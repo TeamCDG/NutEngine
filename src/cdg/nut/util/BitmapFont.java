@@ -10,7 +10,12 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL13;
 
+import cdg.nut.logging.ConsoleColor;
+import cdg.nut.logging.Logger;
+import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLTexture;
+import cdg.nut.util.settings.SetKeys;
+import cdg.nut.util.settings.Settings;
 
 //TODO: Javadoc
 public class BitmapFont 
@@ -21,8 +26,6 @@ public class BitmapFont
 	private String fontPath;
 	private float staticHeight;
 	private float fontSpace = 0.005f;
-	
-	private float height = 0.1f;
 	
 	public static final BitmapFont EMPTY = new BitmapFont();
 	
@@ -137,17 +140,7 @@ public class BitmapFont
 		return staticHeight;
 	}
 
-	public float getHeight() {
-		return height;
-	}
-
-	public void setHeight(float height) {
-		this.height = height;
-	}
-	
-	public void setHeight(int height) {
-		this.height = Utility.pixelSizeToGLSize(0, height)[1];
-	}
+		
 
 	public GLTexture getFontTex() {
 		if(this.fontTex == null)
@@ -155,6 +148,83 @@ public class BitmapFont
 		
 		return fontTex;
 	}
+	
+	
+	public float[] measureDimensions(String text, float fontSize)
+	{
+		float xoff = 0.0f;
+		float yoff = 0.0f;		
+		float xoffmax = 0.0f;
+		
+		for(int i = 0; i < text.length(); i++)
+		{
+			String c = text.substring(i, i+1);
+			
+			if(c.equals("\u001B")) //color codes...
+			{
+				String aco = "";
+				try
+				{
+					aco = text.substring(i, i+5);
+					
+				} catch(Exception e) {}
+				
+				if(aco.endsWith("m"))
+				{
+					i+=4;
+				}
+				else
+				{
+					i+=3;
+					
+				}
+				
+			}
+			else if(c.equals(GLColor.TEXT_COLOR_IDENTIFIER)) // gl color
+			{
+				String aco = "";
+				try
+				{
+					aco = text.substring(i, i+5);
+					i+=4;
+				} catch(Exception e) {}
+			}
+			else if(c.equals(GLColor.TEXT_COLOR_RESET)) // back to default
+			{
+			}
+			else if(c.equals("\n")) // new line
+			{
+				xoff = 0.0f;
+				yoff += fontSize;
+			}
+			else // we actually have something that looks like text
+			{
+				float w = (fontSize/this.getHeight(c))*this.getWidth(c)*(1/Settings.get(SetKeys.WIN_ASPECT_RATIO, Float.class))*-1.0f;
+				
+				xoff += w;
+				
+				
+				
+				if(xoff > xoffmax )
+					xoffmax = xoff;
+			}
+			
+		}
+	
+		Logger.debug("Dimensions of '"+text+"': "+xoffmax+"/"+(yoff+fontSize));
+		return new float[]{xoffmax, yoff+fontSize};
+	}
+	
+	@Override
+	public String toString() {
+		return "BitmapFont [fontName=" + fontName + ", fontPath=" + fontPath
+				+ "]";
+	}
 
+	public int[] measureDimensionsAsInt(String text, float fontSize)
+	{
+		float[] f = measureDimensions(text, fontSize);
+		return Utility.glSizeToPixelSize(f[0], f[1]);
+	}
 
 }

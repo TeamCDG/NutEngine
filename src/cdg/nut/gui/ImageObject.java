@@ -7,5 +7,4 @@ public class ImageObject {
 
 	private GLColor color;
 	private GLTexture texture;
-
 }

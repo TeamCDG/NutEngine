@@ -20,7 +20,9 @@ public class FontObject extends GLObject {
 
 	private BitmapFont font = Settings.get(SetKeys.GUI_CMP_FONT, BitmapFont.class);
 	private GLColor color = Settings.get(SetKeys.GUI_CMP_FONT_COLOR, GLColor.class);
-	private String text;
+	private String colorText;
+	private String actualText;
+	private float fontSize;
 
 	public BitmapFont getFont()
 	{
@@ -40,16 +42,17 @@ public class FontObject extends GLObject {
 	public void setColor(GLColor color)
 	{
 		this.color = color;
+		this.setupFontGL();
 	}
 
 	public String getText()
 	{
-		return text;
+		return this.actualText;
 	}
 
 	public void setText(String text)
 	{
-		this.text = text;
+		this.colorText = text;
 		this.setupFontGL();
 	}
 
@@ -57,7 +60,17 @@ public class FontObject extends GLObject {
 	{
 		super();
 		this.setPosition(x, y);
-		this.font.setHeight(Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Integer.class));
+		this.fontSize = Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class);
+		this.setText(text);
+		this.setShader(DefaultShader.text);
+		//this.setSelectable(false);
+	}
+
+	public FontObject(int x, int y, String text)
+	{
+		super();
+		this.setPosition(x, y);
+		this.fontSize = Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class);
 		this.setText(text);
 		this.setShader(DefaultShader.text);
 		//this.setSelectable(false);
@@ -66,62 +79,91 @@ public class FontObject extends GLObject {
 	private void setupFontGL()
 	{
 		List<VertexData> ret = new LinkedList<VertexData>();
+		String finText = this.colorText;
 
-		if (this.text != "") {
+		if (this.colorText != "") {
 			int aqc = 0;
+
 			float xoff = this.getX();
 			float yoff = this.getY();
+
 			GLColor currentColor = this.color;
+
+			float trueoff = 0.0f;
 			float xoffmax = 0.0f;
 
-			for (int i = 0; i < this.text.length(); i++) {
-				String c = text.substring(i, i+1);
+			for (int i = 0; i < this.colorText.length(); i++) {
+				String c = colorText.substring(i, i+1);
 
 				if (c.equals("\u001B")) { //color codes...
 					String aco = "";
 
 					try {
-						aco = text.substring(i, i+5);
-					} catch (Exception e) {}
+						aco = colorText.substring(i, i+5);
+					} catch(Exception e) {}
 
 					if (aco.endsWith("m")) {
-
 						for (ConsoleColor cc: ConsoleColor.values()) {
 							if (cc.getAnsiColor().equals(aco)) {
 								currentColor = cc.getColor();
 								i+=4;
+								finText = finText.replaceFirst(aco, "");
 								break;
 							}
 						}
-
 					} else {
+						finText = finText.replaceFirst(ConsoleColor.RESET.getAnsiColor(), "");
 						currentColor = this.color;
 						i+=3;
 					}
+				} else if (c.equals(GLColor.TEXT_COLOR_IDENTIFIER)) { // gl color
+					String aco = "";
 
+					try {
+						aco = colorText.substring(i, i+5);
+						currentColor = new GLColor(
+							(int)aco.charAt(1),
+							(int)aco.charAt(2),
+							(int)aco.charAt(3),
+							(int)aco.charAt(4)
+						);
+						i+=4;
+						finText = finText.replaceFirst(aco, "");
+					} catch(Exception e) {}
+				} else if (c.equals(GLColor.TEXT_COLOR_RESET)) { // back to default
+					currentColor = this.color;
+					finText = finText.replaceFirst(GLColor.TEXT_COLOR_RESET, "");
 				} else if (c.equals("\n")) { // new line
 					xoff = this.getX();
-					yoff += this.font.getHeight();
-
+					yoff += this.fontSize;
+					trueoff = 0.0f;
 				} else { // we actually have something that looks like text
 					float w =
 						(
-						 this.font.getHeight() /
-						 this.font.getHeight(c)
+							this.fontSize / this.
+							font.getHeight(c)
 						) *
 						this.font.getWidth(c) *
 						(
-						 1 /
-						 Settings.get(SetKeys.WIN_ASPECT_RATIO, Float.class)
+							1 /
+							Settings.get(SetKeys.WIN_ASPECT_RATIO, Float.class)
 						) *
 						-1.0f;
-					Vertex4[] qp = Utility.generateQuadPoints(xoff, yoff, w, this.font.getHeight());
+					Vertex4[] qp = Utility.generateQuadPoints(xoff, yoff, w, this.fontSize);
 					Vertex2[] st = Utility.generateSTPoints(
-						 this.font.getX(c),
-						 this.font.getY(c),
-						 this.font.getWidth(c),
-						 this.font.getHeight(c)
-						);
+						this.font.getX(c),
+						this.font.getY(c),
+						this.font.getWidth(c),
+						this.font.getHeight(c)
+					);
+					/*
+					Utility.generateSTPointsFlipped(
+						this.font.getX(c),
+						this.font.getY(c),
+						this.font.getWidth(c),
+						this.font.getHeight(c)
+					);
+					*/
 					VertexData[] data = Utility.generateQuadData(qp, currentColor, st);
 
 					for (int d = 0; d < data.length; d++) {
@@ -130,9 +172,10 @@ public class FontObject extends GLObject {
 
 					aqc++;
 					xoff += w;
+					trueoff += w;
 
-					if (xoff > xoffmax) {
-						xoffmax = xoff;
+					if (trueoff > xoffmax) {
+						xoffmax = trueoff;
 					}
 				}
 			}
@@ -146,19 +189,45 @@ public class FontObject extends GLObject {
 				for (int d = 0; d < data.length; d++) {
 					ret.add(data[d]);
 				}
-
 				//END HACK
+
 				this.setNoDraw(false);
 				this.setupGL(ret.toArray(new VertexData[1]), Utility.createQuadIndicesInt(aqc));
-				this.setHeightSupEvent(yoff+this.font.getHeight());
+				this.setHeightSupEvent(yoff + this.fontSize - this.getY());
 				this.setWidthSupEvent(xoffmax);
-			}
 
+				Logger.spam(
+					(
+						"Text dimension: " +
+						this.getWidth() +
+						"/" +
+						this.getHeight()
+					),
+					"FontObject.setupFontGL"
+				);
+			}
 		} else {
 			this.setNoDraw(true);
 		}
 
+		this.actualText = finText;
 		//return ret.toArray(new VertexData[1]);
+	}
+
+	public float getFontSize()
+	{
+		return this.fontSize;
+	}
+
+	public void setFontSize(float size)
+	{
+		this.fontSize = size;
+		this.setupFontGL();
+	}
+
+	public void setFontSize(int size)
+	{
+		this.setFontSize(Utility.pixelSizeToGLSize(0, size)[1]);
 	}
 
 	@Override
@@ -171,5 +240,11 @@ public class FontObject extends GLObject {
 	protected void unbindTextures()
 	{
 		this.font.getFontTex().unbind();
+	}
+
+	@Override
+	protected void passUniforms()
+	{
+
 	}
 }

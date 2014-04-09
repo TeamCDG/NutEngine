@@ -17,6 +17,7 @@ import cdg.nut.logging.Logger;
 import cdg.nut.util.DefaultShader;
 import cdg.nut.util.ShaderProgram;
 import cdg.nut.util.Utility;
+import cdg.nut.util.Vertex2;
 import cdg.nut.util.Vertex4;
 import cdg.nut.util.VertexData;
 
@@ -134,7 +135,8 @@ public abstract class GLObject implements ISelectable {
 					 "D("+(this.x+this.width)+"/"+this.y+"); ","GLObject.setupGL");
 		
 			this.points = Utility.generateQuadPoints(this.x, this.y, this.width, this.height);		
-			VertexData[] vertices = Utility.generateQuadData(this.points, new GLColor(id));
+			Vertex2[] st = Utility.generateSTPoints(1.0f, 0.0f, -1.0f, 1.0f);
+			VertexData[] vertices = Utility.generateQuadData(this.points, new GLColor(id), st);
 			byte[] indices = Utility.createQuadIndicesByte(1);
 			setupGL(vertices, indices);
 			
@@ -325,7 +327,7 @@ public abstract class GLObject implements ISelectable {
 		
 		this.shader.unbind();
 		
-		this.drawChildren();
+		this.drawChildren(selection);
 		
 		this.drawing = false;
 	}
@@ -345,7 +347,7 @@ public abstract class GLObject implements ISelectable {
 		// nothing todo here, let the user decide if he wants to pass uniforms..
 	}
 	
-	protected void drawChildren()
+	protected void drawChildren(boolean selection)
 	{
 		// nothing todo here, let the user decide if he wants to unbind textures..
 	}
@@ -396,8 +398,7 @@ public abstract class GLObject implements ISelectable {
 	}
 	
 	public void setWidth(float width) {
-		this.width = width;
-		//TODO: actually change width
+		this.setDimension(width, this.height);
 	}
 
 	public float getHeight() {
@@ -409,8 +410,7 @@ public abstract class GLObject implements ISelectable {
 	}
 	
 	public void setHeight(float height) {
-		this.height = height;
-		//TODO: actually change height
+		this.setDimension(this.width, height);
 	}
 	
 	//TODO: Javadoc
@@ -483,6 +483,18 @@ public abstract class GLObject implements ISelectable {
 
 	public void setSelectable(boolean selectable) {
 		this.selectable = selectable;
+	}
+	
+	public void setDimension(float width, float height) {
+		this.height = height;
+		this.width = width;
+		
+		if(this.points.length == 4)
+		{
+			while(drawing) { };
+			
+			this.setupGL(Utility.generateQuadData(this.points[0].getX(), this.points[0].getY(), width, height, new GLColor(this.id)), Utility.createQuadIndicesByte(4));
+		}
 	}
 	
 	

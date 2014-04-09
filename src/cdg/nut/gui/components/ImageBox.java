@@ -16,9 +16,9 @@ public class ImageBox extends Component {
 	}
 
 	@Override
-	protected void drawChildren()
+	protected void drawChildren(boolean selection)
 	{
-		if (this.image.getShader() == null) {
+		if (this.image.getShader() == null && !selection) {
 			this.image.setShader(this.getShader());
 		}
 

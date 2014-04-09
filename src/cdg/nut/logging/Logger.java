@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
 
 public abstract class Logger {
 
@@ -510,6 +511,9 @@ public abstract class Logger {
                                 writer.println("GLVendor: "+GL11.glGetString(GL11.GL_VENDOR));
                                 writer.println("Renderer: "+GL11.glGetString(GL11.GL_RENDERER));
                                 writer.println("Version: "+GL11.glGetString(GL11.GL_VERSION));
+                                
+                                int errorValue = GL11.glGetError();
+                                writer.println("GL Error: "+GLU.gluErrorString(errorValue));
                         }
 
 
