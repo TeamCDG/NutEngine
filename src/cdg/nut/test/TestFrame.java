@@ -9,6 +9,7 @@ import cdg.nut.util.gl.GLTexture;
 
 public class TestFrame extends Frame {
 	Button test;
+	Button ctest;
 	
 	public TestFrame()
 	{
@@ -17,5 +18,8 @@ public class TestFrame extends Frame {
 		this.addComponent(test);
 		this.addComponent(new Button(820, 262, Colors.BLUE+"G"+Colors.RED+"o"+Colors.YELLOW+"o"+Colors.BLUE+"g"+Colors.DARKGREEN+"l"+Colors.RED+"e"));
 		this.addComponent(new Button(20, 262, Colors.BLUE+"G"+Colors.RED+"o"+Colors.YELLOW+"o"+Colors.BLUE+"g"+Colors.DARKGREEN+"l"+Colors.RED+"e"));
+		
+		this.ctest = new Button(420, 462, 100, 100, "penispenispenis");
+		this.addComponent(ctest);
 	}
 }

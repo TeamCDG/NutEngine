@@ -4,6 +4,11 @@ import cdg.nut.interfaces.*;
 
 public class Vertex4 implements IVertex {
 	
+	@Override
+	public String toString() {
+		return "Vertex4 [x=" + x + ", y=" + y + ", z=" + z + ", w=" + w + "]";
+	}
+
 	float x, y, z, w;
 	
 	public Vertex4(float x, float y, float z, float w) {

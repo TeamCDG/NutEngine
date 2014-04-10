@@ -4,6 +4,7 @@ import cdg.nut.interfaces.ISelectable;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.BitmapFont;
 import cdg.nut.util.Utility;
+import cdg.nut.util.Vertex4;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.gl.GLObject;
@@ -28,6 +29,8 @@ public abstract class Component extends GLImage {
 		super(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class), x, y, width, height);
 		this.border = new Border(x, y, width, height);
 		this.autosizeWithText = false;
+		
+		this.setupPadding();
 	}
 
 	public Component(int x, int y, int width, int height)
@@ -35,6 +38,23 @@ public abstract class Component extends GLImage {
 		super(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class), x, y, width, height);
 		this.border = new Border(x, y, width, height);
 		this.autosizeWithText = false;
+		
+		this.setupPadding();
+	}
+	
+	public Component(float x, float y, float width, float height, String text)
+	{
+		this(x, y, width, height);
+		this.text = new FontObject(x+padding[0], y+padding[1], text);		
+		this.setTextClipping();
+	}
+
+	public Component(int x, int y, int width, int height, String text)
+	{
+		this(x, y, width, height);
+		int[] pad = Utility.glSizeToPixelSize(padding[0], padding[1]);
+		this.text = new FontObject(x+pad[0], y+pad[1], text);		
+		this.setTextClipping();
 	}
 
 	private Component(float x, float y, float[] dim, float[] add)
@@ -71,11 +91,9 @@ public abstract class Component extends GLImage {
 			)
 		);
 
-		int pabs = Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class) +
-				   Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
-
-		this.padding = Utility.pixelSizeToGLSize(pabs, pabs);
-		this.text = new FontObject(x+padding[0], y+padding[1], text);
+		this.setupPadding();
+		
+		this.text = new FontObject(x+this.padding[0], y+this.padding[1], text);
 	}
 
 	public Component(int x, int y, String text)
@@ -93,13 +111,21 @@ public abstract class Component extends GLImage {
 			}
 		);
 
+		this.setupPadding();
+		
+		int[] pad = Utility.glSizeToPixelSize(this.padding[0], this.padding[1]);
+		
+		this.text = new FontObject(x+pad[0], y+pad[1], text);
+	}
+
+	private void setupPadding()
+	{
 		int pabs = Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class) +
 				   Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
 
 		this.padding = Utility.pixelSizeToGLSize(pabs, pabs);
-		this.text = new FontObject(x+pabs, y+pabs, text);
 	}
-
+	
 	@Override
 	protected void move()
 	{
@@ -240,6 +266,27 @@ public abstract class Component extends GLImage {
 		} else {
 			this.setSelected(false);
 			return false;
+		}
+	}
+	
+	@Override
+	public void setDimension(float width, float height)
+	{
+		super.setDimension(width, height);
+		this.setTextClipping();
+	}
+	
+	private void setTextClipping()
+	{
+		if(this.text != null)
+		{
+			Vertex4 ca = new Vertex4(this.getX()+this.padding[0],
+					 this.getY()+this.padding[1],
+					 (this.getX()+this.getWidth())-this.padding[0],
+					 (this.getY()+this.getHeight())-this.padding[1]);
+			this.text.setClippingArea(ca);
+			
+			Logger.debug("text clipping area: "+ca.toString(), "Component.setTextClipping");
 		}
 	}
 }

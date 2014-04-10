@@ -81,7 +81,7 @@ public abstract class Utility
 								(float)val[1]*GL_COLOR_PER_BIT,
 								1.0f};
 		
-		System.out.println("color ("+l+") : "+Arrays.toString(col)+" "+Arrays.toString(val));
+		//Logger.spam("color ("+l+") : "+Arrays.toString(col)+" "+Arrays.toString(val));
 		
 		return col;
 	}
@@ -354,7 +354,7 @@ public abstract class Utility
 		float glx = (((float)x*(2.0f/(float)Settings.get(SetKeys.WIN_WIDTH, Integer.class)))-1.0f);
 		float gly = (((float)y*(2.0f/(float)Settings.get(SetKeys.WIN_HEIGHT, Integer.class)))-1.0f)*-1.0f;
 		
-		Logger.spam("Pixel("+x+"/"+y+") = GL("+glx+"/"+gly+")");
+		//Logger.spam("Pixel("+x+"/"+y+") = GL("+glx+"/"+gly+")");
 		
 		return new float[]{glx, gly};
 	}
@@ -363,7 +363,7 @@ public abstract class Utility
 		float glx = ((float)x*(2.0f/(float)Settings.get(SetKeys.WIN_WIDTH, Integer.class)));//*(1.0f/Settings.get(SetKeys.WIN_ASPECT_RATIO, Float.class));
 		float gly = ((float)y*(2.0f/(float)Settings.get(SetKeys.WIN_HEIGHT, Integer.class)))*-1.0f;
 		
-		Logger.spam("Pixel-->("+x+"/"+y+") = GL-->("+glx+"/"+gly+")");
+		//Logger.spam("Pixel-->("+x+"/"+y+") = GL-->("+glx+"/"+gly+")");
 		
 		return new float[]{glx, gly};
 	}

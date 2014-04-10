@@ -9,4 +9,8 @@ public class Button extends Component {
 	{
 		super(x, y, text);
 	}
+
+	public Button(int x, int y, int width, int height, String text) {
+		super(x,y,width,height,text);
+	}
 }

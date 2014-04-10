@@ -3,6 +3,8 @@ package cdg.nut.gui;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.lwjgl.opengl.GL11;
+
 import cdg.nut.util.DefaultShader;
 import cdg.nut.util.Vertex2;
 import cdg.nut.util.Vertex4;
@@ -234,12 +236,14 @@ public class FontObject extends GLObject {
 	protected void bindTextures()
 	{
 		this.font.getFontTex().bind();
+		//GL11.glShadeModel(GL11.GL_FLAT);
 	}
 
 	@Override
 	protected void unbindTextures()
 	{
 		this.font.getFontTex().unbind();
+		//GL11.glShadeModel(GL11.GL_SMOOTH);
 	}
 
 	@Override
