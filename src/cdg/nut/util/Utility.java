@@ -1,11 +1,15 @@
 package cdg.nut.util;
 
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +17,8 @@ import java.util.Random;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Cursor;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.ALC10;
@@ -167,6 +173,47 @@ public abstract class Utility
 		//}
 		
 		return ids;
+	}
+	
+	public static Cursor loadCursor(String path)
+	{
+		Image c=Toolkit.getDefaultToolkit().getImage(path).getScaledInstance(32,32, Image.SCALE_SMOOTH);
+	    BufferedImage biCursor=new BufferedImage(32,32,BufferedImage.TYPE_INT_ARGB);
+	    while(!biCursor.createGraphics().drawImage(c,0,31,31,0,0,0,31,31,null))
+	      try
+	      {
+	        Thread.sleep(5);
+	      }
+	      catch(InterruptedException e)
+	      {
+	      }
+	    /*
+	    int[] data=biCursor.getRaster().getPixels(0,0,32,32,(int[])null);
+	    
+	    IntBuffer ib=BufferUtils.createIntBuffer(32*32);
+	    for(int i=0;i<data.length;i+=4)
+	      ib.put(data[i] | data[i+1]<<8 | data[i+2]<<16 | data[i+3]<<24);
+	    ib.flip();
+	    */
+	    
+	    IntBuffer ib=BufferUtils.createIntBuffer(32*32);
+	    for(int x = 0; x < biCursor.getWidth(); x++)
+	    {
+	    	for(int y = 0; y < biCursor.getHeight(); y++)
+	    	{
+	    		ib.put(biCursor.getRGB(x, y));
+	    	}
+	    }
+	    ib.flip();
+	    
+	    try {
+			return new Cursor(32, 32, 0, 0, 1, ib, null);
+		} catch (LWJGLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    
+	    return null;
 	}
 	
 	public static boolean between(float x, float v1, float v2)

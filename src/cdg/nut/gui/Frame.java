@@ -3,6 +3,8 @@ package cdg.nut.gui;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -26,7 +28,10 @@ public abstract class Frame {
 	private int oldMouseY;
 	private int mouseGrabX;
 	private int mouseGrabY;
-
+	
+	private int currentCursor = 0;
+	private Cursor activeCursor;
+	private Cursor normalCursor;
 	private boolean mouseLeftPressed;
 	private boolean mouseGrabbed;
 	private boolean deltaMouseGrabbed;
@@ -77,7 +82,13 @@ public abstract class Frame {
 
 		if (Mouse.isButtonDown(MouseButtons.LEFT)) {
 			//System.out.println("did="+deltaId+" | lid="+lastId);
-
+			
+			if(this.currentCursor == 0 && this.activeCursor != null) { try {
+				Mouse.setNativeCursor(this.activeCursor);
+				this.currentCursor = 1; 
+			} catch (LWJGLException e) {
+			} Logger.debug("changing cursor to normal");}
+			
 			if (this.active != null && this.active.getId() != lastId) {
 				this.active.setActive(false);
 			}
@@ -93,6 +104,12 @@ public abstract class Frame {
 		} else if (!Mouse.isButtonDown(MouseButtons.LEFT)) {
 			this.mouseLeftPressed = false;
 			this.mouseGrabbed = false;
+			
+			if(this.currentCursor == 1 && this.normalCursor != null) { try {
+				Mouse.setNativeCursor(this.normalCursor);
+				this.currentCursor = 0; 
+			} catch (LWJGLException e) {
+			} Logger.debug("changing cursor to active");}
 		}
 
 		if (Mouse.isButtonDown(MouseButtons.RIGHT)) {
@@ -192,5 +209,21 @@ public abstract class Frame {
 	public void reset()
 	{
 		// TODO Auto-generated method stub
+	}
+
+	public Cursor getNormalCursor() {
+		return normalCursor;
+	}
+
+	public void setNormalCursor(Cursor normalCursor) {
+		this.normalCursor = normalCursor;
+	}
+
+	public Cursor getActiveCursor() {
+		return activeCursor;
+	}
+
+	public void setActiveCursor(Cursor activeCursor) {
+		this.activeCursor = activeCursor;
 	}
 }

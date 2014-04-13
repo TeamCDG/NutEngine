@@ -12,6 +12,7 @@ import javax.swing.colorchooser.ColorSelectionModel;
 import org.fusesource.jansi.Ansi.Color;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -97,6 +98,10 @@ public class Main {
 		}
 		
 		Frame tf = new TestFrame();
+		tf.setNormalCursor(Utility.loadCursor("m_no.png"));
+		tf.setActiveCursor(Utility.loadCursor("m_cl.png"));
+		
+		Mouse.setNativeCursor(Utility.loadCursor("m_no.png"));
 		
 		Logger.debug("gui_cmp_font_size: "+Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class));
 		Logger.debug(""+GLColor.random());
@@ -112,6 +117,9 @@ public class Main {
 			
 		}*/
 		//b.setShader(DefaultShader.simple);
+		
+		
+		
 		while (!Display.isCloseRequested()) {
 			SetKeys.R_CLEAR_BOTH.execute(null);	
 			GL11.glEnable(GL11.GL_BLEND);
