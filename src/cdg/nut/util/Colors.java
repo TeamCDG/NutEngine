@@ -51,7 +51,7 @@ public enum Colors {
     WINDOW(new GLColor(1f, 1f, 1f)),
     WINDOWFRAME(new GLColor(0.3921569f, 0.3921569f, 0.3921569f)),
     WINDOWTEXT(new GLColor(0f, 0f, 0f)),
-    TRANSPARENT(new GLColor(1f, 1f, 1f)),
+    TRANSPARENT(new GLColor(1f, 1f, 1f, 0f)),
     ALICEBLUE(new GLColor(0.9411765f, 0.9725491f, 1f)),
     ANTIQUEWHITE(new GLColor(0.9803922f, 0.9215687f, 0.8431373f)),
     AQUA(new GLColor(0f, 1f, 1f)),

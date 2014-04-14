@@ -1,8 +1,18 @@
 package cdg.nut.util;
 
-public final class MouseButtons {
+public enum MouseButtons {
 	
-	public static final int LEFT = 0;
-	public static final int RIGHT = 1;
-	public static final int MIDDLE = 2;
+	LEFT(0), RIGHT(1), MIDDLE(2);
+	
+	private int key;
+	
+	MouseButtons(int key)
+	{
+		this.key = key;
+	}
+	
+	public int getKey()
+	{
+		return this.key;
+	}
 }

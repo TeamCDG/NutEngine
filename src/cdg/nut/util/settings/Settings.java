@@ -30,7 +30,7 @@ public class Settings {
 		if(key.getType() == SettingsType.SETTING)
 		{
 			key.setValue(value);
-			//settings.put(key, value);
+			fire(key);
 		}
 		else if(key.getType() == SettingsType.COMMAND_AND_SETTING)
 		{
@@ -42,6 +42,8 @@ public class Settings {
 				l.add(value.toString());
 				key.execute(l);
 			}
+			
+			fire(key);
 		}
 	}
 	
@@ -89,14 +91,9 @@ public class Settings {
 	
 	private static void fire(SetKeys event)
 	{
-		fire(event, null);
-	}
-	
-	private static void fire(SetKeys event, Object value)
-	{
 		for(int i = 0; i < listener.size(); i++)
 		{
-			listener.get(i).valueChanged(event, event.getCls().cast(value));
+			listener.get(i).valueChanged(event);
 		}
 	}
 	

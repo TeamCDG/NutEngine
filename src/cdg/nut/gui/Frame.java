@@ -80,7 +80,7 @@ public abstract class Frame {
 			SetKeys.R_CLEAR_BOTH.execute(null);
 		}
 
-		if (Mouse.isButtonDown(MouseButtons.LEFT)) {
+		if (Mouse.isButtonDown(MouseButtons.LEFT.getKey())) {
 			//System.out.println("did="+deltaId+" | lid="+lastId);
 			
 			if(this.currentCursor == 0 && this.activeCursor != null) { try {
@@ -89,19 +89,28 @@ public abstract class Frame {
 			} catch (LWJGLException e) {
 			} Logger.debug("changing cursor to normal");}
 			
-			if (this.active != null && this.active.getId() != lastId) {
-				this.active.setActive(false);
-			}
-
-			Component c = this.con.get(this.lastId);
-
-			if (lastId != 0 && c != null) {
-				c.clicked(Mouse.getX(), Mouse.getY(), MouseButtons.LEFT, this.mouseLeftPressed);
-			}
-
-			this.active = c;
+			
 			this.mouseLeftPressed = true;
-		} else if (!Mouse.isButtonDown(MouseButtons.LEFT)) {
+		} else if (!Mouse.isButtonDown(MouseButtons.LEFT.getKey())) {
+			
+			if(this.mouseLeftPressed)
+			{
+				
+				
+				if (this.active != null && this.active.getId() != lastId) {
+					this.active.setActive(false);
+				}
+
+				Component c = this.con.get(this.lastId);
+
+				if (lastId != 0 && c != null) {
+					c.clicked(Mouse.getX(), Mouse.getY(), MouseButtons.LEFT, this.mouseLeftPressed);
+				}
+
+				this.active = c;
+			}
+			
+			
 			this.mouseLeftPressed = false;
 			this.mouseGrabbed = false;
 			
@@ -112,9 +121,9 @@ public abstract class Frame {
 			} Logger.debug("changing cursor to active");}
 		}
 
-		if (Mouse.isButtonDown(MouseButtons.RIGHT)) {
+		if (Mouse.isButtonDown(MouseButtons.RIGHT.getKey())) {
 			this.mouseRightPressed = true;
-		} else if (!Mouse.isButtonDown(MouseButtons.RIGHT)) {
+		} else if (!Mouse.isButtonDown(MouseButtons.RIGHT.getKey())) {
 			this.mouseRightPressed = false;
 		}
 

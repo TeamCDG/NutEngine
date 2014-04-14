@@ -386,8 +386,8 @@ public abstract class Utility
 	}
 
 	public static int[] glToPixel(float x, float y) {
-		int px = (int)(((float)x*((float)Settings.get(SetKeys.WIN_WIDTH, Integer.class)/2.0f))-1.0f);
-		int py = (int)(((float)y*((float)Settings.get(SetKeys.WIN_HEIGHT, Integer.class)/2.0f))-1.0f)*-1;
+		int px = Math.round(((float)(x+1.0f)*((float)Settings.get(SetKeys.WIN_WIDTH, Integer.class)/2.0f)));
+		int py = Math.round(((float)((y*-1.0f)+1.0f)*((float)Settings.get(SetKeys.WIN_HEIGHT, Integer.class)/2.0f)))*1;
 		return new int[]{px,py};
 	}
 	

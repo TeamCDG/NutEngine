@@ -138,11 +138,6 @@ public abstract class GLObject implements ISelectable {
 	
 	private void setupGL()
 	{
-		Logger.spam("A("+this.x+"/"+this.y+"); "+
-					 "B("+this.x+"/"+(this.y+this.height)+"); "+
-					 "C("+(this.x+this.width)+"/"+(this.y+this.height)+"); "+
-					 "D("+(this.x+this.width)+"/"+this.y+"); ","GLObject.setupGL");
-		
 			this.points = Utility.generateQuadPoints(this.x, this.y, this.width, this.height);		
 			Vertex2[] st = Utility.generateSTPoints(1.0f, 0.0f, -1.0f, 1.0f);
 			VertexData[] vertices = Utility.generateQuadData(this.points, new GLColor(id), st);
@@ -201,6 +196,8 @@ public abstract class GLObject implements ISelectable {
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		
 		if(this.autoClipping) this.setupClippingArea();
+		
+		this.points = Utility.extractPoints(vertices);
 	}
 	
 	protected final void setupGL(VertexData[] vertices, int[] indices)
@@ -253,6 +250,8 @@ public abstract class GLObject implements ISelectable {
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		
 		if(this.autoClipping) this.setupClippingArea();
+		
+		this.points = Utility.extractPoints(vertices);
 	}
 	
 	

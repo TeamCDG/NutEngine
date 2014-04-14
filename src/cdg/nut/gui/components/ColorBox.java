@@ -11,12 +11,12 @@ public class ColorBox extends Component {
 	public ColorBox(float x, float y, float width, float height, GLColor color)
 	{
 		super(x, y, width, height);
-		this.setColor(color);
+		this.setBackgroundColor(color);
 	}
 
 	public ColorBox(int x, int y, int width, int height, GLColor color)
 	{
 		super(x, y, width, height);
-		this.setColor(color);
+		this.setBackgroundColor(color);
 	}
 }
