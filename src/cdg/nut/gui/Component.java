@@ -328,7 +328,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		//	this.setDimensions(this.text.getWidth()+2*this.padding[0]>this.getWidth()?this.text.getWidth()+2*this.padding[0]:this.getWidth(), this.text.getHeight()+2*this.padding[1]>this.getHeight()?this.text.getHeight()+2*this.padding[1]:this.getHeight());
 	}
 
-	public void setActive(boolean b) {
+	protected void setActive(boolean b) {
 		this.active = b;
 	}
 
@@ -391,12 +391,12 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.autosize();
 	}
 
-	public void keyDown(int eventKey, char eventCharacter) {
+	protected void keyDown(int eventKey, char eventCharacter) {
 		// TODO Auto-generated method stub
 
 	}
 
-	public void clicked(int x, int y, MouseButtons button, boolean mouseLeftPressed) {
+	protected void clicked(int x, int y, MouseButtons button, boolean mouseLeftPressed) {
 		for(int i = 0; i < this.clickListener.size(); i++)
 		{
 			this.clickListener.get(i).onClick(x, y, button);
@@ -684,5 +684,9 @@ public abstract class Component extends GLImage implements ISettingsListener {
 
 	public void addClickListener(IClickListener clickListener) {
 		this.clickListener.add(clickListener);
+	}
+
+	protected void dragged(int mouseGrabX, int mouseGrabY) {
+		if(this.dragable) this.setPosition(this.getPixelX()-mouseGrabX, this.getPixelY()+mouseGrabY);
 	}
 }

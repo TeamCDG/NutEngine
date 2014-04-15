@@ -28,6 +28,14 @@ public class ImageBox extends Component {
 		this.image = new GLImage(image, x+bs, y+bs, width-(2*bs), height-(2*bs));
 		this.image.setColor(Colors.WHITE.getGlColor());
 	}
+	
+	@Override
+	protected void move()
+	{
+		super.move();
+		int bs = Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
+		this.image.setPosition(this.getPixelX()+bs, this.getPixelY()+bs);
+	}
 
 	@Override
 	protected void drawChildren(boolean selection)

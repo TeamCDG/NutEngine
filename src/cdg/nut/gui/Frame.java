@@ -23,6 +23,8 @@ public abstract class Frame {
 	private String title;
 	private Container con;
 	private GLImage background;
+	
+	private boolean forceSelect = false;
 
 	private int oldMouseX;
 	private int oldMouseY;
@@ -43,7 +45,9 @@ public abstract class Frame {
 	private int lastId;
 
 	private int maxSelectSkip = Settings.get(SetKeys.GUI_MAX_SELECT_SKIP, Integer.class);
-	private int selectSkip = Settings.get(SetKeys.GUI_MAX_SELECT_SKIP, Integer.class);;
+	private int selectSkip = Settings.get(SetKeys.GUI_MAX_SELECT_SKIP, Integer.class);
+	private int grabId;
+	private boolean grabable;;
 
 	public Frame()
 	{
@@ -57,40 +61,48 @@ public abstract class Frame {
 		this.con = new Container();
 	}
 
-	public void draw()
+	public void draw() //Never ever ask me to explain this method. it works, that's all, ok ?
 	{
 		this.selectSkip++;
 		Mouse.poll();
 		this.deltaMouseGrabbed = this.mouseGrabbed;
 
-		if (
-			(
-				this.oldMouseX != Mouse.getX() ||
-				this.oldMouseY != Mouse.getY()
-			) &&
-			(
-				this.selectSkip > this.maxSelectSkip
-			) &&
-			Mouse.isInsideWindow()
-		) {
-			this.selectSkip = 0;
-
-			//GL11.glEnable(GL11.GL_BLEND);
+		if (((this.oldMouseX != Mouse.getX() || this.oldMouseY != Mouse.getY()) &&
+			this.selectSkip > this.maxSelectSkip && Mouse.isInsideWindow())
+			|| this.forceSelect) {
+			
+			this.selectSkip = 0;	
+			this.forceSelect = false;
 			this.select();
 			SetKeys.R_CLEAR_BOTH.execute(null);
 		}
 
 		if (Mouse.isButtonDown(MouseButtons.LEFT.getKey())) {
-			//System.out.println("did="+deltaId+" | lid="+lastId);
 			
+			if(! this.mouseGrabbed)
+				this.grabId = this.lastId;
+			
+			
+			this.mouseGrabX = this.oldMouseX-Mouse.getX();
+			this.mouseGrabY = this.oldMouseY-Mouse.getY();
+			if(this.grabable && this.grabId!=0)
+				this.mouseGrabbed = this.mouseLeftPressed && this.con.get(this.grabId).isDragable();
+			else
+				this.grabable = false;
+			
+			
+			//TODO: Cursor class, with easy bind()
 			if(this.currentCursor == 0 && this.activeCursor != null) { try {
 				Mouse.setNativeCursor(this.activeCursor);
 				this.currentCursor = 1; 
 			} catch (LWJGLException e) {
-			} Logger.debug("changing cursor to normal");}
-			
+			}}			
 			
 			this.mouseLeftPressed = true;
+			
+			if(this.grabId != 0 && this.mouseGrabbed) this.con.get(this.grabId).dragged(this.mouseGrabX, this.mouseGrabY);
+			
+			
 		} else if (!Mouse.isButtonDown(MouseButtons.LEFT.getKey())) {
 			
 			if(this.mouseLeftPressed)
@@ -100,7 +112,7 @@ public abstract class Frame {
 				if (this.active != null && this.active.getId() != lastId) {
 					this.active.setActive(false);
 				}
-
+				
 				Component c = this.con.get(this.lastId);
 
 				if (lastId != 0 && c != null) {
@@ -110,9 +122,10 @@ public abstract class Frame {
 				this.active = c;
 			}
 			
-			
+			this.grabable = true;
 			this.mouseLeftPressed = false;
 			this.mouseGrabbed = false;
+			this.forceSelect = true;
 			
 			if(this.currentCursor == 1 && this.normalCursor != null) { try {
 				Mouse.setNativeCursor(this.normalCursor);
@@ -147,11 +160,9 @@ public abstract class Frame {
 			this.oldMouseY = Mouse.getY();
 			this.mouseGrabX = Mouse.getX();
 			this.mouseGrabY = Mouse.getY();
-			this.mouseGrabbed = this.mouseLeftPressed;
 		} else if (this.deltaMouseGrabbed) {
 			this.oldMouseX = Mouse.getX();
 			this.oldMouseY = Mouse.getY();
-			this.mouseGrabbed = this.mouseLeftPressed;
 		}
 
 		if (this.background != null) this.background.draw();
@@ -175,12 +186,13 @@ public abstract class Frame {
 
 		int gotId = Utility.glColorToId(vs, false);
 
-		if (gotId == lastId) {
-			return; //my work here is done
-		}
 
-		for (int i = 0; i < this.con.getComponentCount(); i++) {
-			this.con.getComponents().get(i).checkId(gotId);
+
+		if(!this.mouseGrabbed)
+		{
+			for (int i = 0; i < this.con.getComponentCount(); i++) {
+				this.con.getComponents().get(i).checkId(gotId);
+			}
 		}
 
 		this.lastId = gotId;

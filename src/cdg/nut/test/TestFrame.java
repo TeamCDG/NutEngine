@@ -51,6 +51,7 @@ public class TestFrame extends Frame {
 		this.addComponent(cbox);
 		
 		this.ibox = new ImageBox(700, 10, 200, 200, new GLTexture("grid0.png", GL13.GL_TEXTURE0));
+		this.ibox.setDragable(true);
 		this.addComponent(ibox);
 	}
 }
