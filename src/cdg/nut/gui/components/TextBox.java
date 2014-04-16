@@ -163,7 +163,7 @@ public class TextBox extends Component implements IKeyboardListener{
         
         if(dif == lines[line].length()+1)
             dif = 0;
-        else if(dif >= lines[line-1].length()+1)
+        else if(line > 0 && dif >= lines[line-1].length()+1)
             dif = lines[line-1].length();
         
         int t = 0;

@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL11;
 
 import cdg.nut.interfaces.ICommandExecuter;
 import cdg.nut.logging.Logger;
+import cdg.nut.test.Main;
 import cdg.nut.util.BitmapFont;
 import cdg.nut.util.Utility;
 import cdg.nut.util.gl.GLColor;
@@ -50,6 +51,8 @@ public enum SetKeys {
 	GUI_CMP_BORDER_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight border color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_BORDER_A_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default active border color of components", new GLColor(1.0f, 0.0f, 0.0f, 1.0f)),
 	GUI_CMP_BORDER_SIZE("<int>", "default size of borders", 4),
+	GUI_CMP_SCROLLBAR_SIZE("<int>", "default size of scrollbars", 10),
+	GUI_CMP_SCROLLBAR_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of components", new GLColor(0.75f, 0.75f, 0.75f, 1.0f)),
 	GUI_CMP_FONT("<string>", "default font of components", BitmapFont.EMPTY),
 	GUI_CMP_FONT_PADDING("<int>", "default font padding of components", 8),
 	GUI_MAX_SELECT_SKIP("<int>", "max frames without selection", 2),
@@ -98,6 +101,19 @@ public enum SetKeys {
 		@Override
 		public void exec(List<String> parameter) {
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+	}}),
+	
+	//--- REGION COMMANDS ---
+	EXIT("", "exit", new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			Main.closeRequested = true;
+	}}),
+	
+	QUIT("", "exit", new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			Main.closeRequested = true;
 	}}),
 	;
 	

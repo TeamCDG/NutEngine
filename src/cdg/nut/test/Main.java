@@ -43,6 +43,8 @@ import cdg.nut.util.settings.Settings;
 
 public class Main {
 
+	public static boolean closeRequested = false;
+
 	/**
 	 * @param args
 	 * @throws IOException 
@@ -120,7 +122,7 @@ public class Main {
 		
 		
 		
-		while (!Display.isCloseRequested()) {
+		while (!Display.isCloseRequested() && !Main.closeRequested) {
 			SetKeys.R_CLEAR_BOTH.execute(null);	
 			GL11.glEnable(GL11.GL_BLEND);
 			
