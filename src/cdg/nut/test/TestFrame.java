@@ -56,8 +56,8 @@ public class TestFrame extends Frame {
 		this.l = new Label(150, 10, GLColor.random()+Utility.randomString());
 		this.addComponent(l);
 		
-		this.md = new Label(820, 440, Mouse.getX()+"/"+Mouse.getY());
-		this.md.setFontSize(20);
+		this.md = new Label(340, 140, Mouse.getX()+"/"+Mouse.getY());
+		this.md.setFontSize(14);
 		this.addComponent(md);
 		
 		this.cbox = new ColorBox(10, 550, 50, 50, GLColor.random());
@@ -91,6 +91,6 @@ public class TestFrame extends Frame {
 	public void draw()
 	{
 		super.draw();
-		//this.md.setText(Mouse.getX()+"/"+(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()));
+		this.md.setText(Mouse.getX()+"/"+(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()));
 	}
 }

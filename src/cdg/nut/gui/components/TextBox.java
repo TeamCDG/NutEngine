@@ -231,6 +231,8 @@ public class TextBox extends Component implements IKeyboardListener{
 	@Override
 	public void keyDown(int eventKey, char eventCharacter)
 	{
+		Logger.debug("event key: "+eventKey+" / key name: "+Keyboard.getKeyName(eventKey), "TextBox.keyDown");
+		
 		if(eventKey == Keyboard.KEY_V && (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)))
 		{
 			if(!this.selection)
@@ -254,6 +256,24 @@ public class TextBox extends Component implements IKeyboardListener{
 		{
 			if(!this.isPasswordMode())
 				Utility.setClipboard(this.getSelectedText());
+		}
+		else if(eventKey == Keyboard.KEY_X && (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)))
+		{
+			if(!this.isPasswordMode() && this.selection)
+			{
+				Utility.setClipboard(this.getSelectedText());
+				String text = this.getText();
+				this.setText(text.substring(0,Math.min(this.cursorPos, this.selectionStart))+text.substring(Math.max(this.cursorPos, this.selectionStart)));
+				this.selection = false;
+				this.setTextSelection(0, 0);
+				this.cursorPos = Math.min(this.cursorPos, this.selectionStart);
+				this.setCursorPos();
+			}
+		}
+		else if(eventKey == Keyboard.KEY_A && (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)))
+		{
+			this.selection = true;
+			this.setTextSelection(0, this.getText().length());
 		}
 		else if(!Character.isISOControl(eventCharacter) && eventKey != Keyboard.KEY_SPACE)
 		{
@@ -447,6 +467,55 @@ public class TextBox extends Component implements IKeyboardListener{
 			{
 				String text = this.getText();
 				int npos = this.getDownPos(text, this.cursorPos);	
+				if(!this.selection && npos != this.cursorPos)
+				{
+					this.selection = true;
+					this.selectionStart = this.cursorPos;
+				}
+				
+				this.cursorPos = npos;			
+				this.setCursorPos();
+				this.setTextSelection(this.selectionStart, this.cursorPos);
+			}
+			else if(eventKey == Keyboard.KEY_END && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+			{
+				String text = this.getText();
+				this.cursorPos = text.length();	
+				this.setCursorPos();
+				if(this.selection)
+				{
+					this.selection = false;
+					this.setTextSelection(0, 0);
+				}
+			}
+			else if(eventKey == Keyboard.KEY_END && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+			{
+				String text = this.getText();
+				int npos = text.length();	
+				if(!this.selection && npos != this.cursorPos)
+				{
+					this.selection = true;
+					this.selectionStart = this.cursorPos;
+				}
+				
+				this.cursorPos = npos;			
+				this.setCursorPos();
+				this.setTextSelection(this.selectionStart, this.cursorPos);
+			}
+			else if(eventKey == Keyboard.KEY_HOME && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+			{
+				this.cursorPos = 0;	
+				this.setCursorPos();
+				if(this.selection)
+				{
+					this.selection = false;
+					this.setTextSelection(0, 0);
+				}
+			}
+			else if(eventKey == Keyboard.KEY_HOME && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+			{
+				String text = this.getText();
+				int npos = 0;	
 				if(!this.selection && npos != this.cursorPos)
 				{
 					this.selection = true;
