@@ -15,6 +15,7 @@ import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.gl.GLObject;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
+import cdg.nut.interfaces.IKeyboardListener;
 import cdg.nut.interfaces.ISettingsListener;
 import cdg.nut.interfaces.IClickListener;
 
@@ -39,10 +40,13 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	private GLColor borderHighlightColor;
 	private GLColor borderActiveColor;
 	
-	private boolean dragable;
+	private boolean dragable = false;
+	private boolean activeable = false;
+	
+	private boolean xscroll, yscroll = false;
 	
 	private List<IClickListener> clickListener = new ArrayList<IClickListener>();
-	
+	private List<IKeyboardListener> keyListener = new ArrayList<IKeyboardListener>();
 	
 	@SuppressWarnings("unused")
 	private boolean hasBorder = true;
@@ -60,6 +64,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.setupPadding();
 		
 		this.restoreDefaults();
+		
+		Settings.addListener(this);
 	}
 
 	public Component(int x, int y, int width, int height)
@@ -71,6 +77,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.setupPadding();
 		
 		this.restoreDefaults();
+		
+		Settings.addListener(this);
 	}
 	
 	public Component(float x, float y, float width, float height, String text)
@@ -80,6 +88,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.setTextClipping();
 		
 		this.restoreDefaults();
+		
+		Settings.addListener(this);
 	}
 
 	public Component(int x, int y, int width, int height, String text)
@@ -90,6 +100,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.setTextClipping();
 		
 		this.restoreDefaults();
+		
+		Settings.addListener(this);
 	}
 
 	private Component(float x, float y, float[] dim, float[] add)
@@ -102,6 +114,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.autosizeWithText = true;
 		
 		this.restoreDefaults();
+		
+		Settings.addListener(this);
 	}
 
 	private Component(int x, int y, int[] dim, int[] add)
@@ -114,6 +128,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.autosizeWithText = true;
 		
 		this.restoreDefaults();
+		
+		Settings.addListener(this);
 	}
 
 	public Component(float x, float y, String text)
@@ -135,6 +151,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.text = new FontObject(x+this.padding[0], y+this.padding[1], text);
 		
 		this.restoreDefaults();
+		
+		Settings.addListener(this);
 	}
 
 	public Component(int x, int y, String text)
@@ -159,6 +177,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.text = new FontObject(x+pad[0], y+pad[1], text);
 		
 		this.restoreDefaults();
+		
+		Settings.addListener(this);
 	}
 	
 	private void setColor()
@@ -201,25 +221,27 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	}
 	
 	public void valueChanged(SetKeys key) {
+		
+		Logger.debug("recieved change key: "+key.name().toLowerCase(), "Component.valueChanged");
 		switch(key)
 		{
 		case GUI_CMP_BACKGROUND_A_COLOR:
-			if(!this.customBgAC) this.backgroundActiveColor =  key.getValue(GLColor.class);
+			if(!this.customBgAC) this.resetBackgroundActiveColor();
 			break;
 		case GUI_CMP_BACKGROUND_COLOR:
-			if(!this.customBgC) this.backgroundColor =  key.getValue(GLColor.class);
+			if(!this.customBgC) this.resetBackgroundColor();
 			break;
 		case GUI_CMP_BACKGROUND_H_COLOR:
-			if(!this.customBgHC) this.backgroundHighlightColor =  key.getValue(GLColor.class);
+			if(!this.customBgHC) this.resetBackgroundHighlightColor();
 			break;
 		case GUI_CMP_BORDER_A_COLOR:
-			if(!this.customBorAC) this.borderActiveColor =  key.getValue(GLColor.class);
+			if(!this.customBorAC) this.resetBorderActiveColor();
 			break;
 		case GUI_CMP_BORDER_COLOR:
-			if(!this.customBorC) this.borderColor =  key.getValue(GLColor.class);
+			if(!this.customBorC) this.resetBorderColor();
 			break;
 		case GUI_CMP_BORDER_H_COLOR:
-			if(!this.customBorHC) this.borderHighlightColor =  key.getValue(GLColor.class);
+			if(!this.customBorHC) this.resetBorderHighlightColor();
 			break;
 		case GUI_CMP_BORDER_SIZE:
 			this.setupPadding();
@@ -227,19 +249,19 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		case GUI_CMP_FONT:
 			break;
 		case GUI_CMP_FONT_A_COLOR:
-			if(!this.customFontAC) this.fontActiveColor =  key.getValue(GLColor.class);
-			break;
+			if(!this.customFontAC) this.resetFontActiveColor(); 
+			break; 
 		case GUI_CMP_FONT_COLOR:
-			if(!this.customFontC) this.fontColor =  key.getValue(GLColor.class);
+			if(!this.customFontC) this.resetFontColor();
 			break;
 		case GUI_CMP_FONT_H_COLOR:
-			if(!this.customFontHC) this.fontHighlightColor =  key.getValue(GLColor.class);
+			if(!this.customFontHC) this.resetFontHighlightColor();
 			break;
 		case GUI_CMP_FONT_PADDING:
 			this.setupPadding();
 			break;
 		case GUI_CMP_FONT_SIZE:
-			if(!this.customFontSize) this.text.setFontSize(key.getValue(Float.class));
+			if(!this.customFontSize) this.text.setFontSize(key.getValue(Float.class)); 
 			break;
 		case GUI_MAX_SELECT_SKIP:
 			break;
@@ -329,7 +351,14 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	}
 
 	protected void setActive(boolean b) {
-		this.active = b;
+		
+		Logger.debug("active: "+b+"/ activable: "+this.activeable, "Component.setActive");
+		
+		if(this.activeable)
+		{
+			this.active = b;
+			this.setColor();
+		}
 	}
 
 	public String getText()
@@ -369,6 +398,11 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	{
 		return this.text.getFontSize();
 	}
+	
+	public int getFontPixelSize()
+	{
+		return Utility.glSizeToPixelSize(0, this.text.getFontSize())[1];
+	}
 
 	public void setFontSize(float fontSize)
 	{
@@ -391,8 +425,11 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.autosize();
 	}
 
-	protected void keyDown(int eventKey, char eventCharacter) {
-		// TODO Auto-generated method stub
+	protected void key(int eventKey, char eventCharacter) {
+		for(int i = 0; i < this.keyListener.size(); i ++)
+		{
+			this.keyListener.get(i).keyDown(eventKey, eventCharacter);
+		}
 
 	}
 
@@ -409,10 +446,10 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		super.setSelected(value);
 
 		//TODO: custom override color
-		if (value == true) {
+		if (value == true && !this.active) {
 			if(this.hasBackground) this.setColor(this.backgroundHighlightColor);
 			this.border.setColor(this.borderHighlightColor);
-		} else {
+		} else if(!this.active) {
 			if(this.hasBackground) this.setColor(this.backgroundColor);
 			this.border.setColor(this.borderColor);
 		}
@@ -477,6 +514,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	 */
 	public void setBackgroundColor(GLColor backgroundColor) {
 		this.backgroundColor = backgroundColor;
+		this.customBgC = true;
 		if(!this.active && !this.isSelected()&& this.hasBackground)
 			this.setColor(backgroundColor);
 	}
@@ -498,6 +536,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	 */
 	public void setBackgroundHighlightColor(GLColor backgroundHighlightColor) {
 		this.backgroundHighlightColor = backgroundHighlightColor;
+		this.customBgHC = true;
 		if(!this.active && this.isSelected() && this.hasBackground)
 			this.setColor(backgroundHighlightColor);
 	}
@@ -519,6 +558,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	 */
 	public void setBackgroundActiveColor(GLColor backgroundActiveColor) {
 		this.backgroundActiveColor = backgroundActiveColor;
+		this.customBgAC = true;
 		if(this.active && this.hasBackground)
 			this.setColor(backgroundActiveColor);
 	}
@@ -540,6 +580,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	 */
 	public void setBorderColor(GLColor borderColor) {
 		this.borderColor = borderColor;
+		this.customBorC = true;
 		if(!this.active && !this.isSelected())
 			this.border.setColor(borderColor);
 	}
@@ -561,6 +602,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	 */
 	public void setBorderHighlightColor(GLColor borderHighlightColor) {
 		this.borderHighlightColor = borderHighlightColor;
+		this.customBorHC = true;
 		if(!this.active && this.isSelected())
 			this.border.setColor(borderHighlightColor);
 	}
@@ -582,6 +624,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	 */
 	public void setBorderActiveColor(GLColor borderActiveColor) {
 		this.borderActiveColor = borderActiveColor;
+		this.customBorAC = true;
 		if(this.active)
 			this.border.setColor(borderActiveColor);
 	}
@@ -603,6 +646,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	 */
 	public void setFontColor(GLColor fontColor) {
 		this.fontColor = fontColor;
+		this.customFontC = true;
 		if(!this.active && !this.isSelected() &&this.text != null)
 			this.text.setColor(fontColor);
 	}
@@ -678,6 +722,14 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.hasBorder = hasBorder;
 	}
 
+	public void removeKeyListener(IKeyboardListener keyListener) {
+		this.keyListener.remove(keyListener);
+	}
+
+	public void addKeyListener(IKeyboardListener keyListener) {
+		this.keyListener.add(keyListener);
+	}
+	
 	public void removeClickListener(IClickListener clickListener) {
 		this.clickListener.remove(clickListener);
 	}
@@ -687,6 +739,70 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	}
 
 	protected void dragged(int mouseGrabX, int mouseGrabY) {
-		if(this.dragable) this.setPosition(this.getPixelX()-mouseGrabX, this.getPixelY()+mouseGrabY);
+		if(this.dragable) this.setPosition(this.getPixelX()-mouseGrabX, this.getPixelY()-mouseGrabY);
+	}
+
+	public boolean isActiveable() {
+		return activeable;
+	}
+
+	public void setActiveable(boolean activeable) {
+		this.activeable = activeable;
+		if(!activeable)
+			this.setActive(false);
+	}
+	
+	/**
+	 * @return the passwordMode
+	 */
+	public boolean isPasswordMode() {
+		return this.text.isPasswordMode();
+	}
+
+	/**
+	 * @param passwordMode the passwordMode to set
+	 */
+	public void setPasswordMode(boolean passwordMode) {
+		this.text.setPasswordMode(passwordMode);
+	}
+	
+	public char getPasswordChar() {
+		return this.text.getPasswordChar();
+	}
+
+	public void setPasswordChar(char passwordChar) {
+		this.text.setPasswordChar(passwordChar);
+	}
+	
+	public int getTextX()
+	{
+		int pabs = Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class) +
+				   Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
+		
+		return this.getPixelX() + pabs;
+	}
+	
+	public int getTextY()
+	{
+		int pabs = Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class) +
+				   Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
+		
+		return this.getPixelY() + pabs;
+	}
+	
+	protected int[] getCursorPos(int index)
+	{
+		return this.text.getCursorPos(index);
+	}
+	
+	protected int getIndexByPosition(int x, int y)
+	{
+		Logger.debug("x: "+x+" / y: "+y+" / textX: "+this.getTextX()+" / textY: "+this.getTextY(),"Component.getIndexByPosition");
+		return this.text.getIndexByPosition(this.getTextX()-x,this.getTextY()-y);
+	}
+	
+	protected boolean isActive()
+	{
+		return this.active;
 	}
 }

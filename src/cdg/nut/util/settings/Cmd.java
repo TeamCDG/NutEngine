@@ -76,6 +76,22 @@ public abstract class Cmd {
 	
 	public static void exec(String key, List<String> parameter)
 	{		
+		boolean found = false;
+		for(SetKeys k : SetKeys.values())
+		{
+			if(k.name().equals(key.toUpperCase()))
+			{
+				found = true;
+				break;
+			}
+		}
+		
+		if(!found)
+		{
+			Logger.info("key '"+key.toLowerCase()+"' not found!","Cmd.exec");
+			return;
+		}
+		
 		if(SetKeys.valueOf(key.toUpperCase()).getType() == SettingsType.SETTING) //we have to change settings now :)
 		{
 			Class<?> c = SetKeys.valueOf(key.toUpperCase()).getCls();

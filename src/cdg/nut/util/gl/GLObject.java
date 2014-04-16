@@ -393,6 +393,10 @@ public abstract class GLObject implements ISelectable {
 		return width;
 	}
 	
+	public int getPixelWidth() {
+		return Utility.glSizeToPixelSize(width, 0)[0];
+	}
+	
 	public void setPosition(int x, int y)
 	{
 		float[] tmp = Utility.pixelToGL(x, y);
@@ -419,6 +423,10 @@ public abstract class GLObject implements ISelectable {
 
 	public float getHeight() {
 		return height;
+	}
+	
+	public int getPixelHeight() {
+		return Utility.glSizeToPixelSize(0, height)[1];
 	}
 	
 	protected void setHeightSupEvent(float height) {

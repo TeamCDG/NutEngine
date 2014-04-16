@@ -51,7 +51,7 @@ public class BitmapFont
 		if(Display.isCreated())
 			this.fontTex = new GLTexture(f.getPath().replace(f.getName(),"")+"\\"+this.fontName+".png", GL13.GL_TEXTURE0, true);
 		
-		this.font.add(new FontChar(" ", 0, 0, this.getChar("A").getWidth(), 0));
+		this.font.add(new FontChar(" ", 0, 0, this.getChar("#").getWidth(), 0));
 	}
 	
 	public BitmapFont(String fontInfoFilePath, String imagePath) throws IOException
@@ -149,12 +149,17 @@ public class BitmapFont
 		return fontTex;
 	}
 	
-	
 	public float[] measureDimensions(String text, float fontSize)
+	{
+		return measureDimensions(text, fontSize, (char)0);
+	}
+	
+	public float[] measureDimensions(String text, float fontSize, char passwordChar)
 	{
 		float xoff = 0.0f;
 		float yoff = 0.0f;		
 		float xoffmax = 0.0f;
+		float scalingConst = fontSize / this.getHeight("A");
 		
 		for(int i = 0; i < text.length(); i++)
 		{
@@ -199,7 +204,10 @@ public class BitmapFont
 			}
 			else // we actually have something that looks like text
 			{
-				float w = (fontSize/this.getHeight(c))*this.getWidth(c)*(1/Settings.get(SetKeys.WIN_ASPECT_RATIO, Float.class))*-1.0f;
+				if(passwordChar != (char)0)
+					c = ""+passwordChar;
+				
+				float w = (scalingConst)*this.getWidth(c)*(1/Settings.get(SetKeys.WIN_ASPECT_RATIO, Float.class))*-1.0f;
 				
 				xoff += w;
 				
@@ -223,8 +231,176 @@ public class BitmapFont
 
 	public int[] measureDimensionsAsInt(String text, float fontSize)
 	{
-		float[] f = measureDimensions(text, fontSize);
+		return measureDimensionsAsInt(text, fontSize, (char)0);
+	}
+	
+	public int[] measureDimensionsAsInt(String text, float fontSize, char passwordChar)
+	{
+		float[] f = measureDimensions(text, fontSize, passwordChar);
 		return Utility.glSizeToPixelSize(f[0], f[1]);
+	}
+	
+	public int[] getCursorPixelPos(String text, float fontSize, int cursorPos)
+	{
+		return getCursorPixelPos(text, fontSize, (char)0, cursorPos);
+	}
+	
+	public int[] getCursorPixelPos(String text, float fontSize, char passwordChar, int cursorPos)
+	{
+		float[] f = getCursorPos(text, fontSize, passwordChar, cursorPos);
+		return Utility.glSizeToPixelSize(f[0], f[1]);
+	}
+	
+	public float[] getCursorPos(String text, float fontSize, int cursorPos)
+	{
+		return getCursorPos(text, fontSize, (char)0, cursorPos);
+	}
+	
+	public float[] getCursorPos(String text, float fontSize, char passwordChar, int cursorPos)
+	{
+		float xoff = 0.0f;
+		float yoff = 0.0f;		
+		float scalingConst = fontSize / this.getHeight("A");
+		
+		for(int i = 0; i < cursorPos; i++)
+		{
+			String c = text.substring(i, i+1);
+			
+			if(c.equals("\u001B")) //color codes...
+			{
+				String aco = "";
+				try
+				{
+					aco = text.substring(i, i+5);
+					
+				} catch(Exception e) {}
+				
+				if(aco.endsWith("m"))
+				{
+					i+=4;
+				}
+				else
+				{
+					i+=3;
+					
+				}
+				
+			}
+			else if(c.equals(GLColor.TEXT_COLOR_IDENTIFIER)) // gl color
+			{
+				try
+				{
+					i+=4;
+				} catch(Exception e) {}
+			}
+			else if(c.equals(GLColor.TEXT_COLOR_RESET)) // back to default
+			{
+			}
+			else if(c.equals("\n")) // new line
+			{
+				xoff = 0.0f;
+				yoff += fontSize;
+			}
+			else // we actually have something that looks like text
+			{
+				if(passwordChar != (char)0)
+					c = ""+passwordChar;
+				
+				float w = (scalingConst)*this.getWidth(c)*(1/Settings.get(SetKeys.WIN_ASPECT_RATIO, Float.class))*-1.0f;
+				
+				xoff += w;
+				
+				
+			}
+			
+		}
+	
+		return new float[]{xoff, yoff};
+	}
+
+	public int getIndexByPosition(int x, int y, String text, float fontSize) {
+		return getIndexByPosition(x,y,text,fontSize,(char)0);
+	}
+
+	public int getIndexByPosition(int x, int y, String text, float fontSize, char passwordChar) {
+		float[] pos = Utility.pixelSizeToGLSize(-x, -y);
+		return getIndexByPosition(pos[0], pos[1], text, fontSize, passwordChar);
+	}
+	
+	public int getIndexByPosition(float x, float y, String text, float fontSize) {
+		return getIndexByPosition(x, y, text, fontSize, (char)0);
+	}
+	
+	public int getIndexByPosition(float x, float y, String text, float fontSize,char passwordChar) {
+		float xoff = 0.0f;
+		float yoff = 0.0f;		
+		x = Math.abs(x);
+		y = Math.abs(y);
+		float scalingConst = fontSize / this.getHeight("A");
+		
+		int index = text.length();
+		
+		for(int i = 0; i < text.length(); i++)
+		{
+			String c = text.substring(i, i+1);
+			
+			if(c.equals("\u001B")) //color codes...
+			{
+				String aco = "";
+				try
+				{
+					aco = text.substring(i, i+5);
+					
+				} catch(Exception e) {}
+				
+				if(aco.endsWith("m"))
+				{
+					i+=4;
+				}
+				else
+				{
+					i+=3;
+					
+				}
+				
+			}
+			else if(c.equals(GLColor.TEXT_COLOR_IDENTIFIER)) // gl color
+			{
+				try
+				{
+					i+=4;
+				} catch(Exception e) {}
+			}
+			else if(c.equals(GLColor.TEXT_COLOR_RESET)) // back to default
+			{
+			}
+			else if(c.equals("\n")) // new line
+			{
+				xoff = 0.0f;
+				yoff -= fontSize;
+			}
+			else // we actually have something that looks like text
+			{
+				if(passwordChar != (char)0)
+					c = ""+passwordChar;
+				
+				float w = (scalingConst)*this.getWidth(c)*(1/Settings.get(SetKeys.WIN_ASPECT_RATIO, Float.class))*-1.0f;
+				
+				xoff += w;
+				
+				Logger.debug("xoff: "+xoff+" / yoff: "+(yoff-fontSize)+" / x: "+x+" / y:"+y,"BitmapFont.getIndexByPosition");
+				
+				if(xoff > x && yoff-fontSize > y)
+				{
+					index = i;
+					break;
+				}
+				
+			}
+			
+		}
+			
+		return index;
 	}
 
 }

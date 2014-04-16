@@ -25,6 +25,25 @@ public class FontObject extends GLObject {
 	private String colorText;
 	private String actualText;
 	private float fontSize;
+	private float scalingConst;
+	
+	private char passwordChar = '*';
+	private boolean passwordMode = false;
+
+	/**
+	 * @return the passwordMode
+	 */
+	public boolean isPasswordMode() {
+		return passwordMode;
+	}
+
+	/**
+	 * @param passwordMode the passwordMode to set
+	 */
+	public void setPasswordMode(boolean passwordMode) {
+		this.passwordMode = passwordMode;
+		this.setupFontGL();
+	}
 
 	public BitmapFont getFont()
 	{
@@ -82,6 +101,7 @@ public class FontObject extends GLObject {
 	{
 		List<VertexData> ret = new LinkedList<VertexData>();
 		String finText = this.colorText;
+		this.scalingConst = this.fontSize / this.font.getHeight("A");
 
 		if (this.colorText != "") {
 			int aqc = 0;
@@ -140,10 +160,11 @@ public class FontObject extends GLObject {
 					yoff += this.fontSize;
 					trueoff = 0.0f;
 				} else { // we actually have something that looks like text
+					
+					if(this.passwordMode) c = ""+this.passwordChar;
 					float w =
 						(
-							this.fontSize / this.
-							font.getHeight(c)
+							this.scalingConst
 						) *
 						this.font.getWidth(c) *
 						(
@@ -151,6 +172,7 @@ public class FontObject extends GLObject {
 							Settings.get(SetKeys.WIN_ASPECT_RATIO, Float.class)
 						) *
 						-1.0f;
+					
 					Vertex4[] qp = Utility.generateQuadPoints(xoff, yoff, w, this.fontSize);
 					Vertex2[] st = Utility.generateSTPoints(
 						this.font.getX(c),
@@ -250,5 +272,23 @@ public class FontObject extends GLObject {
 	protected void passUniforms()
 	{
 
+	}
+
+	public char getPasswordChar() {
+		return passwordChar;
+	}
+
+	public void setPasswordChar(char passwordChar) {
+		this.passwordChar = passwordChar;
+		this.setupFontGL();
+	}
+
+	public int[] getCursorPos(int index) {
+		int[] dim = this.passwordMode? this.font.getCursorPixelPos(this.colorText.substring(0, index), this.fontSize, this.passwordChar, index) : this.font.getCursorPixelPos(this.colorText.substring(0, index), this.fontSize, index);
+		return dim;
+	}
+
+	public int getIndexByPosition(int x, int y) {
+		return this.passwordMode?this.font.getIndexByPosition(x, y, this.colorText, this.fontSize, this.passwordChar):this.font.getIndexByPosition(x, y, this.colorText, this.fontSize);
 	}
 }

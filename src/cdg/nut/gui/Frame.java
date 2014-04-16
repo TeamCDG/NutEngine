@@ -61,13 +61,13 @@ public abstract class Frame {
 		this.con = new Container();
 	}
 
-	public void draw() //Never ever ask me to explain this method. it works, that's all, ok ?
+	public void draw() //Never ever ask me to explain this method. it works, that's all, hua?
 	{
 		this.selectSkip++;
 		Mouse.poll();
 		this.deltaMouseGrabbed = this.mouseGrabbed;
 
-		if (((this.oldMouseX != Mouse.getX() || this.oldMouseY != Mouse.getY()) &&
+		if (((this.oldMouseX != Mouse.getX() || this.oldMouseY != SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()) &&
 			this.selectSkip > this.maxSelectSkip && Mouse.isInsideWindow())
 			|| this.forceSelect) {
 			
@@ -84,7 +84,7 @@ public abstract class Frame {
 			
 			
 			this.mouseGrabX = this.oldMouseX-Mouse.getX();
-			this.mouseGrabY = this.oldMouseY-Mouse.getY();
+			this.mouseGrabY = this.oldMouseY-(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY());
 			if(this.grabable && this.grabId!=0)
 				this.mouseGrabbed = this.mouseLeftPressed && this.con.get(this.grabId).isDragable();
 			else
@@ -116,16 +116,16 @@ public abstract class Frame {
 				Component c = this.con.get(this.lastId);
 
 				if (lastId != 0 && c != null) {
-					c.clicked(Mouse.getX(), Mouse.getY(), MouseButtons.LEFT, this.mouseLeftPressed);
+					c.clicked(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()), MouseButtons.LEFT, this.mouseLeftPressed);
+					c.setActive(true);
 				}
-
+				
 				this.active = c;
 			}
 			
 			this.grabable = true;
 			this.mouseLeftPressed = false;
 			this.mouseGrabbed = false;
-			this.forceSelect = true;
 			
 			if(this.currentCursor == 1 && this.normalCursor != null) { try {
 				Mouse.setNativeCursor(this.normalCursor);
@@ -145,24 +145,25 @@ public abstract class Frame {
 
 		while (Keyboard.next()) {
 			if (Keyboard.getEventKeyState() && this.active!=null) {
-				this.active.keyDown(Keyboard.getEventKey(), Keyboard.getEventCharacter());
+				this.active.key(Keyboard.getEventKey(), Keyboard.getEventCharacter());
 			}
 		}
 
 		if (
 			(
 				this.oldMouseX != Mouse.getX() ||
-				this.oldMouseY != Mouse.getY()
+				this.oldMouseY != (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY())
+				
 			) &&
 			!this.deltaMouseGrabbed
 		) {
 			this.oldMouseX = Mouse.getX();
-			this.oldMouseY = Mouse.getY();
+			this.oldMouseY = (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY());
 			this.mouseGrabX = Mouse.getX();
-			this.mouseGrabY = Mouse.getY();
+			this.mouseGrabY = (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY());
 		} else if (this.deltaMouseGrabbed) {
 			this.oldMouseX = Mouse.getX();
-			this.oldMouseY = Mouse.getY();
+			this.oldMouseY = (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY());
 		}
 
 		if (this.background != null) this.background.draw();

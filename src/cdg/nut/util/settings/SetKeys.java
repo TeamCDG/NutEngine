@@ -45,10 +45,10 @@ public enum SetKeys {
 	//----- REGION GUI ------
 	GUI_CMP_BACKGROUND_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of components", new GLColor(0.3f, 0.3f, 0.3f, 0.8f)),
 	GUI_CMP_BACKGROUND_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight background color of components", new GLColor(0.5f, 0.5f, 0.5f, 0.8f)),
-	GUI_CMP_BACKGROUND_A_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default active background color of components", new GLColor(0.5f, 0.5f, 0.5f, 0.8f)),
+	GUI_CMP_BACKGROUND_A_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default active background color of components", new GLColor(0.3f, 0.3f, 0.3f, 0.8f)),
 	GUI_CMP_BORDER_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_BORDER_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight border color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
-	GUI_CMP_BORDER_A_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default active border color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
+	GUI_CMP_BORDER_A_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default active border color of components", new GLColor(1.0f, 0.0f, 0.0f, 1.0f)),
 	GUI_CMP_BORDER_SIZE("<int>", "default size of borders", 4),
 	GUI_CMP_FONT("<string>", "default font of components", BitmapFont.EMPTY),
 	GUI_CMP_FONT_PADDING("<int>", "default font padding of components", 8),
