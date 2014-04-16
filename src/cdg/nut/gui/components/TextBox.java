@@ -11,6 +11,7 @@ import cdg.nut.interfaces.ICommandListener;
 import cdg.nut.interfaces.IKeyboardListener;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.MouseButtons;
+import cdg.nut.util.Utility;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
@@ -24,12 +25,17 @@ public class TextBox extends Component implements IKeyboardListener{
 	
 	private boolean commandMode = false;
 	private boolean readonly = false;
+	
+	private boolean selection = false;
+	private int selectionStart = 0;
+	
 	List<ICommandListener> clis = new ArrayList<ICommandListener>();
 	
 	public TextBox(int x, int y, String text)
 	{
 		super(x, y, text);
 		this.setActiveable(true);
+		this.setTextSelectable(true);
 		this.addKeyListener(this);
 		this.cursor = new GLImage(this.getFontColor(), this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
 	}
@@ -38,6 +44,7 @@ public class TextBox extends Component implements IKeyboardListener{
 	public TextBox(int x, int y, int width, int height, String text) {
 		super(x,y,width,height,text);
 		this.setActiveable(true);
+		this.setTextSelectable(true);
 		this.addKeyListener(this);
 		this.cursor = new GLImage(this.getFontColor(), this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
 	}
@@ -46,6 +53,7 @@ public class TextBox extends Component implements IKeyboardListener{
 	{
 		super(x, y, text);
 		this.setActiveable(true);
+		this.setTextSelectable(true);
 		this.addKeyListener(this);
 		this.cursor = new GLImage(this.getFontColor(), this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
 	}
@@ -53,6 +61,7 @@ public class TextBox extends Component implements IKeyboardListener{
 	public TextBox(float x, float y, float width, float height, String text) {
 		super(x,y,width,height,text);
 		this.setActiveable(true);
+		this.setTextSelectable(true);
 		this.addKeyListener(this);
 		this.cursor = new GLImage(this.getFontColor(), this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
 	}
@@ -87,6 +96,18 @@ public class TextBox extends Component implements IKeyboardListener{
 	 */
 	public void setCommandMode(boolean commandMode) {
 		this.commandMode = commandMode;
+	}
+	
+	@Override
+	protected void setActive(boolean b)
+	{
+		super.setActive(b);
+		
+		if(!b && this.selection)
+		{
+			this.selection = false;
+			this.setTextSelection(0, 0);
+		}
 	}
 	
 	@Override
@@ -201,36 +222,99 @@ public class TextBox extends Component implements IKeyboardListener{
 	}
 	
 	@Override
+	public void setText(String text)
+	{
+		if(!this.readonly)
+			super.setText(text);
+	}
+	
+	@Override
 	public void keyDown(int eventKey, char eventCharacter)
 	{
-		if(this.readonly)
-			return;
-		
-		
-		if(!Character.isISOControl(eventCharacter) && eventKey != Keyboard.KEY_SPACE)
+		if(eventKey == Keyboard.KEY_V && (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)))
 		{
-			String text = this.getText();
-			this.setText(text.substring(0,this.cursorPos)+eventCharacter+text.substring(this.cursorPos));
-			this.cursorPos++;
-			this.setCursorPos();
+			if(!this.selection)
+			{
+				String text = this.getText();
+				this.setText(text.substring(0,this.cursorPos)+Utility.getClipboard()+text.substring(this.cursorPos));
+				this.cursorPos += Utility.getClipboard().length();
+				this.setCursorPos();
+			}
+			else
+			{
+				String text = this.getText();
+				this.setText(text.substring(0,Math.min(this.cursorPos, this.selectionStart))+Utility.getClipboard()+text.substring(Math.max(this.cursorPos, this.selectionStart)));
+				this.selection = false;
+				this.setTextSelection(0, 0);
+				this.cursorPos = Math.min(this.cursorPos, this.selectionStart)+Utility.getClipboard().length();
+				this.setCursorPos();
+			}
+		}
+		else if(eventKey == Keyboard.KEY_C && (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)))
+		{
+			if(!this.isPasswordMode())
+				Utility.setClipboard(this.getSelectedText());
+		}
+		else if(!Character.isISOControl(eventCharacter) && eventKey != Keyboard.KEY_SPACE)
+		{
+			if(!this.selection)
+			{
+				String text = this.getText();
+				this.setText(text.substring(0,this.cursorPos)+eventCharacter+text.substring(this.cursorPos));
+				this.cursorPos++;
+				this.setCursorPos();
+			}
+			else
+			{
+				String text = this.getText();
+				this.setText(text.substring(0,Math.min(this.cursorPos, this.selectionStart))+eventCharacter+text.substring(Math.max(this.cursorPos, this.selectionStart)));
+				this.selection = false;
+				this.setTextSelection(0, 0);
+				this.cursorPos = Math.min(this.cursorPos, this.selectionStart)+1;
+				this.setCursorPos();
+			}
 		}
 		else
 		{
 			if(eventKey == Keyboard.KEY_SPACE)
 			{
-				String text = this.getText();
-				this.setText(text.substring(0,this.cursorPos)+" "+text.substring(this.cursorPos));
-				this.cursorPos++;
-				this.setCursorPos();
+				if(!this.selection)
+				{
+					String text = this.getText();
+					this.setText(text.substring(0,this.cursorPos)+" "+text.substring(this.cursorPos));
+					this.cursorPos++;
+					this.setCursorPos();
+				}
+				else
+				{
+					String text = this.getText();
+					this.setText(text.substring(0,Math.min(this.cursorPos, this.selectionStart))+" "+text.substring(Math.max(this.cursorPos, this.selectionStart)));
+					this.selection = false;
+					this.setTextSelection(0, 0);
+					this.cursorPos = Math.min(this.cursorPos, this.selectionStart)+1;
+					this.setCursorPos();
+				}
 			}
 			else if(eventKey == Keyboard.KEY_RETURN)
 			{
 				if(!this.commandMode)
 				{
-					String text = this.getText();
-					this.setText(text.substring(0,this.cursorPos)+"\n"+text.substring(this.cursorPos));
-					this.cursorPos++;
-					this.setCursorPos();
+					if(!this.selection)
+					{
+						String text = this.getText();
+						this.setText(text.substring(0,this.cursorPos)+"\n"+text.substring(this.cursorPos));
+						this.cursorPos++;
+						this.setCursorPos();
+					}
+					else
+					{
+						String text = this.getText();
+						this.setText(text.substring(0,Math.min(this.cursorPos, this.selectionStart))+"\n"+text.substring(Math.max(this.cursorPos, this.selectionStart)));
+						this.selection = false;
+						this.setTextSelection(0, 0);
+						this.cursorPos = Math.min(this.cursorPos, this.selectionStart)+1;
+						this.setCursorPos();
+					}
 				}
 				else
 				{
@@ -246,61 +330,184 @@ public class TextBox extends Component implements IKeyboardListener{
 			}
 			else if(eventKey == Keyboard.KEY_BACK)
 			{
-				if(this.getText().length() >= 1 && this.cursorPos > 0)
+				if(this.getText().length() >= 1 && this.cursorPos > 0 && !this.selection)
 				{
 					String text = this.getText();
 					this.setText(text.substring(0,this.cursorPos-1)+text.substring(this.cursorPos));
 					this.cursorPos--;
 					this.setCursorPos();
 				}
+				else if(this.selection)
+				{
+					String text = this.getText();
+					this.setText(text.substring(0,Math.min(this.cursorPos, this.selectionStart))+text.substring(Math.max(this.cursorPos, this.selectionStart)));
+					this.selection = false;
+					this.setTextSelection(0, 0);
+					this.cursorPos = Math.min(this.cursorPos, this.selectionStart);
+					this.setCursorPos();
+				}
 			}
 			else if(eventKey == Keyboard.KEY_DELETE)
 			{
-				if(this.getText().length() >= 1 && this.cursorPos != this.getText().length())
+				if(this.getText().length() >= 1 && this.cursorPos != this.getText().length() && !this.selection)
 				{
 					String text = this.getText();
 					this.setText(text.substring(0,this.cursorPos)+text.substring(this.cursorPos+1));
 				}
+				else if(this.selection)
+				{
+					String text = this.getText();
+					this.setText(text.substring(0,Math.min(this.cursorPos, this.selectionStart))+text.substring(Math.max(this.cursorPos, this.selectionStart)));
+					this.selection = false;
+					this.setTextSelection(0, 0);
+					this.cursorPos = Math.min(this.cursorPos, this.selectionStart);
+					this.setCursorPos();
+				}
 			}
-			else if(eventKey == Keyboard.KEY_LEFT && this.cursorPos > 0)
+			else if(eventKey == Keyboard.KEY_LEFT && this.cursorPos > 0 && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 			{
 				this.cursorPos--;
 				this.setCursorPos();
+				if(this.selection)
+				{
+					this.selection = false;
+					this.setTextSelection(0, 0);
+				}
+				
 			}
-			else if(eventKey == Keyboard.KEY_RIGHT && this.cursorPos < this.getText().length())
+			else if(eventKey == Keyboard.KEY_LEFT && this.cursorPos > 0 && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+			{
+				if(!this.selection)
+				{
+					this.selection = true;
+					this.selectionStart = this.cursorPos;
+				}
+				this.cursorPos--;
+				this.setCursorPos();
+				this.setTextSelection(this.selectionStart, this.cursorPos);
+			}
+			else if(eventKey == Keyboard.KEY_RIGHT && this.cursorPos < this.getText().length() && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 			{
 				this.cursorPos++;
 				this.setCursorPos();
+				if(this.selection)
+				{
+					this.selection = false;
+					this.setTextSelection(0, 0);
+				}
 			}
-			else if(eventKey == Keyboard.KEY_UP)
+			else if(eventKey == Keyboard.KEY_RIGHT && this.cursorPos < this.getText().length() && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+			{
+				if(!this.selection)
+				{
+					this.selection = true;
+					this.selectionStart = this.cursorPos;
+				}
+				this.cursorPos++;
+				this.setCursorPos();
+				this.setTextSelection(this.selectionStart, this.cursorPos);
+			}
+			else if(eventKey == Keyboard.KEY_UP && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 			{
 				String text = this.getText();
 				this.cursorPos = this.getUpPos(text, this.cursorPos);					
 				this.setCursorPos();
+				if(this.selection)
+				{
+					this.selection = false;
+					this.setTextSelection(0, 0);
+				}
 			}
-			else if(eventKey == Keyboard.KEY_DOWN)
+			else if(eventKey == Keyboard.KEY_UP && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+			{
+				String text = this.getText();
+				int npos = this.getUpPos(text, this.cursorPos);	
+				if(!this.selection && npos != this.cursorPos)
+				{
+					this.selection = true;
+					this.selectionStart = this.cursorPos;
+				}
+				
+				this.cursorPos = npos;			
+				this.setCursorPos();
+				this.setTextSelection(this.selectionStart, this.cursorPos);
+			}
+			else if(eventKey == Keyboard.KEY_DOWN && !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 			{
 				String text = this.getText();
 				this.cursorPos = this.getDownPos(text, this.cursorPos);	
 				this.setCursorPos();
+				if(this.selection)
+				{
+					this.selection = false;
+					this.setTextSelection(0, 0);
+				}
+			}
+			else if(eventKey == Keyboard.KEY_DOWN && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+			{
+				String text = this.getText();
+				int npos = this.getDownPos(text, this.cursorPos);	
+				if(!this.selection && npos != this.cursorPos)
+				{
+					this.selection = true;
+					this.selectionStart = this.cursorPos;
+				}
+				
+				this.cursorPos = npos;			
+				this.setCursorPos();
+				this.setTextSelection(this.selectionStart, this.cursorPos);
 			}
 		}
 	}
 	
 	@Override
-	protected void clicked(int x, int y, MouseButtons button, boolean mouseLeftPressed)
+	protected void clicked(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby)
 	{
-		super.clicked(x, y, button, mouseLeftPressed);
+		super.clicked(x, y, button, grabbed, grabx, graby);
 		
-		if(button == MouseButtons.LEFT)
+		Logger.debug("clicked ("+x+"/"+y+") grabbed: "+grabbed+" / lshift: "+Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)+" / selection: "+this.selection,"TextBox.clicked");
+		if(button == MouseButtons.LEFT && !grabbed && !(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)))
 		{
 			int index = this.getIndexByPosition(x, y);
-			Logger.debug("clicked ("+x+"/"+y+") got index: "+index,"TextBox.clicked");
+			
 			if(index != -1)
 			{
 				this.cursorPos = index;
 				this.setCursorPos();
 			}
+			
+			if(this.selection)
+			{
+				this.selection = false;
+				this.setTextSelection(0,0);
+			}
+		}
+		else if(button == MouseButtons.LEFT && grabbed)
+		{
+			int index = this.getIndexByPosition(x, y);			
+			int sindex = this.getIndexByPosition(grabx, graby);
+			this.cursorPos = index;
+			this.setCursorPos();
+			this.selection = true;
+			this.selectionStart = sindex;
+			this.setTextSelection(this.selectionStart, this.cursorPos);
+		}
+		else if(button == MouseButtons.LEFT && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && this.selection)
+		{
+			int index = this.getIndexByPosition(x, y);
+			this.cursorPos = index;
+			this.setCursorPos();
+			this.setTextSelection(this.selectionStart, this.cursorPos);
+		}
+		else if(button == MouseButtons.LEFT && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+		{
+			int index = this.getIndexByPosition(x, y);			
+			int sindex = this.cursorPos;
+			this.cursorPos = index;
+			this.setCursorPos();
+			this.selection = true;
+			this.selectionStart = sindex;
+			this.setTextSelection(this.selectionStart, this.cursorPos);
 		}
 	}
 	

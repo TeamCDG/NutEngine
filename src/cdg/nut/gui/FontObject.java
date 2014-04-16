@@ -5,11 +5,13 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
+import cdg.nut.util.Colors;
 import cdg.nut.util.DefaultShader;
 import cdg.nut.util.Vertex2;
 import cdg.nut.util.Vertex4;
 import cdg.nut.util.VertexData;
 import cdg.nut.util.gl.GLObject;
+import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.logging.ConsoleColor;
 import cdg.nut.logging.Logger;
@@ -27,9 +29,14 @@ public class FontObject extends GLObject {
 	private float fontSize;
 	private float scalingConst;
 	
+	private GLImage selectionArea;
+	
 	private char passwordChar = '*';
 	private boolean passwordMode = false;
 
+	private int selectionStart = 0;
+	private int selectionEnd = 0;
+	
 	/**
 	 * @return the passwordMode
 	 */
@@ -84,6 +91,7 @@ public class FontObject extends GLObject {
 		this.fontSize = Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class);
 		this.setText(text);
 		this.setShader(DefaultShader.text);
+		this.selectionArea = new GLImage(Colors.NAVY.getGlColor(), 0, 0, 0, 0);
 		//this.setSelectable(false);
 	}
 
@@ -94,6 +102,7 @@ public class FontObject extends GLObject {
 		this.fontSize = Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class);
 		this.setText(text);
 		this.setShader(DefaultShader.text);
+		this.selectionArea = new GLImage(Colors.NAVY.getGlColor(), 0, 0, 0, 0);
 		//this.setSelectable(false);
 	}
 
@@ -267,6 +276,13 @@ public class FontObject extends GLObject {
 		this.font.getFontTex().unbind();
 		//GL11.glShadeModel(GL11.GL_SMOOTH);
 	}
+	
+	@Override 
+	protected void draw(boolean selection)
+	{
+		if(this.selectionArea != null) this.selectionArea.draw();		
+		super.draw(selection);
+	}
 
 	@Override
 	protected void passUniforms()
@@ -290,5 +306,105 @@ public class FontObject extends GLObject {
 
 	public int getIndexByPosition(int x, int y) {
 		return this.passwordMode?this.font.getIndexByPosition(x, y, this.colorText, this.fontSize, this.passwordChar):this.font.getIndexByPosition(x, y, this.colorText, this.fontSize);
+	}
+
+	public void setSelected(int start, int end) {
+		this.selectionStart = Math.min(start,end);
+		this.selectionEnd = Math.max(start,end);
+		
+		this.setupSelectionGL();
+	}
+	
+	private void setupSelectionGL() {
+		
+		float xoff = this.getX();
+		float yoff = this.getY();
+		List<VertexData> ret = new LinkedList<VertexData>();
+		this.scalingConst = this.fontSize / this.font.getHeight("A");
+		int aqc = 0;
+		
+		for(int i = 0; i < this.selectionEnd; i++)
+		{
+			
+			String c = this.actualText.substring(i,i+1);
+			
+			if(this.passwordMode) c = ""+this.passwordChar;
+			
+			if(c.equals("\n"))
+			{
+				xoff = this.getX();
+				yoff += this.fontSize;
+			}
+			else
+			{
+				float w =
+					(
+						this.scalingConst
+					) *
+					this.font.getWidth(c) *
+					(
+						1 /
+						Settings.get(SetKeys.WIN_ASPECT_RATIO, Float.class)
+					) *
+					-1.0f;
+				
+				Vertex4[] qp = Utility.generateQuadPoints(xoff, yoff, w, this.fontSize);
+				Vertex2[] st = Utility.generateSTPoints(
+					this.font.getX(c),
+					this.font.getY(c),
+					this.font.getWidth(c),
+					this.font.getHeight(c)
+				);
+				/*
+				Utility.generateSTPointsFlipped(
+					this.font.getX(c),
+					this.font.getY(c),
+					this.font.getWidth(c),
+					this.font.getHeight(c)
+				);
+				*/
+				VertexData[] data = Utility.generateQuadData(qp, Colors.NAVY.getGlColor(), st);
+				
+				if(i >= this.selectionStart)
+				{
+					for (int d = 0; d < data.length; d++) {
+						ret.add(data[d]);
+					}
+		
+					aqc++;
+				}
+				xoff += w;
+			}
+		}
+		
+
+		if (ret.size() >= 0) {
+			//HACK for half cutted letter (dunno how to fix)
+			Vertex4[] qp = Utility.generateQuadPoints(0, 0, 0, 0);
+			Vertex2[] st = Utility.generateSTPoints(0, 0, 0, 0);
+			VertexData[] data = Utility.generateQuadData(qp, Colors.NAVY.getGlColor(), st);
+
+			for (int d = 0; d < data.length; d++) {
+				ret.add(data[d]);
+			}
+			//END HACK
+
+			this.selectionArea.setupGL(ret.toArray(new VertexData[1]), Utility.createQuadIndicesInt(aqc));
+
+			Logger.spam(
+				(
+					"Text dimension: " +
+					this.getWidth() +
+					"/" +
+					this.getHeight()
+				),
+				"FontObject.setupFontGL"
+			);
+		}
+	}
+
+	public String getSelectedText()
+	{
+		return this.actualText.substring(this.selectionStart, this.selectionEnd);
 	}
 }

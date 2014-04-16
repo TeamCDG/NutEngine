@@ -378,6 +378,12 @@ public class BitmapFont
 			{
 				xoff = 0.0f;
 				yoff -= fontSize;
+				
+				if(yoff > y)
+				{
+					index = i;
+					break;
+				}
 			}
 			else // we actually have something that looks like text
 			{

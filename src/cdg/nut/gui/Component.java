@@ -40,7 +40,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	private GLColor borderHighlightColor;
 	private GLColor borderActiveColor;
 	
-	private boolean dragable = false;
+	private boolean dragable, textSelectable = false;
 	private boolean activeable = false;
 	
 	private boolean xscroll, yscroll = false;
@@ -433,10 +433,10 @@ public abstract class Component extends GLImage implements ISettingsListener {
 
 	}
 
-	protected void clicked(int x, int y, MouseButtons button, boolean mouseLeftPressed) {
+	protected void clicked(int x, int y, MouseButtons button, boolean mouseLeftPressed, int grabx, int graby) {
 		for(int i = 0; i < this.clickListener.size(); i++)
 		{
-			this.clickListener.get(i).onClick(x, y, button);
+			this.clickListener.get(i).onClick(x, y, button, grabx, graby);
 		}
 	}
 
@@ -804,5 +804,23 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	protected boolean isActive()
 	{
 		return this.active;
+	}
+
+	public boolean isTextSelectable() {
+		return textSelectable;
+	}
+
+	public void setTextSelectable(boolean textSelectable) {
+		this.textSelectable = textSelectable;
+	}
+	
+	public void setTextSelection(int start, int end)
+	{
+		this.text.setSelected(start,end);
+	}
+	
+	public String getSelectedText()
+	{
+		return this.text.getSelectedText();
 	}
 }

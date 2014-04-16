@@ -200,7 +200,7 @@ public abstract class GLObject implements ISelectable {
 		this.points = Utility.extractPoints(vertices);
 	}
 	
-	protected final void setupGL(VertexData[] vertices, int[] indices)
+	public final void setupGL(VertexData[] vertices, int[] indices)
 	{
 		this.intIndicies = true;
 		FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(vertices.length *
@@ -302,7 +302,7 @@ public abstract class GLObject implements ISelectable {
 	}
 	
 	//TODO: Javadoc
-	private void draw(boolean selection)
+	protected void draw(boolean selection)
 	{
 		if(this.VAO == -1 || this.noDraw || (selection&&!this.selectable))
 			return;

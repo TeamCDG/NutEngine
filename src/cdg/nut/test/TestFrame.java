@@ -40,7 +40,7 @@ public class TestFrame extends Frame {
 		this.test.addClickListener(new IClickListener(){
 
 			@Override
-			public void onClick(int x, int y, MouseButtons button) {
+			public void onClick(int x, int y, MouseButtons button, int grabx, int graby) {
 				l.setText(GLColor.random()+Utility.randomString());
 							
 			}});

@@ -2,6 +2,11 @@ package cdg.nut.util;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -546,5 +551,28 @@ public abstract class Utility
 		}
 		
 		return b.toString();
+	}
+
+	public static String getClipboard() {
+		 Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
+		 Transferable t = c.getContents( null );
+
+	     if ( t.isDataFlavorSupported(DataFlavor.stringFlavor) )
+	     {
+	    	 
+	            try {
+					return (String)t.getTransferData( DataFlavor.stringFlavor );
+				} catch (UnsupportedFlavorException | IOException e) {
+					Logger.log(e, "Utility.getClipboard");
+				}
+	     }
+		return "";
+	}
+	
+	public static void setClipboard(String text)
+	{
+		Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
+		StringSelection data = new StringSelection(text);
+		c.setContents(data, data);
 	}
 }
