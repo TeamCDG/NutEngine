@@ -4,7 +4,7 @@ public abstract class DefaultShader {
 
 	public static final ShaderProgram simple = new ShaderProgram("#version 150 core\n"+
 			"uniform mat4 window_Matrix = mat4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);\n"+
-			"uniform vec4 clippingArea = vec4(0.0,0.0,0.0,0.0);;\n"+
+			"uniform vec4 clippingArea = vec4(0.0,0.0,0.0,0.0);\n"+
 			"uniform int selection = 0;\n"+
 			"in vec4 in_Position;\n"+
 			"in vec4 in_Color;\n"+
@@ -15,17 +15,13 @@ public abstract class DefaultShader {
 			"void main(void) {\n"+
 			"	vec4 v = window_Matrix * in_Position;\n"+
 			"	gl_Position = v;\n"+
-			"	if((v.x < clippingArea.x || v.x > clippingArea.z || \n"+
-			"	   v.y < clippingArea.y || v.y > clippingArea.w) && selection == 0) {\n"+
-			"		//outside of the clipping area. do not draw it.\n"+
-			"		pass_Color = vec4(in_Color.x, in_Color.y, in_Color.z, 0.0);"+
-			"	} else {\n"+
-			"		pass_Color = in_Color;\n"+
-			"	}\n"+
+			"	pass_Color = in_Color;\n"+
+			"	pass_Position = v;\n"+
 			"	pass_TextureCoord = in_TextureCoord;\n"+
 			"}", "#version 150 core\n"+
 			"uniform sampler2D texture_diffuse;\n"+
 			"uniform vec4 color = vec4(1.0, 1.0, 1.0, 1.0);\n"+
+			"uniform vec4 clippingArea = vec4(0.0,0.0,0.0,0.0);\n"+
 			"uniform int selection = 0;\n"+
 			"in vec4 pass_Color;\n"+
 			"in vec4 pass_Position;\n"+
@@ -40,6 +36,12 @@ public abstract class DefaultShader {
 			"		out_Color = color*c; }\n"+
 			"	 } else\n"+
 			"		out_Color = pass_Color;\n"+
+			"	vec4 v = pass_Position;\n"+
+			"	if(!(v.x+1 >= clippingArea.x+1 && v.x+1 <= clippingArea.z+1 && \n"+
+			"	   v.y+1 <= clippingArea.y+1 && v.y+1 >= clippingArea.w+1) && selection == 0 && clippingArea != vec4(0.0, 0.0, 0.0, 0.0)) {\n"+
+			"		//outside of the clipping area. do not draw it.\n"+
+			"		out_Color = vec4(c.x, c.y, c.z, 0.0);"+
+			"	}\n"+
 			"}", "simple");
 	
 	public static final ShaderProgram text = new ShaderProgram("#version 150 core\n"+

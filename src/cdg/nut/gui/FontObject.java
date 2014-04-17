@@ -92,6 +92,8 @@ public class FontObject extends GLObject {
 		this.setText(text);
 		this.setShader(DefaultShader.text);
 		this.selectionArea = new GLImage(Colors.NAVY.getGlColor(), 0, 0, 0, 0);
+		this.setClipping(true);
+		this.selectionArea.setClipping(true);
 		//this.setSelectable(false);
 	}
 
@@ -103,6 +105,8 @@ public class FontObject extends GLObject {
 		this.setText(text);
 		this.setShader(DefaultShader.text);
 		this.selectionArea = new GLImage(Colors.NAVY.getGlColor(), 0, 0, 0, 0);
+		this.setClipping(true);
+		this.selectionArea.setClipping(true);
 		//this.setSelectable(false);
 	}
 
@@ -390,7 +394,9 @@ public class FontObject extends GLObject {
 			//END HACK
 
 			this.selectionArea.setupGL(ret.toArray(new VertexData[1]), Utility.createQuadIndicesInt(aqc));
-
+			this.selectionArea.setClippingArea(this.getClippingArea());
+			
+			
 			Logger.spam(
 				(
 					"Text dimension: " +

@@ -40,7 +40,7 @@ public abstract class GLObject implements ISelectable {
 	private boolean selected;
 	private boolean selectable = true;
 
-	private boolean clipping = true;
+	private boolean clipping = false;
 	private boolean autoClipping = true;
 	private Vertex4 clippingArea;
 	
