@@ -91,6 +91,6 @@ public class TestFrame extends Frame {
 	public void draw()
 	{
 		super.draw();
-		this.md.setText(Mouse.getX()+"/"+(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()));
+		//this.md.setText(Mouse.getX()+"/"+(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()));
 	}
 }

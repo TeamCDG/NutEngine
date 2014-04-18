@@ -44,6 +44,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	private boolean activeable = false;
 	
 	private boolean xscroll, yscroll = false;
+	private XScrollBar xsb;
 	
 	private List<IClickListener> clickListener = new ArrayList<IClickListener>();
 	private List<IKeyboardListener> keyListener = new ArrayList<IKeyboardListener>();
@@ -61,11 +62,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.border = new Border(x, y, width, height);
 		this.autosizeWithText = false;
 		
-		this.setupPadding();
+		this.init();
 		
-		this.restoreDefaults();
-		
-		Settings.addListener(this);
 	}
 
 	public Component(int x, int y, int width, int height)
@@ -74,34 +72,25 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.border = new Border(x, y, width, height);
 		this.autosizeWithText = false;
 		
-		this.setupPadding();
-		
-		this.restoreDefaults();
-		
-		Settings.addListener(this);
+		this.init();
 	}
 	
 	public Component(float x, float y, float width, float height, String text)
 	{
 		this(x, y, width, height);
-		this.text = new FontObject(x+padding[0], y+padding[1], text);		
+		this.text = new FontObject(x+padding[0], y+padding[1], text);	
+
 		this.setTextClipping();
-		
-		this.restoreDefaults();
-		
-		Settings.addListener(this);
 	}
 
 	public Component(int x, int y, int width, int height, String text)
 	{
 		this(x, y, width, height);
 		int[] pad = Utility.glSizeToPixelSize(padding[0], padding[1]);
-		this.text = new FontObject(x+pad[0], y+pad[1], text);		
+		this.text = new FontObject(x+pad[0], y+pad[1], text);	
+
 		this.setTextClipping();
 		
-		this.restoreDefaults();
-		
-		Settings.addListener(this);
 	}
 
 	private Component(float x, float y, float[] dim, float[] add)
@@ -113,9 +102,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.border = new Border(x, y, dim[0] + 2 * add[0], dim[1] + 2 * add[1]);
 		this.autosizeWithText = true;
 		
-		this.restoreDefaults();
-		
-		Settings.addListener(this);
+		this.init();
 	}
 
 	private Component(int x, int y, int[] dim, int[] add)
@@ -127,9 +114,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.border = new Border(x, y, dim[0] + 2 * add[0], dim[1] + 2 * add[1]);
 		this.autosizeWithText = true;
 		
-		this.restoreDefaults();
-		
-		Settings.addListener(this);
+		this.init();
 	}
 
 	public Component(float x, float y, String text)
@@ -145,14 +130,10 @@ public abstract class Component extends GLImage implements ISettingsListener {
 				Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)
 			)
 		);
-
-		this.setupPadding();
-		
+				
 		this.text = new FontObject(x+this.padding[0], y+this.padding[1], text);
-		
-		this.restoreDefaults();
-		
-		Settings.addListener(this);
+
+		this.setTextClipping();
 	}
 
 	public Component(int x, int y, String text)
@@ -169,16 +150,24 @@ public abstract class Component extends GLImage implements ISettingsListener {
 				Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)
 			}
 		);
-
-		this.setupPadding();
 		
 		int[] pad = Utility.glSizeToPixelSize(this.padding[0], this.padding[1]);
 		
 		this.text = new FontObject(x+pad[0], y+pad[1], text);
+
+		this.setTextClipping();
 		
+	}
+	
+	private void init()
+	{
+		this.setupPadding();
 		this.restoreDefaults();
-		
 		Settings.addListener(this);
+		this.xsb = new XScrollBar(this.getPixelX()+Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class), 
+				this.getPixelY()+this.getPixelHeight()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 
+				this.getPixelWidth() - 2*Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
+		this.xsb.setMaxValue(20);
 	}
 	
 	private void setColor()
@@ -322,6 +311,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 
 		if (!selection && this.hasBorder)	 this.border.draw();
 		if (this.text != null && !selection) this.text.draw();
+		if (this.xsb != null && !selection) this.xsb.draw();
 	}
 
 	public boolean isAutosizeWithText() {

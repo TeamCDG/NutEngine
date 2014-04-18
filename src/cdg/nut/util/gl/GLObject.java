@@ -510,6 +510,11 @@ public abstract class GLObject implements ISelectable {
 		this.selectable = selectable;
 	}
 	
+	public void setDimension(int width, int height) {
+		float dim[] = Utility.pixelSizeToGLSize(width, height);
+		this.setDimension(dim[0], dim[1]);
+	}
+	
 	public void setDimension(float width, float height) {
 		this.height = height;
 		this.width = width;
