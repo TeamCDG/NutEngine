@@ -16,11 +16,12 @@ import cdg.nut.util.gl.GLObject;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 import cdg.nut.interfaces.IKeyboardListener;
+import cdg.nut.interfaces.IScrollListener;
 import cdg.nut.interfaces.ISettingsListener;
 import cdg.nut.interfaces.IClickListener;
 
 //TODO: this class needs some love
-public abstract class Component extends GLImage implements ISettingsListener {
+public abstract class Component extends GLImage implements ISettingsListener, IScrollListener {
 
 	private Border border;
 	private boolean customFont, customFontSize, customFontC, customFontHC, customFontAC = false;
@@ -167,7 +168,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.xsb = new XScrollBar(this.getPixelX()+Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class), 
 				this.getPixelY()+this.getPixelHeight()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 
 				this.getPixelWidth() - 2*Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
-		this.xsb.setMaxValue(20);
+		this.xsb.addScrollListener(this);
+		
 	}
 	
 	private void setColor()
@@ -299,6 +301,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		
 		//Logger.debug("Pixel coordinates: "+this.getPixelX()+" ("+this.getX()+") / "+this.getPixelY()+" ("+this.getY()+")", "Component.move");
 		this.border.setPosition(this.getPixelX(), this.getPixelY());
+		if(this.xsb != null) this.xsb.setPosition(this.getPixelX()+Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class), 
+				this.getPixelY()+this.getPixelHeight()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
 		if(this.text != null) this.text.setPosition(this.getX()+this.padding[0], this.getY()+this.padding[1]);
 		
 		this.setTextClipping();
@@ -311,7 +315,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 
 		if (!selection && this.hasBorder)	 this.border.draw();
 		if (this.text != null && !selection) this.text.draw();
-		if (this.xsb != null && !selection) this.xsb.draw();
+		if (this.xsb != null && !selection && this.xscroll) this.xsb.draw();
 	}
 
 	public boolean isAutosizeWithText() {
@@ -359,6 +363,8 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	public void setText(String text)
 	{
 		this.text.setText(text);
+		this.setScroll();
+		if(this.xsb != null) this.xsb.setScrollValue(this.xsb.getMaxValue());
 		this.autosize();
 		Logger.debug(
 			"Dimensions: " +
@@ -379,6 +385,7 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	private void autosize()
 	{
 		if (this.autosizeWithText) {
+			this.xscroll = false;
 			this.setDimension(this.text.getWidth()+2*this.padding[0], this.text.getHeight()+2*this.padding[1]);
 			this.border.setDimension(this.text.getWidth()+2*this.padding[0], this.text.getHeight()+2*this.padding[1]);
 		}
@@ -464,6 +471,27 @@ public abstract class Component extends GLImage implements ISettingsListener {
 		this.setTextClipping();
 	}
 	
+	private void setScroll()
+	{
+		int pl = Utility.glToPixel(this.text.getClippingArea().getX(), 0)[0];
+		int pr = Utility.glToPixel(this.text.getClippingArea().getZ(), 0)[0];
+		int dif = pr-pl;
+		
+		
+		if(this.text.getPixelWidth() > dif)
+		{
+			if(this.xsb != null) 
+			{
+				this.xsb.setMaxValue(this.text.getPixelWidth()-dif);
+				this.xscroll = true;
+			}				
+		}
+		else
+		{
+			this.xscroll = false;
+		}
+	}
+	
 	private void setTextClipping()
 	{
 		if(this.text != null)
@@ -473,6 +501,9 @@ public abstract class Component extends GLImage implements ISettingsListener {
 					 (this.getX()+this.getWidth())-this.padding[0],
 					 (this.getY()+this.getHeight())-this.padding[1]);
 			this.text.setClippingArea(ca);
+			
+			this.setScroll();
+			
 			
 			Logger.debug("text clipping area: "+ca.toString(), "Component.setTextClipping");
 		}
@@ -812,5 +843,29 @@ public abstract class Component extends GLImage implements ISettingsListener {
 	public String getSelectedText()
 	{
 		return this.text.getSelectedText();
+	}
+	
+	@Override
+	public void onScroll(int sv, boolean horizontal)
+	{
+		if(horizontal && this.xscroll)
+		{
+			Logger.debug("scrollvalue: "+sv, "Component.onScroll");
+			if(this.text != null) this.text.setX(this.getTextX()-sv);
+		}
+		else if(!this.xscroll)
+		{
+			if(this.text != null && this.text.getPixelX() != this.getTextX()) this.text.setX(this.getTextX());
+		}
+	}
+	
+	protected XScrollBar getXsb()
+	{
+		return this.xsb;
+	}
+	
+	protected FontObject getFO()
+	{
+		return this.text;
 	}
 }

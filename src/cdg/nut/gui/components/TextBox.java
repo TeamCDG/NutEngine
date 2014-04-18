@@ -19,7 +19,8 @@ import cdg.nut.util.settings.Settings;
 public class TextBox extends Component implements IKeyboardListener{
 	
 	private GLImage cursor;
-	private int cursorPos = 0; //TODO: implement Cursor...
+	private int cursorPos = 0; 
+	private int dcursorPos = 0;
 	
 	private int dc = Settings.get(SetKeys.R_MAX_FPS, Integer.class);
 	
@@ -132,8 +133,34 @@ public class TextBox extends Component implements IKeyboardListener{
 	
 	private void setCursorPos()
 	{
-		int [] tmp = this.getCursorPos(this.cursorPos);
-		this.cursor.setPosition(this.getTextX()+tmp[0], this.getTextY()+tmp[1]);
+		int[] tmp = this.getCursorPos(this.cursorPos);
+		int[] dtmp = this.getCursorPos(this.dcursorPos);
+		
+		int tw = (Utility.glToPixel(this.getClippingArea().getZ(), 0)[0]-this.getTextX());
+		int dif = tmp[0] - tw;
+		
+		Logger.debug("tw: "+tw+" / textX: "+this.getTextX()+" / sv: "+this.getXsb().getScrollValue()+" / curx: "+tmp[0],"TextBox.setCursorPos");
+		
+		if(tmp[0] - this.getXsb().getScrollValue() +this.getTextX() < this.getTextX() || tmp[0] - this.getXsb().getScrollValue() + this.getTextX()> this.getTextX()+tw)
+		{
+			int nsv = this.getXsb().getScrollValue()+(tmp[0]-dtmp[0]);
+			this.getXsb().setScrollValue(nsv);
+			Logger.debug("nsv: "+nsv+" / curxw: "+(tmp[0]+this.cursor.getPixelWidth()),"TextBox.setCursorPos");
+		}
+		
+		if(tmp[0] == 0)
+		{
+			this.getXsb().setScrollValue(0);
+		}
+		else if(tmp[0] == this.getFO().getWidth())
+		{
+			this.getXsb().setScrollValue(this.getXsb().getMaxValue());
+		}
+		
+		this.cursor.setPosition(this.getTextX()+tmp[0]-this.getXsb().getScrollValue(), this.getTextY()+tmp[1]);
+		
+		this.dcursorPos = this.cursorPos;
+		
 	}
 	
 	private int getUpPos(String text, int cpos)
@@ -274,6 +301,10 @@ public class TextBox extends Component implements IKeyboardListener{
 		{
 			this.selection = true;
 			this.setTextSelection(0, this.getText().length());
+			//TODO: Fix to not moving cursor
+			this.cursorPos = this.getText().length();
+			this.selectionStart = this.cursorPos;
+			this.setCursorPos();
 		}
 		else if(!Character.isISOControl(eventCharacter) && eventKey != Keyboard.KEY_SPACE)
 		{

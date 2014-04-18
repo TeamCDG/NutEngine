@@ -304,8 +304,9 @@ public class FontObject extends GLObject {
 	}
 
 	public int[] getCursorPos(int index) {
+		index = Math.min(this.actualText.length(), index);
 		int[] dim = this.passwordMode? this.font.getCursorPixelPos(this.colorText.substring(0, index), this.fontSize, this.passwordChar, index) : this.font.getCursorPixelPos(this.colorText.substring(0, index), this.fontSize, index);
-		return dim;
+		return dim;//new int[]{dim[0]+this.getPixelX(), dim[1]+this.getPixelY()};
 	}
 
 	public int getIndexByPosition(int x, int y) {
