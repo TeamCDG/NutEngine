@@ -282,6 +282,10 @@ public abstract class GLObject implements ISelectable {
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBO);
 		float xm = this.points[0].getX()-this.x;
 		float ym = this.points[0].getY()-this.y;
+		
+		//Logger.debug("moving: "+xm+"; "+ym+" / gl: "+this.points[0].getX()+"; "+this.points[0].getY(),"GLObject.move");
+		//Logger.debug("npos: "+(this.points[0].getX()-xm)+"; "+(this.points[0].getY()-ym),"GLObject.move");
+		
 		for(int i = 0; i < points.length; i++)
 		{
 			float[] pos = new float[2];
@@ -399,9 +403,15 @@ public abstract class GLObject implements ISelectable {
 	
 	public void setPosition(int x, int y)
 	{
+		
+		
+		
 		float[] tmp = Utility.pixelToGL(x, y);
 		this.x = tmp[0];
 		this.y = tmp[1];
+		
+		//Logger.debug("moving to: "+x+"; "+y+" / gl: "+tmp[0]+"; "+tmp[1],"GLObject.setPosition");
+		
 		if(this.VAO != -1) this.move();
 	}
 	

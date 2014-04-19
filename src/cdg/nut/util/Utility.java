@@ -553,6 +553,11 @@ public abstract class Utility
 		return b.toString();
 	}
 
+	public static boolean between(int value, int a, int b)
+	{
+		return value >= Math.min(a, b) && value <= Math.max(a, b);
+	}
+	
 	public static String getClipboard() {
 		 Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
 		 Transferable t = c.getContents( null );

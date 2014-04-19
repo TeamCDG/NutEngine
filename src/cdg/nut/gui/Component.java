@@ -364,7 +364,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	{
 		this.text.setText(text);
 		this.setScroll();
-		if(this.xsb != null) this.xsb.setScrollValue(this.xsb.getMaxValue());
+		//if(this.xsb != null) this.xsb.setScrollValue(this.xsb.getMaxValue());
 		this.autosize();
 		Logger.debug(
 			"Dimensions: " +
@@ -430,12 +430,40 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 
 	}
 
-	protected void clicked(int x, int y, MouseButtons button, boolean mouseLeftPressed, int grabx, int graby) {
+	
+	private boolean xscrollGrabbed, yscrollGrabbed = false;
+	protected void clicked(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby) {
+		
+		Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed,"Component.clicked");
+		
+		if(this.xsb != null && this.xscroll && this.xsb.isScrollDings(x, y) && grabbed)
+		{
+			this.xscrollGrabbed = true;
+			this.xsb.setScrollValue(this.xsb.getScrollOfAbs(x));
+		}
+		else if(this.xscrollGrabbed && grabbed)
+		{
+			this.xsb.setScrollValue(this.xsb.getScrollOfAbs(x));
+		}
+		else if(this.xsb != null && this.xscroll && this.xsb.isScrollBar(x, y))
+		{
+			this.xsb.setScrollValue(this.xsb.getScrollOfAbs(x));
+		}
+		else
+		{
+			this.xscrollGrabbed = false;
+			this.yscrollGrabbed = false;
+			this.onClick(x, y, button, grabbed, grabx, graby);
+		}
+		
 		for(int i = 0; i < this.clickListener.size(); i++)
 		{
 			this.clickListener.get(i).onClick(x, y, button, grabx, graby);
 		}
 	}
+	
+	protected void onClick(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby){}
+	
 
 	@Override
 	public void setSelected(boolean value)
@@ -489,6 +517,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		else
 		{
 			this.xscroll = false;
+			if(this.xsb != null) { this.xsb.setScrollValue(0); this.xsb.setMaxValue(0);}
 		}
 	}
 	
@@ -825,6 +854,11 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	protected boolean isActive()
 	{
 		return this.active;
+	}
+	
+	public boolean isScrollable()
+	{
+		return this.xscroll || this.yscroll;
 	}
 
 	public boolean isTextSelectable() {

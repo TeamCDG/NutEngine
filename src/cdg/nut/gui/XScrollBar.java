@@ -7,6 +7,7 @@ import cdg.nut.interfaces.IClickListener;
 import cdg.nut.interfaces.IScrollListener;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.Colors;
+import cdg.nut.util.Utility;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.settings.SetKeys;
@@ -32,14 +33,18 @@ public class XScrollBar extends GLImage{
 	
 	public int getScrollOf(int x)
 	{
-		return ((this.getPixelWidth()-this.scroll.getPixelWidth())/this.maxValue)*x;
+		return Math.max(0, Math.min(this.maxValue,Math.round((float)this.maxValue/((float)(this.getPixelWidth()-this.scroll.getPixelWidth()))*(float)x)));
 	}
 	
 	private int getScrollPixel(int value)
 	{
-		int sz = Math.round((((float)this.getPixelWidth()-(float)this.scroll.getPixelWidth())/(float)this.maxValue)*(float)value);
-		Logger.debug("ScrollPosition: "+sz,"XScrollBar.getScrollPixel");
-		return sz;
+		if(this.scroll != null)
+		{
+			int sz = Math.round((((float)this.getPixelWidth()-(float)this.scroll.getPixelWidth())/(float)this.maxValue)*(float)value);
+			Logger.debug("ScrollPosition: "+sz,"XScrollBar.getScrollPixel");
+			return sz;
+		}
+		return 0;
 		
 		//return Math.round(((float)this.maxValue/(float)(this.getPixelWidth()-(float)this.scroll.getPixelWidth()))*(float)value);
 	}
@@ -77,12 +82,15 @@ public class XScrollBar extends GLImage{
 	@Override
 	protected void drawChildren(boolean selection)
 	{
-		if(this.scroll != null) this.scroll.draw();
+		if(this.scroll != null){ if(this.scroll.getPixelY()!= this.getPixelY()) this.scroll.setPosition(getPixelX()+this.getScrollPixel(this.scrollValue), this.getPixelY()); this.scroll.draw();}
 	}
 
 	public void setScrollValue(int value) {
-		this.scrollValue = value;
-		if(this.scroll != null) this.scroll.setX(this.getPixelX()+this.getScrollPixel(value));
+		this.scrollValue = Math.max(0, Math.min(this.maxValue,value));
+		
+		Logger.debug("new value: "+scrollValue+" / is max value: "+(this.maxValue==this.scrollValue),"XScrollBar.setScrollValue");
+		
+		if(this.scroll != null) this.scroll.setPosition(this.getPixelX()+this.getScrollPixel(value), this.getPixelY());
 		
 		for(int i = 0; i < this.scrollListener.size(); i++)
 		{
@@ -90,7 +98,24 @@ public class XScrollBar extends GLImage{
 		}
 	}
 	
+	public boolean isScrollDings(int x, int y)
+	{
+
+		//Logger.debug("x: "+x+" / y: "+y+" / tx: "+this.scroll.getPixelX()+" / ty: "+this.scroll.getPixelY()+" / txw: "+(this.scroll.getPixelX()+this.scroll.getPixelWidth())+" / tyw: "+(this.scroll.getPixelY()+this.scroll.getPixelHeight())
+		//		+" / xbt: "+Utility.between(x, this.scroll.getPixelX(), this.scroll.getPixelX()+this.scroll.getPixelWidth())+" / ybt: "+Utility.between(y, this.scroll.getPixelY(), this.scroll.getPixelY()+this.scroll.getPixelHeight()),"XScrollBar.isScrollDings");
+		
+		//return !(x >= this.scroll.getPixelX() || x <= this.scroll.getPixelX()+this.scroll.getPixelWidth() &&
+		//		y <= this.scroll.getPixelY() || y <= this.scroll.getPixelY()+this.scroll.getPixelHeight());
+		return (Utility.between(x, this.scroll.getPixelX(), this.scroll.getPixelX()+this.scroll.getPixelWidth()) && Utility.between(y, this.scroll.getPixelY(), this.scroll.getPixelY()+this.scroll.getPixelHeight()));
+	}
 	
+	public boolean isScrollBar(int x, int y)
+	{
+		//Logger.debug("x: "+x+" / y: "+y+" / tx: "+this.getPixelX()+" / ty: "+this.getPixelY()+" / txw: "+(this.getPixelX()+this.getPixelWidth())+" / tyw: "+(this.getPixelY()+this.getPixelHeight())
+		//		+" / xbt: "+Utility.between(x, this.getPixelX(), this.getPixelX()+this.getPixelWidth())+" / ybt: "+Utility.between(y, this.getPixelY(), this.getPixelY()+this.getPixelHeight()),"XScrollBar.isScrollBar");
+		
+		return (Utility.between(x, this.getPixelX(), this.getPixelX()+this.getPixelWidth()) && Utility.between(y, this.getPixelY(), this.getPixelY()+this.getPixelHeight()));
+	}
 	
 	
 }

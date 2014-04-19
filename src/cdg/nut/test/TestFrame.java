@@ -1,5 +1,7 @@
 package cdg.nut.test;
 
+import java.util.Random;
+
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -42,7 +44,7 @@ public class TestFrame extends Frame {
 			@Override
 			public void onClick(int x, int y, MouseButtons button, int grabx, int graby) {
 				l.setText(GLColor.random()+Utility.randomString());
-							
+				ctest.setPosition(new Random().nextInt(100), new Random().nextInt(100));
 			}});
 		this.addComponent(test);
 		this.addComponent(new Button(820, 262, Colors.BLUE+"G"+Colors.RED+" "+Colors.YELLOW+"o"+Colors.BLUE+"g"+Colors.DARKGREEN+"l"+Colors.RED+"e"));

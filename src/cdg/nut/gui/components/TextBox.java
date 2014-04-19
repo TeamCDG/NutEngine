@@ -144,6 +144,10 @@ public class TextBox extends Component implements IKeyboardListener{
 		if(tmp[0] - this.getXsb().getScrollValue() +this.getTextX() < this.getTextX() || tmp[0] - this.getXsb().getScrollValue() + this.getTextX()> this.getTextX()+tw)
 		{
 			int nsv = this.getXsb().getScrollValue()+(tmp[0]-dtmp[0]);
+			
+			if(nsv < 0)
+				nsv = (tmp[0]+(3*this.cursor.getPixelWidth()))-tw;
+			
 			this.getXsb().setScrollValue(nsv);
 			Logger.debug("nsv: "+nsv+" / curxw: "+(tmp[0]+this.cursor.getPixelWidth()),"TextBox.setCursorPos");
 		}
@@ -152,7 +156,7 @@ public class TextBox extends Component implements IKeyboardListener{
 		{
 			this.getXsb().setScrollValue(0);
 		}
-		else if(tmp[0] == this.getFO().getWidth())
+		else if(tmp[0] == this.getFO().getPixelWidth())
 		{
 			this.getXsb().setScrollValue(this.getXsb().getMaxValue());
 		}
@@ -303,7 +307,7 @@ public class TextBox extends Component implements IKeyboardListener{
 			this.setTextSelection(0, this.getText().length());
 			//TODO: Fix to not moving cursor
 			this.cursorPos = this.getText().length();
-			this.selectionStart = this.cursorPos;
+			this.selectionStart = 0;
 			this.setCursorPos();
 		}
 		else if(!Character.isISOControl(eventCharacter) && eventKey != Keyboard.KEY_SPACE)
@@ -404,6 +408,7 @@ public class TextBox extends Component implements IKeyboardListener{
 				{
 					String text = this.getText();
 					this.setText(text.substring(0,this.cursorPos)+text.substring(this.cursorPos+1));
+					this.setCursorPos();
 				}
 				else if(this.selection)
 				{
@@ -561,14 +566,13 @@ public class TextBox extends Component implements IKeyboardListener{
 	}
 	
 	@Override
-	protected void clicked(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby)
+	protected void onClick(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby)
 	{
-		super.clicked(x, y, button, grabbed, grabx, graby);
 		
 		Logger.debug("clicked ("+x+"/"+y+") grabbed: "+grabbed+" / lshift: "+Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)+" / selection: "+this.selection,"TextBox.clicked");
 		if(button == MouseButtons.LEFT && !grabbed && !(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)))
 		{
-			int index = this.getIndexByPosition(x, y);
+			int index = this.getIndexByPosition(x+this.getXsb().getScrollValue(), y);
 			
 			if(index != -1)
 			{
@@ -584,24 +588,27 @@ public class TextBox extends Component implements IKeyboardListener{
 		}
 		else if(button == MouseButtons.LEFT && grabbed)
 		{
-			int index = this.getIndexByPosition(x, y);			
-			int sindex = this.getIndexByPosition(grabx, graby);
+			int index = this.getIndexByPosition(x+this.getXsb().getScrollValue(), y);		
+			if(!this.selection)
+			{
+				int sindex = this.getIndexByPosition(grabx+this.getXsb().getScrollValue(), graby);
+				this.selection = true;
+				this.selectionStart = sindex;
+			}
+			this.setTextSelection(this.selectionStart, this.cursorPos);
 			this.cursorPos = index;
 			this.setCursorPos();
-			this.selection = true;
-			this.selectionStart = sindex;
-			this.setTextSelection(this.selectionStart, this.cursorPos);
 		}
 		else if(button == MouseButtons.LEFT && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && this.selection)
 		{
-			int index = this.getIndexByPosition(x, y);
+			int index = this.getIndexByPosition(x+this.getXsb().getScrollValue(), y);
 			this.cursorPos = index;
 			this.setCursorPos();
 			this.setTextSelection(this.selectionStart, this.cursorPos);
 		}
 		else if(button == MouseButtons.LEFT && Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 		{
-			int index = this.getIndexByPosition(x, y);			
+			int index = this.getIndexByPosition(x+this.getXsb().getScrollValue(), y);			
 			int sindex = this.cursorPos;
 			this.cursorPos = index;
 			this.setCursorPos();
@@ -629,5 +636,17 @@ public class TextBox extends Component implements IKeyboardListener{
 
 	public void setReadonly(boolean readonly) {
 		this.readonly = readonly;
+	}
+	
+	@Override
+	public void onScroll(int value, boolean horizontal)
+	{
+		super.onScroll(value, horizontal);
+		if(this.getXsb() != null && this.cursor != null) 
+		{
+		
+			int[] tmp = this.getCursorPos(this.cursorPos);
+			this.cursor.setPosition(tmp[0]-this.getXsb().getScrollValue(), tmp[1]);
+		}
 	}
 }

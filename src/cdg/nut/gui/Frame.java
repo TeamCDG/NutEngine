@@ -90,7 +90,7 @@ public abstract class Frame {
 			this.mouseGrabY = this.oldMouseY-(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY());
 			if(this.grabable && this.grabId!=0)
 			{
-				this.mouseGrabbed = this.mouseLeftPressed && (this.con.get(this.grabId).isDragable() || (this.con.get(this.grabId).isTextSelectable()));
+				this.mouseGrabbed = this.mouseLeftPressed && (this.con.get(this.grabId).isDragable() || this.con.get(this.grabId).isScrollable() || (this.con.get(this.grabId).isTextSelectable()));
 				
 				if(this.mouseGrabbed && !this.grabStart)
 				{
@@ -112,8 +112,10 @@ public abstract class Frame {
 			
 			this.mouseLeftPressed = true;
 			
+			//if(this.grabId != 0) Logger.debug("scrollable: "+this.con.get(this.grabId).isScrollable()+" / mgrabbed: "+this.mouseGrabbed,"Frame.draw");
+			
 			if(this.grabId != 0 && this.mouseGrabbed && this.con.get(this.grabId).isDragable()) this.con.get(this.grabId).dragged(this.mouseGrabX, this.mouseGrabY);
-			if(this.grabId != 0 && this.mouseGrabbed && this.con.get(this.grabId).isTextSelectable()) this.con.get(this.grabId).clicked(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()), MouseButtons.LEFT, this.mouseGrabbed && (Math.abs(this.mouseGrabSX - Mouse.getX()) >= 5 || Math.abs(this.mouseGrabSY - (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY())) >= 5), this.mouseGrabSX, this.mouseGrabSY);
+			if(this.grabId != 0 && this.mouseGrabbed && (this.con.get(this.grabId).isTextSelectable() || this.con.get(this.grabId).isScrollable())) this.con.get(this.grabId).clicked(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()), MouseButtons.LEFT, this.mouseGrabbed && (Math.abs(this.mouseGrabSX - Mouse.getX()) >= 5 || Math.abs(this.mouseGrabSY - (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY())) >= 5), this.mouseGrabSX, this.mouseGrabSY);
 			
 			
 		} else if (!Mouse.isButtonDown(MouseButtons.LEFT.getKey())) {
