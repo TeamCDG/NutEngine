@@ -17,14 +17,18 @@ public class YScrollBar extends GLImage{
 	
 	public YScrollBar(int x, int y, int height) {
 		super(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_COLOR, GLColor.class), x, y, Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), height);
-		// TODO Auto-generated constructor stub
+		this.height = height;
 	}
 
 	private GLImage scroll;
 	
+	private int height;
+	
 	private int scrollValue = 0;
 	private int maxValue = 0;
 	private List<IScrollListener> scrollListener = new ArrayList<IScrollListener>();
+
+	private boolean doublescroll;
 
 	public int getScrollOfAbs(int y)
 	{
@@ -42,7 +46,7 @@ public class YScrollBar extends GLImage{
 		{
 			int sz = Math.round((((float)this.getPixelHeight()-(float)this.scroll.getPixelHeight())/(float)this.maxValue)*(float)value);
 			Logger.debug("ScrollPosition: "+sz,"YScrollBar.getScrollPixel");
-			return sz;
+			return Math.max(0,Math.min(sz, this.getPixelHeight()-this.scroll.getPixelHeight()));
 		}
 		return 0;
 		
@@ -115,5 +119,24 @@ public class YScrollBar extends GLImage{
 		//		+" / xbt: "+Utility.between(x, this.getPixelX(), this.getPixelX()+this.getPixelWidth())+" / ybt: "+Utility.between(y, this.getPixelY(), this.getPixelY()+this.getPixelHeight()),"YScrollBar.isScrollBar");
 		
 		return (Utility.between(x, this.getPixelX(), this.getPixelX()+this.getPixelWidth()) && Utility.between(y, this.getPixelY(), this.getPixelY()+this.getPixelHeight()));
+	}
+	
+public void setDoublescroll(boolean doublescroll) {
+		
+		if(doublescroll != this.doublescroll)
+		{
+			if(doublescroll)
+			{
+				this.setDimension(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), this.height-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
+			}
+			else
+			{
+				this.setDimension(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), this.height);
+			}
+			this.setMaxValue(this.maxValue);
+			this.setScrollValue(this.scrollValue);
+		}
+		this.doublescroll = doublescroll;
+		
 	}
 }

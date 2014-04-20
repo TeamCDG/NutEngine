@@ -17,9 +17,12 @@ public class XScrollBar extends GLImage{
 	
 	public XScrollBar(int x, int y, int width) {
 		super(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_COLOR, GLColor.class), x, y, width, Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
-		// TODO Auto-generated constructor stub
+		this.width = width;
 	}
 
+	private boolean doublescroll = false;
+	private int width;
+	
 	private GLImage scroll;
 	
 	private int scrollValue = 0;
@@ -115,6 +118,25 @@ public class XScrollBar extends GLImage{
 		//		+" / xbt: "+Utility.between(x, this.getPixelX(), this.getPixelX()+this.getPixelWidth())+" / ybt: "+Utility.between(y, this.getPixelY(), this.getPixelY()+this.getPixelHeight()),"XScrollBar.isScrollBar");
 		
 		return (Utility.between(x, this.getPixelX(), this.getPixelX()+this.getPixelWidth()) && Utility.between(y, this.getPixelY(), this.getPixelY()+this.getPixelHeight()));
+	}
+
+	public void setDoublescroll(boolean doublescroll) {
+		
+		if(doublescroll != this.doublescroll)
+		{
+			if(doublescroll)
+			{
+				this.setDimension(this.width-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
+			}
+			else
+			{
+				this.setDimension(this.width, Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
+			}
+			this.setMaxValue(this.maxValue);
+			this.setScrollValue(this.scrollValue);
+		}
+		this.doublescroll = doublescroll;
+		
 	}
 	
 	

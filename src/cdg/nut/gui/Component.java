@@ -309,6 +309,10 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		this.border.setPosition(this.getPixelX(), this.getPixelY());
 		if(this.xsb != null) this.xsb.setPosition(this.getPixelX()+Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class), 
 				this.getPixelY()+this.getPixelHeight()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
+		
+		if(this.ysb != null) this.ysb.setPosition(this.getPixelX()+this.getPixelWidth()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 
+				this.getPixelY()+Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
+		
 		if(this.text != null) this.text.setPosition(this.getX()+this.padding[0], this.getY()+this.padding[1]);
 		
 		this.setTextClipping();
@@ -441,20 +445,33 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	private boolean xscrollGrabbed, yscrollGrabbed = false;
 	protected void clicked(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby) {
 		
-		Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed,"Component.clicked");
+		Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed+" / yscrollGrabbed: "+this.yscrollGrabbed,"Component.clicked");
 		
-		if(this.xsb != null && this.xscroll && this.xsb.isScrollDings(x, y) && grabbed)
+		if(this.xsb != null && this.xscroll && this.xsb.isScrollDings(x, y) && grabbed && !this.yscrollGrabbed)
 		{
 			this.xscrollGrabbed = true;
 			this.xsb.setScrollValue(this.xsb.getScrollOfAbs(x));
 		}
-		else if(this.xscrollGrabbed && grabbed)
+		else if(this.xscrollGrabbed && grabbed && this.xsb != null && !this.yscrollGrabbed)
 		{
 			this.xsb.setScrollValue(this.xsb.getScrollOfAbs(x));
 		}
-		else if(this.xsb != null && this.xscroll && this.xsb.isScrollBar(x, y))
+		else if(this.xsb != null && this.xscroll && this.xsb.isScrollBar(x, y) && !this.yscrollGrabbed)
 		{
 			this.xsb.setScrollValue(this.xsb.getScrollOfAbs(x));
+		}
+		else if(this.ysb != null && this.yscroll && this.ysb.isScrollDings(x, y) && grabbed && !this.xscrollGrabbed)
+		{
+			this.yscrollGrabbed = true;
+			this.ysb.setScrollValue(this.ysb.getScrollOfAbs(y));
+		}
+		else if(this.yscrollGrabbed && grabbed && this.ysb != null && !this.xscrollGrabbed)
+		{
+			this.ysb.setScrollValue(this.ysb.getScrollOfAbs(y));
+		}
+		else if(this.ysb != null && this.yscroll && this.ysb.isScrollBar(x, y) && !this.xscrollGrabbed)
+		{
+			this.ysb.setScrollValue(this.ysb.getScrollOfAbs(y));
 		}
 		else
 		{
@@ -547,6 +564,9 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		}
 		
 		Logger.debug("xscroll: "+this.xscroll+" / yscroll: "+this.yscroll,"Component.setScroll");
+		
+		if(this.xsb != null) this.xsb.setDoublescroll(this.xscroll && this.yscroll);
+		if(this.ysb != null) this.ysb.setDoublescroll(this.xscroll && this.yscroll);
 		
 		this.setTextClipping(true);
 	}
@@ -923,9 +943,18 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 			Logger.debug("scrollvalue: "+sv, "Component.onScroll");
 			if(this.text != null) this.text.setX(this.getTextX()-sv);
 		}
-		else if(!this.xscroll)
+		else if(!this.xscroll && horizontal)
 		{
 			if(this.text != null && this.text.getPixelX() != this.getTextX()) this.text.setX(this.getTextX());
+		}
+		else if(!horizontal && this.yscroll)
+		{
+			Logger.debug("scrollvalue: "+sv, "Component.onScroll");
+			if(this.text != null) this.text.setY(this.getTextY()-sv);
+		}
+		else if(!this.yscroll && !horizontal)
+		{
+			if(this.text != null && this.text.getPixelY() != this.getTextY()) this.text.setY(this.getTextY());
 		}
 	}
 	
