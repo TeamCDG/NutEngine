@@ -46,6 +46,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	
 	private boolean xscroll, yscroll = false;
 	private XScrollBar xsb;
+	private YScrollBar ysb;
 	
 	private List<IClickListener> clickListener = new ArrayList<IClickListener>();
 	private List<IKeyboardListener> keyListener = new ArrayList<IKeyboardListener>();
@@ -169,6 +170,11 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 				this.getPixelY()+this.getPixelHeight()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 
 				this.getPixelWidth() - 2*Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
 		this.xsb.addScrollListener(this);
+		
+		this.ysb = new YScrollBar(this.getPixelX()+this.getPixelWidth()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 
+				this.getPixelY()+Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class), 
+				this.getPixelHeight() - 2*Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
+		this.ysb.addScrollListener(this);
 		
 	}
 	
@@ -316,6 +322,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		if (!selection && this.hasBorder)	 this.border.draw();
 		if (this.text != null && !selection) this.text.draw();
 		if (this.xsb != null && !selection && this.xscroll) this.xsb.draw();
+		if (this.ysb != null && !selection && this.yscroll) this.ysb.draw();
 	}
 
 	public boolean isAutosizeWithText() {
@@ -501,16 +508,21 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	
 	private void setScroll()
 	{
+		this.setTextClipping(true);
+		
 		int pl = Utility.glToPixel(this.text.getClippingArea().getX(), 0)[0];
 		int pr = Utility.glToPixel(this.text.getClippingArea().getZ(), 0)[0];
-		int dif = pr-pl;
+		int pt = Utility.glToPixel(0, this.text.getClippingArea().getY())[1];
+		int pb = Utility.glToPixel(0, this.text.getClippingArea().getW())[1];
+		int tw = pr-pl;
+		int th = pb-pt;
 		
 		
-		if(this.text.getPixelWidth() > dif)
+		if(this.text.getPixelWidth() > tw)
 		{
 			if(this.xsb != null) 
 			{
-				this.xsb.setMaxValue(this.text.getPixelWidth()-dif);
+				this.xsb.setMaxValue(this.text.getPixelWidth()-tw);
 				this.xscroll = true;
 			}				
 		}
@@ -519,19 +531,43 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 			this.xscroll = false;
 			if(this.xsb != null) { this.xsb.setScrollValue(0); this.xsb.setMaxValue(0);}
 		}
+		
+		if(this.text.getPixelHeight() > th)
+		{
+			if(this.ysb != null) 
+			{
+				this.ysb.setMaxValue(this.text.getPixelHeight()-th);
+				this.yscroll = true;
+			}				
+		}
+		else
+		{
+			this.yscroll = false;
+			if(this.ysb != null) { this.ysb.setScrollValue(0); this.ysb.setMaxValue(0);}
+		}
+		
+		Logger.debug("xscroll: "+this.xscroll+" / yscroll: "+this.yscroll,"Component.setScroll");
+		
+		this.setTextClipping(true);
 	}
 	
+	
 	private void setTextClipping()
+	{
+		this.setTextClipping(false);
+	}
+	
+	private void setTextClipping(boolean calledByScroll)
 	{
 		if(this.text != null)
 		{
 			Vertex4 ca = new Vertex4(this.getX()+this.padding[0],
 					 this.getY()+this.padding[1],
-					 (this.getX()+this.getWidth())-this.padding[0],
-					 (this.getY()+this.getHeight())-this.padding[1]);
+					 (this.getX()+this.getWidth())-this.padding[0]-(yscroll?this.ysb.getWidth():0),
+					 (this.getY()+this.getHeight())-this.padding[1]-(xscroll?this.xsb.getHeight():0));
 			this.text.setClippingArea(ca);
 			
-			this.setScroll();
+			if(!calledByScroll) this.setScroll();
 			
 			
 			Logger.debug("text clipping area: "+ca.toString(), "Component.setTextClipping");
@@ -898,8 +934,24 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		return this.xsb;
 	}
 	
+	protected YScrollBar getYsb()
+	{
+		return this.ysb;
+	}
+	
 	protected FontObject getFO()
 	{
 		return this.text;
+	}
+	
+	
+	protected int getXPadding()
+	{
+		return Utility.glSizeToPixelSize(padding[0], 0)[0];
+	}
+	
+	protected int getYPadding()
+	{
+		return Utility.glSizeToPixelSize(0, padding[1])[1];
 	}
 }

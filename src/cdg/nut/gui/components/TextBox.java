@@ -136,11 +136,11 @@ public class TextBox extends Component implements IKeyboardListener{
 		int[] tmp = this.getCursorPos(this.cursorPos);
 		int[] dtmp = this.getCursorPos(this.dcursorPos);
 		
-		int tw = (Utility.glToPixel(this.getClippingArea().getZ(), 0)[0]-this.getTextX());
-		int dif = tmp[0] - tw;
-		
+		int tw = this.getPixelWidth()-(2*this.getXPadding())-4; 
+		int th = this.getPixelHeight()-(2*this.getYPadding())-4; 
+				
 		Logger.debug("tw: "+tw+" / textX: "+this.getTextX()+" / sv: "+this.getXsb().getScrollValue()+" / curx: "+tmp[0],"TextBox.setCursorPos");
-		
+		/*
 		if(tmp[0] - this.getXsb().getScrollValue() +this.getTextX() < this.getTextX() || tmp[0] - this.getXsb().getScrollValue() + this.getTextX()> this.getTextX()+tw)
 		{
 			int nsv = this.getXsb().getScrollValue()+(tmp[0]-dtmp[0]);
@@ -160,8 +160,48 @@ public class TextBox extends Component implements IKeyboardListener{
 		{
 			this.getXsb().setScrollValue(this.getXsb().getMaxValue());
 		}
+		*/
+		if(tmp[0] == 0)
+		{
+			this.getXsb().setScrollValue(0);
+		}
+		else if(tmp[0] == this.getFO().getPixelWidth())
+		{
+			this.getXsb().setScrollValue(this.getXsb().getMaxValue());
+		}
+		else if(!Utility.between((tmp[0]+this.cursor.getPixelWidth())-this.getXsb().getScrollValue(),0,tw))
+		{			
+			if(this.dcursorPos - this.cursorPos == 1 && tmp[1] - dtmp[1] == 0)
+				this.getXsb().setScrollValue(this.getXsb().getScrollValue()+(tmp[0]-dtmp[0]));
+			else
+				this.getXsb().setScrollValue((tmp[0]+this.cursor.getPixelWidth())-tw);
+			
+		}
+		
+		
+		
+		if(tmp[1] == 0)
+		{
+			this.getYsb().setScrollValue(0);
+		}
+		else if(tmp[1] == this.getFO().getPixelHeight())
+		{
+			this.getYsb().setScrollValue(this.getYsb().getMaxValue());
+		}
+		else if(!Utility.between((tmp[1]+this.cursor.getPixelHeight())-this.getYsb().getScrollValue(),0,th))
+		{			
+			if(this.dcursorPos - this.cursorPos == 1 && tmp[0] - dtmp[0] == 0)
+				this.getYsb().setScrollValue(this.getYsb().getScrollValue()+(tmp[1]-dtmp[1]));
+			else
+				this.getYsb().setScrollValue((tmp[1]+this.cursor.getPixelHeight())-th);
+			
+		}
+		
+		
 		
 		this.cursor.setPosition(this.getTextX()+tmp[0]-this.getXsb().getScrollValue(), this.getTextY()+tmp[1]);
+		
+		
 		
 		this.dcursorPos = this.cursorPos;
 		

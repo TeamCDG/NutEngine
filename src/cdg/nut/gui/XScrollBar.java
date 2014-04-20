@@ -42,7 +42,7 @@ public class XScrollBar extends GLImage{
 		{
 			int sz = Math.round((((float)this.getPixelWidth()-(float)this.scroll.getPixelWidth())/(float)this.maxValue)*(float)value);
 			Logger.debug("ScrollPosition: "+sz,"XScrollBar.getScrollPixel");
-			return sz;
+			return Math.max(0,Math.min(sz, this.getPixelWidth()-this.scroll.getPixelWidth()));
 		}
 		return 0;
 		
