@@ -690,7 +690,7 @@ public class TextBox extends Component implements IKeyboardListener{
 		{
 		
 			int[] tmp = this.getCursorPos(this.cursorPos);
-			this.cursor.setPosition(tmp[0]-this.getXsb().getScrollValue(), tmp[1]);
+			this.cursor.setPosition(tmp[0]-this.getXsb().getScrollValue(), tmp[1]-this.getYsb().getScrollValue());
 		}
 	}
 }

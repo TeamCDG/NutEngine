@@ -26,6 +26,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	private Border border;
 	private boolean customFont, customFontSize, customFontC, customFontHC, customFontAC = false;
 	private FontObject text;
+	private GLImage dsBEx;
 	private float[] padding;
 
 	private boolean hasBackground = true;
@@ -166,15 +167,25 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		this.setupPadding();
 		this.restoreDefaults();
 		Settings.addListener(this);
-		this.xsb = new XScrollBar(this.getPixelX()+Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class), 
-				this.getPixelY()+this.getPixelHeight()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 
-				this.getPixelWidth() - 2*Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
+		
+		int sbs = Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class);
+		int bs = Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
+		
+		this.xsb = new XScrollBar(this.getPixelX()+bs, 
+				this.getPixelY()+this.getPixelHeight()-bs-sbs, 
+				this.getPixelWidth() - 2*bs);
 		this.xsb.addScrollListener(this);
 		
-		this.ysb = new YScrollBar(this.getPixelX()+this.getPixelWidth()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 
-				this.getPixelY()+Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class), 
-				this.getPixelHeight() - 2*Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
+		this.ysb = new YScrollBar(this.getPixelX()+this.getPixelWidth()-bs-sbs, 
+				this.getPixelY()+bs, 
+				this.getPixelHeight() - 2*bs);
 		this.ysb.addScrollListener(this);
+		
+		this.dsBEx = new GLImage(this.borderColor,
+								 this.getPixelX()+this.getPixelWidth()-bs-sbs,
+								 this.getPixelY()+this.getPixelHeight()-bs-sbs,
+								 sbs,
+								 sbs);
 		
 	}
 	
@@ -184,18 +195,21 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		{
 			this.setColor(this.backgroundActiveColor);
 			if(this.border != null) this.border.setColor(this.borderActiveColor);
+			if(this.dsBEx != null)  this.dsBEx.setColor(this.borderActiveColor);
 			if(this.text != null)   this.text.setColor(this.fontActiveColor);
 		}
 		else if(this.isSelected())
 		{
 			this.setColor(this.backgroundHighlightColor);
 			if(this.border != null) this.border.setColor(this.borderHighlightColor);
+			if(this.dsBEx != null)  this.dsBEx.setColor(this.borderHighlightColor);
 			if(this.text != null)   this.text.setColor(this.fontHighlightColor);
 		}
 		else
 		{
 			this.setColor(this.backgroundColor);
 			if(this.border != null) this.border.setColor(this.borderColor);
+			if(this.dsBEx != null)  this.dsBEx.setColor(this.borderColor);
 			if(this.text != null)   this.text.setColor(this.fontColor);
 		}
 	}
@@ -315,6 +329,9 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		
 		if(this.text != null) this.text.setPosition(this.getX()+this.padding[0], this.getY()+this.padding[1]);
 		
+		if(this.dsBEx != null) this.dsBEx.setPosition(this.getPixelX()+this.getPixelWidth()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 
+													  this.getPixelY()+this.getPixelHeight()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
+		
 		this.setTextClipping();
 	}
 
@@ -327,6 +344,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		if (this.text != null && !selection) this.text.draw();
 		if (this.xsb != null && !selection && this.xscroll) this.xsb.draw();
 		if (this.ysb != null && !selection && this.yscroll) this.ysb.draw();
+		if (this.yscroll && this.xscroll && this.dsBEx != null)  this.dsBEx.draw();
 	}
 
 	public boolean isAutosizeWithText() {
@@ -498,9 +516,11 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		if (value == true && !this.active) {
 			if(this.hasBackground) this.setColor(this.backgroundHighlightColor);
 			this.border.setColor(this.borderHighlightColor);
+			if(this.dsBEx != null)  this.dsBEx.setColor(borderHighlightColor);
 		} else if(!this.active) {
 			if(this.hasBackground) this.setColor(this.backgroundColor);
 			this.border.setColor(this.borderColor);
+			if(this.dsBEx != null)  this.dsBEx.setColor(borderColor);
 		}
 	}
 
@@ -606,7 +626,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		this.hasBackground = hasBackground;
 		
 	}
-
+	
 
 	/**
 	 * @return the backgroundColor
@@ -688,7 +708,10 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		this.borderColor = borderColor;
 		this.customBorC = true;
 		if(!this.active && !this.isSelected())
+		{
 			this.border.setColor(borderColor);
+			if(this.dsBEx != null)  this.dsBEx.setColor(borderColor);
+		}
 	}
 	
 	public void resetBorderColor() {
@@ -710,7 +733,10 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		this.borderHighlightColor = borderHighlightColor;
 		this.customBorHC = true;
 		if(!this.active && this.isSelected())
+		{
 			this.border.setColor(borderHighlightColor);
+			if(this.dsBEx != null)  this.dsBEx.setColor(borderHighlightColor);
+		}
 	}
 	
 	public void resetBorderHighlightColor() {
@@ -732,7 +758,10 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		this.borderActiveColor = borderActiveColor;
 		this.customBorAC = true;
 		if(this.active)
+		{
 			this.border.setColor(borderActiveColor);
+			if(this.dsBEx != null)  this.dsBEx.setColor(borderActiveColor);
+		}
 	}
 	
 	public void resetBorderActiveColor() {
@@ -982,5 +1011,13 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	protected int getYPadding()
 	{
 		return Utility.glSizeToPixelSize(0, padding[1])[1];
+	}
+	
+	public void mwheel(int value)
+	{
+		if(this.yscroll)
+			this.ysb.setScrollValue(this.ysb.getScrollValue()-Math.max(Math.round((float)value*Settings.get(SetKeys.GUI_CMP_SCROLL_MWHEELFACTOR, Float.class)),1));
+		else if(this.xscroll && Settings.get(SetKeys.GUI_CMP_SCROLL_XFALLBACK, Boolean.class))
+			this.xsb.setScrollValue(this.xsb.getScrollValue()-Math.max(Math.round((float)value*Settings.get(SetKeys.GUI_CMP_SCROLL_MWHEELFACTOR, Float.class)),1));
 	}
 }

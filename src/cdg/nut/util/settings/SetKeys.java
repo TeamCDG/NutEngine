@@ -55,6 +55,8 @@ public enum SetKeys {
 	GUI_CMP_SCROLLBAR_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of components", new GLColor(0.75f, 0.75f, 0.75f, 1.0f)),
 	GUI_CMP_FONT("<string>", "default font of components", BitmapFont.EMPTY),
 	GUI_CMP_FONT_PADDING("<int>", "default font padding of components", 8),
+	GUI_CMP_SCROLL_XFALLBACK("<boolean>", "true to scroll xscrollbar with mousewheel if there is no yscrollbar", true),
+	GUI_CMP_SCROLL_MWHEELFACTOR("<float>", "used to control the amout of pixel per scroll", 0.1f),
 	GUI_MAX_SELECT_SKIP("<int>", "max frames without selection", 2),
 	GUI_CMP_FONT_SIZE("<int>/<float>", "default font of components", new ICommandExecuter(){
 		@Override

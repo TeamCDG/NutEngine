@@ -79,7 +79,11 @@ public abstract class Frame {
 			this.select();
 			SetKeys.R_CLEAR_BOTH.execute(null);
 		}
-
+		
+		int mdwheel = Mouse.getDWheel();
+		if(mdwheel != 0) Logger.debug("mdwheel: "+mdwheel,"Frame.draw");
+		if(this.lastId != 0 && this.con.get(this.lastId).isScrollable() && mdwheel != 0) this.con.get(this.lastId).mwheel(mdwheel);
+		
 		if (Mouse.isButtonDown(MouseButtons.LEFT.getKey())) {
 			
 			if(! this.mouseGrabbed)

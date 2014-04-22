@@ -414,4 +414,11 @@ public class FontObject extends GLObject {
 	{
 		return this.actualText.substring(this.selectionStart, this.selectionEnd);
 	}
+	
+	@Override
+	protected void move()
+	{
+		super.move();
+		this.setupSelectionGL();
+	}
 }
