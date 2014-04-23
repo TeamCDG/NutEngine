@@ -23,6 +23,8 @@ public class TextBox extends Component implements IKeyboardListener{
 	private int cursorPos = 0; 
 	private int dcursorPos = 0;
 	
+	private String oToolTipText;
+	
 	private int dc = Settings.get(SetKeys.R_MAX_FPS, Integer.class);
 	
 	private boolean commandMode = false;
@@ -101,6 +103,7 @@ public class TextBox extends Component implements IKeyboardListener{
 	public void setCommandMode(boolean commandMode) {
 		this.commandMode = commandMode;
 		
+		/*
 		if(commandMode)
 		{
 			this.setManualTThide(true);
@@ -110,7 +113,7 @@ public class TextBox extends Component implements IKeyboardListener{
 		{
 			this.setManualTThide(false);
 			this.setManualTTshow(false);
-		}
+		}*/
 	}
 	
 	@Override
@@ -118,6 +121,20 @@ public class TextBox extends Component implements IKeyboardListener{
 	{
 		super.setActive(b);
 		
+		if(b)
+		{
+			this.oToolTipText = this.getTooltip().getText(0);
+			this.setManualTTshow(true);
+			this.setManualTThide(true);
+			this.manualHideToolTip();
+		}
+		else
+		{
+			this.getTooltip().setText(this.oToolTipText);
+			this.setManualTTshow(false);
+			this.setManualTThide(false);
+		}
+			
 		if(!b && this.selection)
 		{
 			this.selection = false;
@@ -619,6 +636,15 @@ public class TextBox extends Component implements IKeyboardListener{
 				this.cursorPos = npos;			
 				this.setCursorPos();
 				this.setTextSelection(this.selectionStart, this.cursorPos);
+			}
+			else if(eventKey == Keyboard.KEY_TAB && this.isTooltipShown() && this.commandMode)
+			{
+				if(!this.getTooltip().getText(0).split(" ")[0].equals(""))
+				{
+					this.setText(this.getTooltip().getText(0).split(" ")[0]);
+					this.cursorPos = this.getText().length();
+					this.setCursorPos();
+				}
 			}
 		}
 		

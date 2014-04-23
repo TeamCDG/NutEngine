@@ -13,6 +13,7 @@ import cdg.nut.gui.components.Button;
 import cdg.nut.gui.components.ColorBox;
 import cdg.nut.gui.components.ImageBox;
 import cdg.nut.gui.components.Label;
+import cdg.nut.gui.components.ProgressBar;
 import cdg.nut.gui.components.TextBox;
 import cdg.nut.interfaces.IClickListener;
 import cdg.nut.interfaces.ICommandListener;
@@ -25,6 +26,7 @@ import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.settings.Cmd;
 import cdg.nut.util.settings.SetKeys;
+import cdg.nut.util.settings.Settings;
 import cdg.nut.util.settings.SettingsType;
 
 public class TestFrame extends Frame {
@@ -37,6 +39,7 @@ public class TestFrame extends Frame {
 	TextBox txt;
 	TextBox pw;
 	TextBox com;
+	ProgressBar b;
 	
 	public TestFrame()
 	{
@@ -44,6 +47,7 @@ public class TestFrame extends Frame {
 		this.test = new Button(420, 262, Colors.BLUE+"G"+Colors.RED+"o"+Colors.YELLOW+"o"+Colors.BLUE+"g"+Colors.DARKGREEN+"l"+Colors.RED+"e");
 		this.test.setBackgroundHighlightColor(Colors.VIOLET.getGlColor());
 		this.test.setBorderColor(Colors.LIGHTSKYBLUE.getGlColor());
+		this.test.setTooltip("nonsens button");
 		this.test.addClickListener(new IClickListener(){
 
 			@Override
@@ -72,9 +76,11 @@ public class TestFrame extends Frame {
 		
 		this.ibox = new ImageBox(820, 400, 200, 200, new GLTexture("grid0.png", GL13.GL_TEXTURE0));
 		this.ibox.setDragable(true);
+		this.ibox.setTooltip("ImageBox, dragable!");
 		this.addComponent(ibox);
 		
 		this.txt = new TextBox(100, 300, test.getPixelWidth(), 2*test.getPixelHeight(), "");
+		this.txt.setTooltip("yet another TextBox");
 		this.addComponent(txt);
 		
 		this.pw = new TextBox(100+test.getPixelWidth()+50, 400, test.getPixelWidth(), test.getPixelHeight(), "");
@@ -85,6 +91,7 @@ public class TestFrame extends Frame {
 		this.com = new TextBox(420, 10, 700, 60, "");
 		this.com.setFontSize(30);
 		this.com.setCommandMode(true);
+		this.com.setTooltip("CommandBox");
 		this.com.addCommandListener(new ICommandListener(){
 
 			@Override
@@ -114,6 +121,12 @@ public class TestFrame extends Frame {
 				return ret.toArray(new String[1]);
 			}});
 		this.addComponent(com);
+		
+		this.b = new ProgressBar(420,10+this.com.getPixelHeight()+10,700,50);
+		this.b.setValue(57.378926f);
+		this.b.setTooltip("basically the ProgressBar shows progress");
+		this.add(b);
+		
 	}
 	
 	@Override

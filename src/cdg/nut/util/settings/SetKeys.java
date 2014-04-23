@@ -96,6 +96,7 @@ public enum SetKeys {
 				
 		}}),
 	GUI_TOOLTIP_BACKGROUND_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of components", new GLColor(0.2f, 0.2f, 0.2f, 1.0f)),
+	GUI_PROGRESSBAR_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default color of progress bars", new GLColor(0.0f, 0.8f, 0.0f, 1.0f)),
 	GUI_TOOLTIP_FONT_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),

@@ -82,7 +82,7 @@ public abstract class Frame {
 		{
 			this.con.get(this.lastId).showToolTip(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()));
 		}
-		else if(this.lastId != 0)
+		else if(this.lastId != 0 && this.con.get(this.lastId) != null)
 		{
 			this.con.get(this.lastId).hideToolTip();
 		}
@@ -103,7 +103,7 @@ public abstract class Frame {
 		
 		int mdwheel = Mouse.getDWheel();
 		if(mdwheel != 0) Logger.debug("mdwheel: "+mdwheel,"Frame.draw");
-		if(this.lastId != 0 && this.con.get(this.lastId).isScrollable() && mdwheel != 0) this.con.get(this.lastId).mwheel(mdwheel);
+		if(this.lastId != 0 && this.con.get(this.lastId) != null && this.con.get(this.lastId).isScrollable() && mdwheel != 0) this.con.get(this.lastId).mwheel(mdwheel);
 		
 		if (Mouse.isButtonDown(MouseButtons.LEFT.getKey())) {
 			

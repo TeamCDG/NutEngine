@@ -47,6 +47,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	
 	private boolean dragable, textSelectable = false;
 	private boolean activeable = false;
+	private boolean centerText = false;
 	
 	private boolean xscroll, yscroll = false;
 	private XScrollBar xsb;
@@ -401,7 +402,12 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	public void setText(String text)
 	{
 		this.text.setText(text);
+		
+		if(this.centerText)
+			this.text.setPosition(this.getTextX(), this.getTextY());
+		
 		this.setScroll();
+		
 		//if(this.xsb != null) this.xsb.setScrollValue(this.xsb.getMaxValue());
 		this.autosize();
 		Logger.debug(
@@ -474,6 +480,8 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	private boolean manualTThide;
 
 	private boolean manualTTshow;
+
+	private boolean scrollable = true;
 	protected void clicked(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby) {
 		
 		Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed+" / yscrollGrabbed: "+this.yscrollGrabbed,"Component.clicked");
@@ -558,7 +566,13 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	
 	private void setScroll()
 	{
+		
+		
+		if(!this.scrollable)
+			return;
+		
 		this.setTextClipping(true);
+		
 		
 		int pl = Utility.glToPixel(this.text.getClippingArea().getX(), 0)[0];
 		int pr = Utility.glToPixel(this.text.getClippingArea().getZ(), 0)[0];
@@ -566,7 +580,6 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		int pb = Utility.glToPixel(0, this.text.getClippingArea().getW())[1];
 		int tw = pr-pl;
 		int th = pb-pt;
-		
 		
 		if(this.text.getPixelWidth() > tw)
 		{
@@ -927,7 +940,15 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		int pabs = Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class) +
 				   Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
 		
-		return this.getPixelX() + pabs;
+		if(this.centerText)
+		{
+			int xoff = (this.getPixelWidth()-2*pabs-this.text.getPixelWidth())/2;
+			return this.getPixelX()+Math.max(pabs, xoff);
+		}
+		else
+		{
+			return this.getPixelX() + pabs;
+		}
 	}
 	
 	public int getTextY()
@@ -935,7 +956,15 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		int pabs = Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class) +
 				   Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
 		
-		return this.getPixelY() + pabs;
+		if(this.centerText)
+		{
+			int yoff = (this.getPixelHeight()-2*pabs-this.text.getPixelHeight())/2;
+			return this.getPixelY()+Math.max(pabs, yoff);
+		}
+		else
+		{
+			return this.getPixelY() + pabs;
+		}
 	}
 	
 	protected int[] getCursorPos(int index)
@@ -1071,6 +1100,11 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		}
 	}
 	
+	public boolean isTooltipShown()
+	{
+		return this.tooltipShown;
+	}
+	
 	public void manualHideToolTip()
 	{
 		this.getParent().setActiveToolTip(null);
@@ -1093,5 +1127,31 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 
 	public void setParent(Frame parent) {
 		this.parent = parent;
+	}
+	
+	public void setScrollable(boolean value)
+	{
+		
+		if(this.scrollable && !value)
+		{
+			this.yscroll = false;
+			this.xscroll = false;
+		}
+		else if(!this.scrollable && value)
+		{
+			this.setScroll();
+		}
+		
+		this.scrollable = value;
+		
+		
+	}
+
+	public boolean isCenterText() {
+		return centerText;
+	}
+
+	public void setCenterText(boolean centerText) {
+		this.centerText = centerText;
 	}
 }
