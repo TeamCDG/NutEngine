@@ -9,6 +9,7 @@ import org.lwjgl.input.Keyboard;
 import cdg.nut.gui.Component;
 import cdg.nut.interfaces.ICommandListener;
 import cdg.nut.interfaces.IKeyboardListener;
+import cdg.nut.interfaces.IToolTipGenerator;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
@@ -29,6 +30,8 @@ public class TextBox extends Component implements IKeyboardListener{
 	
 	private boolean selection = false;
 	private int selectionStart = 0;
+	
+	private IToolTipGenerator tTGen;
 	
 	List<ICommandListener> clis = new ArrayList<ICommandListener>();
 	
@@ -97,6 +100,17 @@ public class TextBox extends Component implements IKeyboardListener{
 	 */
 	public void setCommandMode(boolean commandMode) {
 		this.commandMode = commandMode;
+		
+		if(commandMode)
+		{
+			this.setManualTThide(true);
+			this.setManualTTshow(true);
+		}
+		else
+		{
+			this.setManualTThide(false);
+			this.setManualTTshow(false);
+		}
 	}
 	
 	@Override
@@ -607,6 +621,25 @@ public class TextBox extends Component implements IKeyboardListener{
 				this.setTextSelection(this.selectionStart, this.cursorPos);
 			}
 		}
+		
+		if(!this.getText().equals("") && this.tTGen != null)
+		{
+			String[] nc = this.tTGen.generateToolTip(this.getText());
+			
+			if(nc != null && nc.length != 0)
+			{
+				this.getTooltip().setContent(nc);
+				this.manualShowToolTip(this.getPixelX(), this.getPixelY()+this.getPixelHeight());
+			}
+			else
+			{
+				this.manualHideToolTip();
+			}
+		}
+		else
+		{
+			this.manualHideToolTip();
+		}
 	}
 	
 	@Override
@@ -692,5 +725,15 @@ public class TextBox extends Component implements IKeyboardListener{
 			int[] tmp = this.getCursorPos(this.cursorPos);
 			this.cursor.setPosition(tmp[0]-this.getXsb().getScrollValue(), tmp[1]-this.getYsb().getScrollValue());
 		}
+	}
+
+
+	public IToolTipGenerator gettTGen() {
+		return tTGen;
+	}
+
+
+	public void settTGen(IToolTipGenerator tTGen) {
+		this.tTGen = tTGen;
 	}
 }

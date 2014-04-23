@@ -1,5 +1,6 @@
 package cdg.nut.test;
 
+import java.util.LinkedList;
 import java.util.Random;
 
 import org.lwjgl.input.Mouse;
@@ -7,6 +8,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
 import cdg.nut.gui.Frame;
+import cdg.nut.gui.ToolTip;
 import cdg.nut.gui.components.Button;
 import cdg.nut.gui.components.ColorBox;
 import cdg.nut.gui.components.ImageBox;
@@ -14,6 +16,8 @@ import cdg.nut.gui.components.Label;
 import cdg.nut.gui.components.TextBox;
 import cdg.nut.interfaces.IClickListener;
 import cdg.nut.interfaces.ICommandListener;
+import cdg.nut.interfaces.IToolTipGenerator;
+import cdg.nut.logging.Logger;
 import cdg.nut.util.Colors;
 import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
@@ -21,6 +25,7 @@ import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.settings.Cmd;
 import cdg.nut.util.settings.SetKeys;
+import cdg.nut.util.settings.SettingsType;
 
 public class TestFrame extends Frame {
 	Button test;
@@ -65,7 +70,7 @@ public class TestFrame extends Frame {
 		this.cbox = new ColorBox(10, 550, 50, 50, GLColor.random());
 		this.addComponent(cbox);
 		
-		this.ibox = new ImageBox(420, 10, 200, 200, new GLTexture("grid0.png", GL13.GL_TEXTURE0));
+		this.ibox = new ImageBox(820, 400, 200, 200, new GLTexture("grid0.png", GL13.GL_TEXTURE0));
 		this.ibox.setDragable(true);
 		this.addComponent(ibox);
 		
@@ -74,9 +79,10 @@ public class TestFrame extends Frame {
 		
 		this.pw = new TextBox(100+test.getPixelWidth()+50, 400, test.getPixelWidth(), test.getPixelHeight(), "");
 		this.pw.setPasswordMode(true);
+		this.pw.setTooltip("password goes here");
 		this.addComponent(pw);
 		
-		this.com = new TextBox(100, 570, 700, 60, "");
+		this.com = new TextBox(420, 10, 700, 60, "");
 		this.com.setFontSize(30);
 		this.com.setCommandMode(true);
 		this.com.addCommandListener(new ICommandListener(){
@@ -85,6 +91,27 @@ public class TestFrame extends Frame {
 			public void exec(String command) {
 				Cmd.exec(command);
 				
+			}});
+		this.com.settTGen(new IToolTipGenerator(){
+
+			@Override
+			public String[] generateToolTip(String text) {
+				LinkedList<String> ret = new LinkedList<String>();
+				for(SetKeys s: SetKeys.values())
+				{
+					if(s.name().toLowerCase().startsWith(text.toLowerCase().split(" ")[0]) && (s.getType() == SettingsType.COMMAND || s.getType() == SettingsType.COMMAND_AND_SETTING|| s.getType() == SettingsType.SETTING))
+					{
+						if(s.getParameterList() != null)
+							ret.add(s.name().toLowerCase()+" "+
+									(s.getParameterList().length()>30?s.getParameterList().substring(0,30)+"...":s.getParameterList())+
+									(s.getDefaultValue()!=null?(" Default value: "+(s.getCls()!=GLColor.class?s.getDefaultValue().toString():((GLColor)s.getDefaultValue()).toReadableString())):""));
+						//Logger.debug(s.name().toLowerCase()+" "+s.getParameterList()+" Default value: "+(s.getCls()!=GLColor.class?s.getDefaultValue().toString():((GLColor)s.getDefaultValue()).toReadableString()));
+					}
+					
+					
+				}
+				
+				return ret.toArray(new String[1]);
 			}});
 		this.addComponent(com);
 	}

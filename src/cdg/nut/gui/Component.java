@@ -23,10 +23,13 @@ import cdg.nut.interfaces.IClickListener;
 //TODO: this class needs some love
 public abstract class Component extends GLImage implements ISettingsListener, IScrollListener {
 
+	private Frame parent;
+	
 	private Border border;
 	private boolean customFont, customFontSize, customFontC, customFontHC, customFontAC = false;
 	private FontObject text;
 	private GLImage dsBEx;
+	private ToolTip tooltip;
 	private float[] padding;
 
 	private boolean hasBackground = true;
@@ -187,6 +190,8 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 								 sbs,
 								 sbs);
 		
+		this.tooltip = new ToolTip("");
+		
 	}
 	
 	private void setColor()
@@ -340,11 +345,15 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	{
 		super.drawChildren(selection);
 
+		if(this.tooltipShown && this.parent.getActiveToolTip() != this.tooltip)
+			this.tooltipShown = false;
+		
 		if (!selection && this.hasBorder)	 this.border.draw();
 		if (this.text != null && !selection) this.text.draw();
 		if (this.xsb != null && !selection && this.xscroll) this.xsb.draw();
 		if (this.ysb != null && !selection && this.yscroll) this.ysb.draw();
 		if (this.yscroll && this.xscroll && this.dsBEx != null)  this.dsBEx.draw();
+		//if(this.tooltip != null && this.tooltipShown) this.tooltip.draw();
 	}
 
 	public boolean isAutosizeWithText() {
@@ -461,6 +470,10 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 
 	
 	private boolean xscrollGrabbed, yscrollGrabbed = false;
+	private boolean tooltipShown;
+	private boolean manualTThide;
+
+	private boolean manualTTshow;
 	protected void clicked(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby) {
 		
 		Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed+" / yscrollGrabbed: "+this.yscrollGrabbed,"Component.clicked");
@@ -1019,5 +1032,66 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 			this.ysb.setScrollValue(this.ysb.getScrollValue()-Math.max(Math.round((float)value*Settings.get(SetKeys.GUI_CMP_SCROLL_MWHEELFACTOR, Float.class)),1));
 		else if(this.xscroll && Settings.get(SetKeys.GUI_CMP_SCROLL_XFALLBACK, Boolean.class))
 			this.xsb.setScrollValue(this.xsb.getScrollValue()-Math.max(Math.round((float)value*Settings.get(SetKeys.GUI_CMP_SCROLL_MWHEELFACTOR, Float.class)),1));
+	}
+
+	public ToolTip getTooltip() {
+		return tooltip;
+	}
+
+	public void setTooltip(String text) {
+		this.tooltip.setText(text);
+	}
+
+	public void showToolTip(int x, int y) {
+		
+		if(this.tooltip != null && this.tooltip.getContent().length != 0 && !this.tooltipShown && !this.manualTTshow)
+		{
+			this.tooltip.setPosition(x,y);
+			this.tooltipShown = true;
+			this.getParent().setActiveToolTip(this.tooltip);
+		}
+	}
+	
+	public void manualShowToolTip(int x, int y) {
+		
+		if(this.tooltip != null && this.tooltip.getContent().length != 0 && !this.tooltipShown)
+		{
+			this.tooltip.setPosition(x,y);
+			this.tooltipShown = true;
+			this.getParent().setActiveToolTip(this.tooltip);
+		}
+	}
+	
+	public void hideToolTip()
+	{
+		if(!this.manualTThide)
+		{
+			this.getParent().setActiveToolTip(null);
+			this.tooltipShown = false;
+		}
+	}
+	
+	public void manualHideToolTip()
+	{
+		this.getParent().setActiveToolTip(null);
+		this.tooltipShown = false;
+	}
+	
+	public void setManualTThide(boolean val)
+	{
+		this.manualTThide = val;
+	}
+	
+	public void setManualTTshow(boolean val)
+	{
+		this.manualTTshow = val;
+	}
+
+	public Frame getParent() {
+		return parent;
+	}
+
+	public void setParent(Frame parent) {
+		this.parent = parent;
 	}
 }

@@ -58,7 +58,7 @@ public enum SetKeys {
 	GUI_CMP_SCROLL_XFALLBACK("<boolean>", "true to scroll xscrollbar with mousewheel if there is no yscrollbar", true),
 	GUI_CMP_SCROLL_MWHEELFACTOR("<float>", "used to control the amout of pixel per scroll", 0.1f),
 	GUI_MAX_SELECT_SKIP("<int>", "max frames without selection", 2),
-	GUI_CMP_FONT_SIZE("<int>/<float>", "default font of components", new ICommandExecuter(){
+	GUI_CMP_FONT_SIZE("<int>/<float>", "default font of components", Utility.pixelSizeToGLSize(0,18)[1], new ICommandExecuter(){
 		@Override
 		public void exec(List<String> parameter) {
 			try {
@@ -76,6 +76,27 @@ public enum SetKeys {
 			}
 			
 		}}),
+		
+	GUI_TOOLTIP_FONT_SIZE("<int>/<float>", "default font size of tooltips", Utility.pixelSizeToGLSize(0,18)[1], new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			try {
+				if(Cmd.isInteger(parameter.get(0)))
+				{
+					SetKeys.GUI_TOOLTIP_FONT_SIZE.setValue(Utility.pixelSizeToGLSize(0,Integer.parseInt(parameter.get(0)))[1]);
+				}
+				else
+				{
+					SetKeys.GUI_TOOLTIP_FONT_SIZE.setValue(Float.parseFloat(parameter.get(0)));
+				}
+			} catch (Exception e) {
+				Logger.error("Unable to change setting (gui_tooltip_font_size): illegel parameter 0 ("+parameter.get(0)+")", "CommandExecuter.exec");
+				return;
+			}
+				
+		}}),
+	GUI_TOOLTIP_BACKGROUND_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of components", new GLColor(0.2f, 0.2f, 0.2f, 1.0f)),
+	GUI_TOOLTIP_FONT_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_A_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default active text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),

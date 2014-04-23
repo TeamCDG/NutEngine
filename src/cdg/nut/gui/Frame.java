@@ -23,9 +23,12 @@ public abstract class Frame {
 	private String title;
 	private Container con;
 	private GLImage background;
+	private ToolTip activeToolTip;
+	private boolean manualToolTipHide;
 	
 	private boolean forceSelect = false;
 
+	private int frNoMove = 0;
 	private int oldMouseX;
 	private int oldMouseY;
 	private int mouseGrabX;
@@ -70,6 +73,24 @@ public abstract class Frame {
 		Mouse.poll();
 		this.deltaMouseGrabbed = this.mouseGrabbed;
 
+		if(this.oldMouseX == Mouse.getX() && this.oldMouseY == (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()))
+			this.frNoMove++;
+		else
+			this.frNoMove = 0;
+		
+		if(this.frNoMove >= Settings.get(SetKeys.R_MAX_FPS, Integer.class)/2 && this.lastId != 0) 
+		{
+			this.con.get(this.lastId).showToolTip(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()));
+		}
+		else if(this.lastId != 0)
+		{
+			this.con.get(this.lastId).hideToolTip();
+		}
+		else if(this.lastId == 0 && this.active == null)
+		{
+			this.activeToolTip = null;
+		}
+		
 		if (((this.oldMouseX != Mouse.getX() || this.oldMouseY != SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()) &&
 			this.selectSkip > this.maxSelectSkip && Mouse.isInsideWindow())
 			|| this.forceSelect) {
@@ -190,6 +211,9 @@ public abstract class Frame {
 		if (this.background != null) this.background.draw();
 
 		this.con.drawComponents();
+		
+		if(this.activeToolTip != null)
+			this.activeToolTip.draw();
 	}
 
 	private void select()
@@ -220,10 +244,17 @@ public abstract class Frame {
 		this.lastId = gotId;
 	}
 
+	public void add(Component c)
+	{
+		this.addComponent(c);
+	}
+	
 	public void addComponent(Component c)
 	{
 		c.setId(nextId);
 		nextId++;
+		
+		c.setParent(this);
 
 		this.con.add(c);
 	}
@@ -268,5 +299,21 @@ public abstract class Frame {
 
 	public void setActiveCursor(Cursor activeCursor) {
 		this.activeCursor = activeCursor;
+	}
+
+	public ToolTip getActiveToolTip() {
+		return activeToolTip;
+	}
+
+	public void setActiveToolTip(ToolTip activeToolTip) {
+		this.activeToolTip = activeToolTip;
+	}
+
+	public boolean isManualToolTipHide() {
+		return manualToolTipHide;
+	}
+
+	public void setManualToolTipHide(boolean manualToolTipHide) {
+		this.manualToolTipHide = manualToolTipHide;
 	}
 }

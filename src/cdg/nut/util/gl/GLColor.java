@@ -123,4 +123,8 @@ public class GLColor {
 			return new GLColor(new Random().nextFloat(),new Random().nextFloat(),new Random().nextFloat());
 	}
 
+	public String toReadableString() {
+		return this.r+"/"+this.g+"/"+this.b+"/"+this.a;
+	}
+
 }
