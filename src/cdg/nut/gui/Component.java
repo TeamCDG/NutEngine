@@ -26,7 +26,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	private Frame parent;
 	
 	private Border border;
-	private boolean customFont, customFontSize, customFontC, customFontHC, customFontAC = false;
+	private boolean customFont, customFontSize, customFontC, customFontHC, customFontAC, customFontDC = false;
 	private FontObject text;
 	private GLImage dsBEx;
 	private ToolTip tooltip;
@@ -34,16 +34,19 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 
 	private boolean hasBackground = true;
 	private boolean autosizeWithText;
+	private boolean enabled = true;
 	
-	private boolean customBgC, customBgHC, customBgAC = false;
+	private boolean customBgC, customBgHC, customBgAC, customBgDC = false;
 	private GLColor backgroundColor;
 	private GLColor backgroundHighlightColor;
 	private GLColor backgroundActiveColor;
+	private GLColor backgroundDisabledColor;
 	
-	private boolean customBorC, customBorHC, customBorAC = false;
+	private boolean customBorC, customBorHC, customBorAC, customBorDC = false;
 	private GLColor borderColor;
 	private GLColor borderHighlightColor;
 	private GLColor borderActiveColor;
+	private GLColor borderDisabledColor;
 	
 	private boolean dragable, textSelectable = false;
 	private boolean activeable = false;
@@ -61,6 +64,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	private GLColor fontActiveColor;
 	private GLColor fontColor;
 	private GLColor fontHighlightColor;
+	private GLColor fontDisabledColor;
 	private boolean active;
 
 	public Component(float x, float y, float width, float height)
@@ -85,7 +89,10 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	public Component(float x, float y, float width, float height, String text)
 	{
 		this(x, y, width, height);
-		this.text = new FontObject(x+padding[0], y+padding[1], text);	
+		
+		
+		//this.setText(text);
+		this.text = new FontObject(this.getTextX(), this.getTextY(), text);
 
 		this.setTextClipping();
 	}
@@ -93,8 +100,10 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	public Component(int x, int y, int width, int height, String text)
 	{
 		this(x, y, width, height);
-		int[] pad = Utility.glSizeToPixelSize(padding[0], padding[1]);
-		this.text = new FontObject(x+pad[0], y+pad[1], text);	
+		
+		
+		//this.setText(text);
+		this.text = new FontObject(this.getTextX(), this.getTextY(), text);
 
 		this.setTextClipping();
 		
@@ -138,8 +147,9 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 			)
 		);
 				
-		this.text = new FontObject(x+this.padding[0], y+this.padding[1], text);
-
+		//this.setText(text);
+		this.text = new FontObject(this.getTextX(), this.getTextY(), text);
+		
 		this.setTextClipping();
 	}
 
@@ -158,9 +168,8 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 			}
 		);
 		
-		int[] pad = Utility.glSizeToPixelSize(this.padding[0], this.padding[1]);
-		
-		this.text = new FontObject(x+pad[0], y+pad[1], text);
+		//this.setText(text);
+		this.text = new FontObject(this.getTextX(), this.getTextY(), text);
 
 		this.setTextClipping();
 		
@@ -168,6 +177,8 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	
 	private void init()
 	{
+		
+		
 		this.setupPadding();
 		this.restoreDefaults();
 		Settings.addListener(this);
@@ -193,11 +204,23 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		
 		this.tooltip = new ToolTip("");
 		
+		this.text = new FontObject(this.getTextX(), this.getTextY(), "");
+		
 	}
 	
 	private void setColor()
 	{
-		if(this.active)
+		if(!this.enabled)
+		{
+			
+			Logger.debug("border: "+this.borderDisabledColor.toReadableString(),"Component.setColor()");
+			Logger.debug("background: "+this.backgroundDisabledColor.toReadableString(),"Component.setColor()");
+			this.setColor(this.backgroundDisabledColor);
+			if(this.border != null) this.border.setColor(this.borderDisabledColor);
+			if(this.dsBEx != null)  this.dsBEx.setColor(this.borderDisabledColor);
+			if(this.text != null)   this.text.setColor(this.fontDisabledColor);
+		}
+		else if(this.active)
 		{
 			this.setColor(this.backgroundActiveColor);
 			if(this.border != null) this.border.setColor(this.borderActiveColor);
@@ -222,17 +245,20 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	
 	public void restoreDefaults()
 	{
-		this.customBgAC = false; this.backgroundActiveColor = Settings.get(SetKeys.GUI_CMP_BACKGROUND_A_COLOR, GLColor.class);
-		this.customBgC = false; this.backgroundColor = Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class);
-		this.customBgHC = false; this.backgroundHighlightColor = Settings.get(SetKeys.GUI_CMP_BACKGROUND_H_COLOR, GLColor.class);
+		this.resetBackgroundActiveColor();
+		this.resetBackgroundColor();
+		this.resetBackgroundDisabledColor();
+		this.resetBackgroundHighlightColor();
 		
-		this.customBorAC = false; this.borderActiveColor = Settings.get(SetKeys.GUI_CMP_BORDER_A_COLOR, GLColor.class);
-		this.customBorC = false; this.borderColor = Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class);
-		this.customBorHC = false; this.borderHighlightColor = Settings.get(SetKeys.GUI_CMP_BORDER_H_COLOR, GLColor.class);
-				
-		this.customFontAC = false; this.fontActiveColor = Settings.get(SetKeys.GUI_CMP_FONT_A_COLOR, GLColor.class);
-		this.customFontC = false; this.fontColor = Settings.get(SetKeys.GUI_CMP_FONT_COLOR, GLColor.class);
-		this.customFontHC = false; this.fontHighlightColor = Settings.get(SetKeys.GUI_CMP_FONT_H_COLOR, GLColor.class);		
+		this.resetBorderActiveColor();
+		this.resetBorderColor();
+		this.resetBorderDisabledColor();
+		this.resetBorderHighlightColor();
+		
+		this.resetFontActiveColor();
+		this.resetFontColor();
+		this.resetFontDisabledColor();
+		this.resetFontHighlightColor();
 		
 		this.setColor();
 	}
@@ -353,7 +379,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		if (this.text != null && !selection) this.text.draw();
 		if (this.xsb != null && !selection && this.xscroll) this.xsb.draw();
 		if (this.ysb != null && !selection && this.yscroll) this.ysb.draw();
-		if (this.yscroll && this.xscroll && this.dsBEx != null)  this.dsBEx.draw();
+		if (this.yscroll && this.xscroll && this.dsBEx != null && this.scrollable)  this.dsBEx.draw();
 		//if(this.tooltip != null && this.tooltipShown) this.tooltip.draw();
 	}
 
@@ -363,21 +389,6 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 
 	public void setAutosizeWithText(boolean autosizeWithText) {
 		this.autosizeWithText = autosizeWithText;
-
-		Logger.debug(
-			"Dimensions: " +
-			(
-				this.text.getWidth() +
-				2 *
-				this.padding[0]
-			) +
-			"/" +
-			(
-				this.text.getHeight() +
-				2 *
-				this.padding[1]
-			)
-		);
 		this.autosize();
 		//if((this.text.getWidth()+2*this.padding[0] > this.getWidth() || this.text.getHeight()+2*this.padding[1] > this.getHeight()) && autosizeWithText)
 		//	this.setDimensions(this.text.getWidth()+2*this.padding[0]>this.getWidth()?this.text.getWidth()+2*this.padding[0]:this.getWidth(), this.text.getHeight()+2*this.padding[1]>this.getHeight()?this.text.getHeight()+2*this.padding[1]:this.getHeight());
@@ -387,7 +398,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		
 		Logger.debug("active: "+b+"/ activable: "+this.activeable, "Component.setActive");
 		
-		if(this.activeable)
+		if(this.activeable && this.enabled)
 		{
 			this.active = b;
 			this.setColor();
@@ -430,9 +441,20 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	{
 		if (this.autosizeWithText) {
 			this.xscroll = false;
-			this.setDimension(this.text.getWidth()+2*this.padding[0], this.text.getHeight()+2*this.padding[1]);
-			this.border.setDimension(this.text.getWidth()+2*this.padding[0], this.text.getHeight()+2*this.padding[1]);
+			this.yscroll = false;
+			this.setDimension(this.text.getPixelWidth()+this.getTextX()+this.getTextPad()-this.getPixelX(), this.text.getPixelHeight()+this.getTextY()+this.getTextPad()-this.getPixelY());
+			Logger.debug("fh: "+text.getPixelHeight(),"Component.autosize");
+			this.border.setDimension(this.text.getPixelWidth()+this.getTextX()+this.getTextPad(), this.text.getPixelHeight()+this.getTextY()+this.getTextPad());
 		}
+	}
+
+	public int getTextPad() {
+		
+		if(!this.hasBorder && !this.hasBackground)
+			return 0;
+		else
+			return Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class) +
+				   Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
 	}
 
 	public float getFontSize()
@@ -457,6 +479,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		this.text.setFontSize(fontSize);
 		this.customFontSize = true;
 		this.autosize();
+Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+this.getPixelHeight(),"Component.setFontSize");
 	}
 
 	public void resetFontSize()
@@ -467,6 +490,10 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	}
 
 	protected void key(int eventKey, char eventCharacter) {
+		
+		if(!this.enabled)
+			return;
+		
 		for(int i = 0; i < this.keyListener.size(); i ++)
 		{
 			this.keyListener.get(i).keyDown(eventKey, eventCharacter);
@@ -482,9 +509,18 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	private boolean manualTTshow;
 
 	private boolean scrollable = true;
-	protected void clicked(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby) {
+
+	private int[] addPad;
+
+	private int addPadX;
+
+	private int addPadY;
+	protected final void clicked(int x, int y, MouseButtons button, boolean grabbed, boolean deltaDown, int grabx, int graby) {
 		
-		Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed+" / yscrollGrabbed: "+this.yscrollGrabbed,"Component.clicked");
+		Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed+" / yscrollGrabbed: "+this.yscrollGrabbed+" / deltadown: "+deltaDown,"Component.clicked");
+		
+		if(!this.enabled)
+			return;
 		
 		if(this.xsb != null && this.xscroll && this.xsb.isScrollDings(x, y) && grabbed && !this.yscrollGrabbed)
 		{
@@ -517,12 +553,18 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 			this.xscrollGrabbed = false;
 			this.yscrollGrabbed = false;
 			this.onClick(x, y, button, grabbed, grabx, graby);
+			
+			if(!deltaDown)
+			{
+				for(int i = 0; i < this.clickListener.size(); i++)
+				{
+					this.clickListener.get(i).onClick(x, y, button, grabx, graby);
+				}
+			}
 		}
 		
-		for(int i = 0; i < this.clickListener.size(); i++)
-		{
-			this.clickListener.get(i).onClick(x, y, button, grabx, graby);
-		}
+		if(this.textSelectable)
+			this.onClick(x, y, button, grabbed, grabx, graby);
 	}
 	
 	protected void onClick(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby){}
@@ -531,14 +573,14 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	@Override
 	public void setSelected(boolean value)
 	{
-		super.setSelected(value);
+		super.setSelected(value && this.enabled);
 
 		//TODO: custom override color
-		if (value == true && !this.active) {
+		if (value == true && !this.active && this.enabled) {
 			if(this.hasBackground) this.setColor(this.backgroundHighlightColor);
 			this.border.setColor(this.borderHighlightColor);
 			if(this.dsBEx != null)  this.dsBEx.setColor(borderHighlightColor);
-		} else if(!this.active) {
+		} else if(!this.active && this.enabled) {
 			if(this.hasBackground) this.setColor(this.backgroundColor);
 			this.border.setColor(this.borderColor);
 			if(this.dsBEx != null)  this.dsBEx.setColor(borderColor);
@@ -627,10 +669,13 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	{
 		if(this.text != null)
 		{
-			Vertex4 ca = new Vertex4(this.getX()+this.padding[0],
-					 this.getY()+this.padding[1],
-					 (this.getX()+this.getWidth())-this.padding[0]-(yscroll?this.ysb.getWidth():0),
-					 (this.getY()+this.getHeight())-this.padding[1]-(xscroll?this.xsb.getHeight():0));
+			
+			float[] pad = Utility.pixelSizeToGLSize(this.getTextPad(), this.getTextPad());
+			
+			Vertex4 ca = new Vertex4(this.getX()+pad[0],
+					 this.getY()+pad[1],
+					 (this.getX()+this.getWidth())-pad[0]-(yscroll?this.ysb.getWidth():0),
+					 (this.getY()+this.getHeight())-pad[1]-(xscroll?this.xsb.getHeight():0));
 			this.text.setClippingArea(ca);
 			
 			if(!calledByScroll) this.setScroll();
@@ -651,6 +696,9 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 			this.setColor(Colors.TRANSPARENT.getGlColor());
 		this.hasBackground = hasBackground;
 		
+		
+		if(!this.hasBackground && !this.hasBorder)
+			this.text.setPosition(this.getTextX(), this.getTextY());
 	}
 	
 
@@ -881,6 +929,9 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	 */
 	public void setHasBorder(boolean hasBorder) {
 		this.hasBorder = hasBorder;
+		
+		if(!this.hasBackground && !this.hasBorder)
+			this.text.setPosition(this.getTextX(), this.getTextY());
 	}
 
 	public void removeKeyListener(IKeyboardListener keyListener) {
@@ -937,36 +988,66 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	
 	public int getTextX()
 	{
-		int pabs = Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class) +
-				   Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
+		int pabs = this.getTextPad();
 		
 		if(this.centerText)
 		{
-			int xoff = (this.getPixelWidth()-2*pabs-this.text.getPixelWidth())/2;
+			int xoff = (this.getPixelWidth()-2*pabs-this.text.getPixelWidth()-this.addPadX)/2;
 			return this.getPixelX()+Math.max(pabs, xoff);
 		}
 		else
 		{
-			return this.getPixelX() + pabs;
+			return this.getPixelX() + pabs + this.addPadX;
 		}
 	}
 	
 	public int getTextY()
 	{
-		int pabs = Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class) +
-				   Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
+		int pabs = this.getTextPad();
 		
 		if(this.centerText)
 		{
-			int yoff = (this.getPixelHeight()-2*pabs-this.text.getPixelHeight())/2;
+			int yoff = (this.getPixelHeight()-2*pabs-this.text.getPixelHeight()-this.addPadY)/2;
 			return this.getPixelY()+Math.max(pabs, yoff);
 		}
 		else
 		{
-			return this.getPixelY() + pabs;
+			return this.getPixelY() + pabs + this.addPadY;
 		}
 	}
 	
+	/**
+	 * @return the addPadX
+	 */
+	public int getAddPadX() {
+		return addPadX;
+	}
+
+	/**
+	 * @param addPadX the addPadX to set
+	 */
+	public void setAddPadX(int addPadX) {
+		this.addPadX = addPadX;
+		this.text.setPosition(this.getTextX(), this.getTextY());
+	
+	}
+
+	/**
+	 * @return the addPadY
+	 */
+	public int getAddPadY() {
+		return addPadY;
+	}
+
+	/**
+	 * @param addPadY the addPadY to set
+	 */
+	public void setAddPadY(int addPadY) {
+		this.addPadY = addPadY;
+		this.text.setPosition(this.getTextX(), this.getTextY());
+	
+	}
+
 	protected int[] getCursorPos(int index)
 	{
 		return this.text.getCursorPos(index);
@@ -1153,5 +1234,74 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 
 	public void setCenterText(boolean centerText) {
 		this.centerText = centerText;
+	}
+	
+	public void setAdditionalPadding(int addPadX, int addPadY)
+	{
+		this.addPadX = addPadX;
+		this.addPadY = addPadY;
+		this.text.setPosition(this.getTextX(), this.getTextY());
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+		
+		this.setColor();
+	}
+
+	public GLColor getBackgroundDisabledColor() {
+		return backgroundDisabledColor;
+	}
+
+	public void setBackgroundDisabledColor(GLColor backgroundDisabledColor) {
+		this.backgroundDisabledColor = backgroundDisabledColor;
+		this.customBgDC = true;
+		
+		if(!this.enabled)
+			this.setColor(backgroundDisabledColor);
+	}
+	
+	public void resetBackgroundDisabledColor() {
+		this.setBackgroundDisabledColor(Settings.get(SetKeys.GUI_CMP_BACKGROUND_D_COLOR, GLColor.class));
+		this.customBgDC = false;
+	}
+
+	public GLColor getBorderDisabledColor() {
+		return borderDisabledColor;
+	}
+
+	public void setBorderDisabledColor(GLColor borderDisabledColor) {
+		this.borderDisabledColor = borderDisabledColor;
+		this.customBorDC = true;
+		
+		if(!this.enabled)
+			this.border.setColor(borderDisabledColor);
+	}
+	
+	public void resetBorderDisabledColor() {
+		this.setBorderDisabledColor(Settings.get(SetKeys.GUI_CMP_BORDER_D_COLOR, GLColor.class));
+		
+		this.customBorDC = false;
+	}
+
+	public GLColor getFontDisabledColor() {
+		return fontDisabledColor;
+	}
+
+	public void setFontDisabledColor(GLColor fontDisabledColor) {
+		this.fontDisabledColor = fontDisabledColor;
+		this.customFontDC = true;
+		
+		if(!this.enabled)
+			this.text.setColor(fontDisabledColor);
+	}
+	
+	public void resetFontDisabledColor() {
+		this.setFontDisabledColor(Settings.get(SetKeys.GUI_CMP_FONT_D_COLOR, GLColor.class));
+		this.customFontDC = false;
 	}
 }

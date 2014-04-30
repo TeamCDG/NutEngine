@@ -14,6 +14,8 @@ import cdg.nut.util.settings.Settings;
 
 public class Border extends GLImage {
 
+	private static int customBorderSize = -1;
+	
 	public Border(float x, float y, float width, float height)
 	{
 		super(Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class),
@@ -34,11 +36,11 @@ public class Border extends GLImage {
 	private static VertexData[] makeData(float x, float y, float width, float height)
 	{
 		float sx = Utility.pixelSizeToGLSize(
-				Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class),
+				customBorderSize == -1?Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class):customBorderSize,
 				0)[0];
 		float sy = Utility.pixelSizeToGLSize(
 				0,
-				Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)
+				customBorderSize == -1?Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class):customBorderSize
 				)[1];
 		ArrayList<VertexData> res = new ArrayList<VertexData>(16);
 		GLColor c = new GLColor(0,0,0,0);
@@ -66,5 +68,11 @@ public class Border extends GLImage {
 		}
 
 		return l;
+	}
+
+	public void setBorderSize(int i) {
+		customBorderSize = i;
+		this.setupGL(makeData(this.getX(), this.getY(), this.getWidth(), this.getHeight()), Utility.createQuadIndicesByte(4));
+		
 	}
 }

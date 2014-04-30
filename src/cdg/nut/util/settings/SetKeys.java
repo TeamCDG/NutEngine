@@ -47,9 +47,11 @@ public enum SetKeys {
 	GUI_CMP_BACKGROUND_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of components", new GLColor(0.3f, 0.3f, 0.3f, 0.8f)),
 	GUI_CMP_BACKGROUND_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight background color of components", new GLColor(0.5f, 0.5f, 0.5f, 0.8f)),
 	GUI_CMP_BACKGROUND_A_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default active background color of components", new GLColor(0.3f, 0.3f, 0.3f, 0.8f)),
+	GUI_CMP_BACKGROUND_D_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of disabled components", new GLColor(0.3f, 0.3f, 0.3f, 0.8f)),
 	GUI_CMP_BORDER_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_BORDER_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight border color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_BORDER_A_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default active border color of components", new GLColor(1.0f, 0.0f, 0.0f, 1.0f)),
+	GUI_CMP_BORDER_D_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of disabled components", new GLColor(0.65f, 0.65f, 0.65f, 1.0f)),
 	GUI_CMP_BORDER_SIZE("<int>", "default size of borders", 4),
 	GUI_CMP_SCROLLBAR_SIZE("<int>", "default size of scrollbars", 10),
 	GUI_CMP_SCROLLBAR_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of components", new GLColor(0.75f, 0.75f, 0.75f, 1.0f)),
@@ -97,10 +99,12 @@ public enum SetKeys {
 		}}),
 	GUI_TOOLTIP_BACKGROUND_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of components", new GLColor(0.2f, 0.2f, 0.2f, 1.0f)),
 	GUI_PROGRESSBAR_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default color of progress bars", new GLColor(0.0f, 0.8f, 0.0f, 1.0f)),
+	GUI_CHECKBOX_CHECK_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default color of check box check", new GLColor(0.0f, 0.8f, 0.0f, 1.0f)),
 	GUI_TOOLTIP_FONT_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_A_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default active text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
+	GUI_CMP_FONT_D_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default text color of disabled components", new GLColor(0.65f, 0.65f, 0.65f, 1.0f)),
 	
 	//--- REGION RENDERER ---
 	R_VSYNC("<boolean>", "true for vsync", true, new ICommandExecuter(){

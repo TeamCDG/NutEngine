@@ -10,11 +10,13 @@ import org.lwjgl.opengl.GL13;
 import cdg.nut.gui.Frame;
 import cdg.nut.gui.ToolTip;
 import cdg.nut.gui.components.Button;
+import cdg.nut.gui.components.CheckBox;
 import cdg.nut.gui.components.ColorBox;
 import cdg.nut.gui.components.ImageBox;
 import cdg.nut.gui.components.Label;
 import cdg.nut.gui.components.ProgressBar;
 import cdg.nut.gui.components.TextBox;
+import cdg.nut.interfaces.ICheckedChangedListener;
 import cdg.nut.interfaces.IClickListener;
 import cdg.nut.interfaces.ICommandListener;
 import cdg.nut.interfaces.IToolTipGenerator;
@@ -40,10 +42,13 @@ public class TestFrame extends Frame {
 	TextBox pw;
 	TextBox com;
 	ProgressBar b;
+	CheckBox cb;
+	
+	int bg = 0;
 	
 	public TestFrame()
 	{
-		super(new GLTexture("bg.png",GL13.GL_TEXTURE0));
+		super(new GLTexture("bg0.png",GL13.GL_TEXTURE0));
 		this.test = new Button(420, 262, Colors.BLUE+"G"+Colors.RED+"o"+Colors.YELLOW+"o"+Colors.BLUE+"g"+Colors.DARKGREEN+"l"+Colors.RED+"e");
 		this.test.setBackgroundHighlightColor(Colors.VIOLET.getGlColor());
 		this.test.setBorderColor(Colors.LIGHTSKYBLUE.getGlColor());
@@ -59,8 +64,16 @@ public class TestFrame extends Frame {
 		this.addComponent(new Button(820, 262, Colors.BLUE+"G"+Colors.RED+" "+Colors.YELLOW+"o"+Colors.BLUE+"g"+Colors.DARKGREEN+"l"+Colors.RED+"e"));
 		this.addComponent(new Button(20, 162, Colors.BLUE+"G"+Colors.RED+"o"+Colors.YELLOW+"o"+Colors.BLUE+"g"+Colors.DARKGREEN+"l"+Colors.RED+"e"));
 		
-		this.ctest = new Button(420, 462, 100, 100, "penispenispenis");
+		this.ctest = new Button(420, 462, 100, 100, "change background");
 		this.ctest.setPosition(10, 10);
+		this.ctest.setTooltip("it's kind of magic... well black sorcery");
+		this.ctest.addClickListener(new IClickListener(){
+
+			@Override
+			public void onClick(int x, int y, MouseButtons button, int grabx, int graby) {
+				setRandomBg();
+				
+			}});
 		this.ctest.setBorderHighlightColor(Colors.VIOLET.getGlColor());
 		this.addComponent(ctest);
 		
@@ -127,6 +140,25 @@ public class TestFrame extends Frame {
 		this.b.setTooltip("basically the ProgressBar shows progress");
 		this.add(b);
 		
+		this.cb = new CheckBox(420,b.getPixelY()+60,"disable CommandBox");
+		this.cb.setTooltip("dat hook = op");
+		this.cb.addCheckChangedListener(new ICheckedChangedListener(){
+
+			@Override
+			public void onCheckedChange(boolean value) {
+				com.setEnabled(!value);
+				
+			}});
+		this.cb.setFontSize(20);
+		this.add(cb);
+		
+	}
+	
+	public void setRandomBg()
+	{
+		bg++;
+		bg = bg%4;
+		this.setBackground("bg"+bg+".png");
 	}
 	
 	@Override

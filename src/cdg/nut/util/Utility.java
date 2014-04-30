@@ -141,9 +141,14 @@ public abstract class Utility
 		System.out.flush();
 	}
 	
-	public static float degToRad(float deg)
+	public static float rad(float deg)
 	{
 		return deg*((float)Math.PI/180.0f);
+	}
+	
+	public static float deg(float rad)
+	{
+		return 180.0f/(float)Math.PI * rad;
 	}
 	
 	public static Vertex2 mouseTo2DGL(int x, int y, int screenWidth, int screenHeight)
@@ -157,7 +162,51 @@ public abstract class Utility
 		return new Vertex2(glX, glY);
 	}
 	
-	
+    private static final float EPSILON = (float) 1e-10;
+
+    // Gaussian elimination with partial pivoting
+    public static float[] linearSolve(float[][] A, float[] b) {
+        int N  = b.length;
+
+        for (int p = 0; p < N; p++) {
+
+            // find pivot row and swap
+            int max = p;
+            for (int i = p + 1; i < N; i++) {
+                if (Math.abs(A[i][p]) > Math.abs(A[max][p])) {
+                    max = i;
+                }
+            }
+            float[] temp = A[p]; A[p] = A[max]; A[max] = temp;
+            float   t    = b[p]; b[p] = b[max]; b[max] = t;
+
+            // singular or nearly singular
+            
+            if (Math.abs(A[p][p]) <= EPSILON) {
+                throw new RuntimeException("Matrix is singular or nearly singular");
+            }
+
+            // pivot within A and b
+            for (int i = p + 1; i < N; i++) {
+                float alpha = A[i][p] / A[p][p];
+                b[i] -= alpha * b[p];
+                for (int j = p; j < N; j++) {
+                    A[i][j] -= alpha * A[p][j];
+                }
+            }
+        }
+
+        // back substitution
+       float[] x = new float[N];
+        for (int i = N - 1; i >= 0; i--) {
+            float sum = 0.0f;
+            for (int j = i + 1; j < N; j++) {
+                sum += A[i][j] * x[j];
+            }
+            x[i] = (b[i] - sum) / A[i][i];
+        }
+        return x;
+    }
 	
 
 	public static ArrayList<Integer> filterIds(ByteBuffer pixel) {
@@ -402,6 +451,12 @@ public abstract class Utility
 		return new int[]{px,py};
 	}
 
+	public static Vertex2 toGL(Vertex2 v)
+	{
+		float[] gl = pixelToGL(Math.round(v.getX()), Math.round(v.getY()));
+		return new Vertex2(gl[0], gl[1]);
+	}
+	
 	public static float[] pixelToGL(int x, int y) {
 		float glx = (((float)x*(2.0f/(float)Settings.get(SetKeys.WIN_WIDTH, Integer.class)))-1.0f);
 		float gly = (((float)y*(2.0f/(float)Settings.get(SetKeys.WIN_HEIGHT, Integer.class)))-1.0f)*-1.0f;

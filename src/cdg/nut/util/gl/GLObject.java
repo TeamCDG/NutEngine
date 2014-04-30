@@ -279,6 +279,9 @@ public abstract class GLObject implements ISelectable {
 	{
 		while(drawing) { } //don't change the VBO if we are currently drawing and wait until drawing has finished
 		
+		if(this.points == null)
+			return;
+		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBO);
 		float xm = this.points[0].getX()-this.x;
 		float ym = this.points[0].getY()-this.y;

@@ -60,6 +60,14 @@ public class Vertex2 implements IVertex {
 		return new Vertex2(this.x, this.y);
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Vertex2 [x=" + x + ", y=" + y + ", z=" + z + ", w=" + w + "]";
+	}
+
 	@Override
 	public float[] toArray() {
 		return new float[]{this.x,this.y,this.z,this.w};
