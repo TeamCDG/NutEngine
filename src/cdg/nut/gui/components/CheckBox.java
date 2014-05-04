@@ -156,8 +156,8 @@ public class CheckBox extends Component{
 	}
 
 	public void setChecked(boolean checked) {
+		if(checked && !checked) this.generateCheck();
 		this.checked = checked;
-		this.generateCheck();
 		
 		for(int i = 0; i < this.checkChangedListener.size(); i++)
 		{

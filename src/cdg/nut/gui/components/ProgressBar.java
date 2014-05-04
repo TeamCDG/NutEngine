@@ -9,7 +9,7 @@ import cdg.nut.util.settings.Settings;
 public class ProgressBar extends Component{
 
 	public ProgressBar(int x, int y, int width, int height) {
-		super(x, y, width, height, "elfiehfs");
+		super(x, y, width, height);
 		
 		int sz = Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
 		this.progress = new GLImage(Settings.get(SetKeys.GUI_PROGRESSBAR_COLOR, GLColor.class), this.getPixelX()+sz, this.getPixelY()+sz, 0,0);
@@ -22,7 +22,7 @@ public class ProgressBar extends Component{
 	}
 	
 	public ProgressBar(float x, float y, float width, float height) {
-		super(x, y, width, height, "wdzuagfua");
+		super(x, y, width, height);
 
 		int sz = Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
 		this.progress = new GLImage(Settings.get(SetKeys.GUI_PROGRESSBAR_COLOR, GLColor.class), this.getPixelX()+sz, this.getPixelY()+sz, 0,0);

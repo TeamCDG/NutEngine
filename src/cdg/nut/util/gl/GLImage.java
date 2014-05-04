@@ -1,13 +1,14 @@
 package cdg.nut.util.gl;
 
 import cdg.nut.interfaces.IDrawable;
+import cdg.nut.util.Colors;
 import cdg.nut.util.Utility;
 import cdg.nut.util.VertexData;
 
 public class GLImage extends GLObject{
 
 	private GLTexture image;
-	private GLColor color;
+	private GLColor color = Colors.WHITE.getGlColor();
 	
 	//TODO: get/set image
 	//TODO: get/set color
@@ -163,6 +164,12 @@ public class GLImage extends GLObject{
 		this.image = image;
 	}
 	
+	public GLImage(GLColor color, float width, float height,
+			VertexData[] vertices, int[] indices) {
+		super(width, height, vertices, indices);
+		this.color = color;
+	}
+
 	@Override
 	protected void passUniforms()
 	{

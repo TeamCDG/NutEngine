@@ -141,7 +141,7 @@ public class Settings {
 			
 			if(!Display.isCreated())
 			{
-				PixelFormat pixelFormat = new PixelFormat();
+				PixelFormat pixelFormat = new PixelFormat(8,8,0,get(SetKeys.R_ANTIALIAS, Integer.class));
 				ContextAttribs contextAtrributes = new ContextAttribs(3, 2)
 					.withForwardCompatible(true)
 					.withProfileCore(true);
@@ -150,12 +150,13 @@ public class Settings {
 				
 			GL11.glViewport(0, 0, width,height);
 		} catch (LWJGLException e) {
-			Logger.createCrashDump("Unable to create/update display", "Settings.setWindowResolution", e, true, "Resolution: "+width+"x"+height+"\nFullscreen capable: "+finalMode.isFullscreenCapable());
+			Logger.createCrashDump("Unable to create/update display", "Settings.setWindowResolution", e, true, "Resolution: "+width+"x"+height+"\nFullscreen capable: "+finalMode.isFullscreenCapable()+"\nMSAA: "+get(SetKeys.R_ANTIALIAS, Integer.class));
 			System.exit(-1);
 		}
 		Display.update();
 		fire(SetKeys.WIN_RESOLUTION_CHANGED);
 	}
+	
 
 	public static void setFullscreen(Boolean value) {
 		SetKeys.WIN_FULLSCREEN.setValue(value);

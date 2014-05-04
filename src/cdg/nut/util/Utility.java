@@ -451,9 +451,17 @@ public abstract class Utility
 		return new int[]{px,py};
 	}
 
+	public static Vertex4 toGL(Vertex4 v)
+	{
+		float[] gl = pixelToGL(Math.round(v.getX()), Math.round(v.getY()));
+		Logger.debug("vx: "+v.getX()+" / glx: "+gl[0]+" / vy: "+v.getY()+" / gly: "+gl[1],"Utility.toGL");
+		return new Vertex4(gl[0], gl[1]);
+	}
+	
 	public static Vertex2 toGL(Vertex2 v)
 	{
 		float[] gl = pixelToGL(Math.round(v.getX()), Math.round(v.getY()));
+		Logger.debug("vx: "+v.getX()+" / glx: "+gl[0]+" / vy: "+v.getY()+" / gly: "+gl[1],"Utility.toGL");
 		return new Vertex2(gl[0], gl[1]);
 	}
 	
@@ -634,5 +642,15 @@ public abstract class Utility
 		Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
 		StringSelection data = new StringSelection(text);
 		c.setContents(data, data);
+	}
+
+	public static float[] pixelToGL(float px, float py) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static Vertex4 toGLNoRound(Vertex4 v) {
+		float[] gl = pixelToGL((int) v.getX(), (int) v.getY());
+		return new Vertex4(gl[0], gl[1]);
 	}
 }

@@ -488,9 +488,9 @@ public class TextBox extends Component implements IKeyboardListener{
 				else if(this.selection)
 				{
 					String text = this.getText();
+					this.setTextSelection(0, 0);
 					this.setText(text.substring(0,Math.min(this.cursorPos, this.selectionStart))+text.substring(Math.max(this.cursorPos, this.selectionStart)));
 					this.selection = false;
-					this.setTextSelection(0, 0);
 					this.cursorPos = Math.min(this.cursorPos, this.selectionStart);
 					this.setCursorPos();
 				}

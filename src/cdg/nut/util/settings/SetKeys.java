@@ -35,6 +35,11 @@ public enum SetKeys {
 		public void exec(List<String> parameter) {
 			Settings.setFullscreen(Boolean.valueOf(parameter.get(0)));
 		}}),
+	WIN_TITLE("<string>", "set window title", "Engine Update #6", new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			Display.setTitle(parameter.get(0));
+		}}),
 	WIN_ASPECT_RATIO("<float>", "aspect ration of window", 0.0f),
 	WIN_RESOLUTION_CHANGED("the resolution of the window has changed"),
 	WIN_RESOLUTION("<int> <int>", "set the window resolution", new ICommandExecuter(){
@@ -54,7 +59,11 @@ public enum SetKeys {
 	GUI_CMP_BORDER_D_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of disabled components", new GLColor(0.65f, 0.65f, 0.65f, 1.0f)),
 	GUI_CMP_BORDER_SIZE("<int>", "default size of borders", 4),
 	GUI_CMP_SCROLLBAR_SIZE("<int>", "default size of scrollbars", 10),
+	GUI_TRACKBAR_SIZE("<int>", "default size of scrollbars", 10),
 	GUI_CMP_SCROLLBAR_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of components", new GLColor(0.75f, 0.75f, 0.75f, 1.0f)),
+	GUI_TRACKBAR_TRACK_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of components", new GLColor(0.75f, 0.75f, 0.75f, 1.0f)),
+	GUI_TRACKBAR_TRACKLINE_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of components", new GLColor(0.0f, 0.8f, 0.0f, 1.0f)),
+	GUI_TRACKBAR_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default border color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT("<string>", "default font of components", BitmapFont.EMPTY),
 	GUI_CMP_FONT_PADDING("<int>", "default font padding of components", 8),
 	GUI_CMP_SCROLL_XFALLBACK("<boolean>", "true to scroll xscrollbar with mousewheel if there is no yscrollbar", true),
@@ -100,6 +109,8 @@ public enum SetKeys {
 	GUI_TOOLTIP_BACKGROUND_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of components", new GLColor(0.2f, 0.2f, 0.2f, 1.0f)),
 	GUI_PROGRESSBAR_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default color of progress bars", new GLColor(0.0f, 0.8f, 0.0f, 1.0f)),
 	GUI_CHECKBOX_CHECK_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default color of check box check", new GLColor(0.0f, 0.8f, 0.0f, 1.0f)),
+	GUI_RADIOBUTTON_CHECK_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default color of radiobutton check", new GLColor(0.0f, 0.8f, 0.0f, 1.0f)),
+	GUI_RADIOBUTTON_CORNER_COUNT("<int>", "corner count of radiobutton check", 8),
 	GUI_TOOLTIP_FONT_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default background color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_H_COLOR("<int> <int> <int> [int]/<float> <float> <float> [float]/<string>", "default highlight text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
@@ -130,6 +141,7 @@ public enum SetKeys {
 		public void exec(List<String> parameter) {
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 	}}),
+	R_ANTIALIAS("<int>", "antialias level", 0),
 	
 	//--- REGION COMMANDS ---
 	EXIT("", "exit", new ICommandExecuter(){
@@ -142,7 +154,7 @@ public enum SetKeys {
 		@Override
 		public void exec(List<String> parameter) {
 			Main.closeRequested = true;
-	}}),
+	}}), 
 	;
 	
 	private String parameterList;

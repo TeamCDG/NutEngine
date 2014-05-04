@@ -70,6 +70,7 @@ public class Main {
 	public Main() throws Exception
 	{
 		//Settings.flashDefaults();
+		Settings.set(SetKeys.WIN_TITLE, SetKeys.WIN_TITLE.getDefaultValue());
 		Settings.addFont(new BitmapFont("res/font/consolas.txt"));
 		CfgReader.read("settings.cfg");
 

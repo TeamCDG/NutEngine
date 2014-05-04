@@ -2,6 +2,7 @@ package cdg.nut.gui;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.List;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Cursor;
@@ -110,12 +111,13 @@ public abstract class Frame {
 			if(! this.mouseGrabbed)
 				this.grabId = this.lastId;
 			
+			Logger.debug("grabid: "+this.grabId+" / mouseGrabbed: "+this.mouseGrabbed,"Frame.draw");
 			
 			this.mouseGrabX = this.oldMouseX-Mouse.getX();
 			this.mouseGrabY = this.oldMouseY-(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY());
 			if(this.grabable && this.grabId!=0)
 			{
-				this.mouseGrabbed = this.mouseLeftPressed && this.con.get(this.lastId) !=null &&(this.con.get(this.grabId).isDragable() || this.con.get(this.grabId).isScrollable() || (this.con.get(this.grabId).isTextSelectable()));
+				this.mouseGrabbed = this.mouseLeftPressed && this.con.get(this.grabId) !=null &&(this.con.get(this.grabId).isDragable() || this.con.get(this.grabId).isScrollable() || (this.con.get(this.grabId).isTextSelectable()));
 				
 				if(this.mouseGrabbed && !this.grabStart)
 				{
@@ -320,5 +322,10 @@ public abstract class Frame {
 	public void setBackground(String path)
 	{
 		this.background.setImage(new GLTexture(path));
+	}
+	
+	public <T> List<T> getComponents(Class<T> c)
+	{
+		return this.con.getComponents(c);
 	}
 }

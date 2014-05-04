@@ -26,6 +26,10 @@ public class Vertex4 implements IVertex {
 		this(xyzw[0], xyzw[1], xyzw[2], xyzw[3]);
 	}
 
+	public Vertex4(float x, float y) {
+		this(x, y, 0.0f, 1.0f);
+	}
+
 	public float getX() {
 		return this.x;
 	}

@@ -15,10 +15,13 @@ import cdg.nut.gui.components.ColorBox;
 import cdg.nut.gui.components.ImageBox;
 import cdg.nut.gui.components.Label;
 import cdg.nut.gui.components.ProgressBar;
+import cdg.nut.gui.components.RadioButton;
 import cdg.nut.gui.components.TextBox;
+import cdg.nut.gui.components.TrackBar;
 import cdg.nut.interfaces.ICheckedChangedListener;
 import cdg.nut.interfaces.IClickListener;
 import cdg.nut.interfaces.ICommandListener;
+import cdg.nut.interfaces.IFloatListener;
 import cdg.nut.interfaces.IToolTipGenerator;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.Colors;
@@ -43,6 +46,12 @@ public class TestFrame extends Frame {
 	TextBox com;
 	ProgressBar b;
 	CheckBox cb;
+	RadioButton r1;
+	RadioButton r2;
+	RadioButton r3;	
+	Button ib;
+	TrackBar tb;
+	
 	
 	int bg = 0;
 	
@@ -150,8 +159,42 @@ public class TestFrame extends Frame {
 				
 			}});
 		this.cb.setFontSize(20);
+		this.cb.setChecked(true);
 		this.add(cb);
 		
+		this.r1 = new RadioButton(420, cb.getPixelY()+10+cb.getPixelHeight(), "la");
+		this.r1.setTooltip("dat polygon = op");
+		this.r1.setFontSize(20);
+		this.add(r1);
+		
+		this.r2 = new RadioButton(420, r1.getPixelY()+10+r1.getPixelHeight(), "li");
+		this.r2.setTooltip("dat polygon = op");
+		this.r2.setFontSize(20);
+		this.add(r2);
+		
+		this.r3 = new RadioButton(420, r2.getPixelY()+10+r2.getPixelHeight(), "lu");
+		this.r3.setTooltip("dat polygon = op");
+		this.r3.setFontSize(20);
+		this.add(r3);
+		
+		this.ib = new Button(480, cb.getPixelY()+10+cb.getPixelHeight(), "laaaaaaaaaaaaaanger text");
+		this.ib.setTooltip("me haz icon");
+		this.ib.setIcon("nut.png");
+		this.ib.setFontSize(20);
+		this.add(ib);
+		
+		this.tb = new TrackBar(100, 300+this.txt.getPixelHeight()+10, 300, 50);
+		this.tb.setTooltip("Trackbar...");
+		this.tb.setValue(57.378926f);
+		this.tb.addValueChangeListener(new IFloatListener(){
+
+			@Override
+			public void onChange(float value) {
+				b.setValue(value);				
+			}
+			
+		});
+		this.add(tb);
 	}
 	
 	public void setRandomBg()

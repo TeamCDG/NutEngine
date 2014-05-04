@@ -1,6 +1,7 @@
 package cdg.nut.gui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 //TODO: Javadoc
 public class Container {
@@ -65,5 +66,16 @@ public class Container {
 		}
 
 		return null;
+	}
+	
+	public <T> List<T> getComponents(Class<T> c)
+	{
+		ArrayList<T> r = new ArrayList<T>(this.components.size());
+		for (int i = 0; i < this.components.size(); i++) {
+			if (this.components.get(i).getClass() == c) {
+				r.add(c.cast(this.components.get(i)));
+			}
+		}
+		return r;
 	}
 }

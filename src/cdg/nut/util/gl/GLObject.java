@@ -131,6 +131,15 @@ public abstract class GLObject implements ISelectable {
 		this.id = -1;
 	}
 	
+	public GLObject(float width, float height, VertexData[] vertices,
+			int[] indices) {
+		this.id = -1;
+		this.x = vertices[0].getXYZ()[0];
+		this.y = vertices[0].getXYZ()[1];
+		this.points = Utility.extractPoints(vertices);
+		this.setupGL(vertices, indices);
+	}
+
 	private void setupClippingArea()
 	{
 		this.clippingArea = new Vertex4(this.x, this.y, this.x+this.width, this.y+this.height);
@@ -320,6 +329,8 @@ public abstract class GLObject implements ISelectable {
 		
 		if(!selection)
 			this.bindTextures();
+		
+		
 		
 		GL30.glBindVertexArray(this.VAO); //point the pointers to the right point.
 		GL20.glEnableVertexAttribArray(0);

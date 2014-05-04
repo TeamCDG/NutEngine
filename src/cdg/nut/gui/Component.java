@@ -7,12 +7,14 @@ import cdg.nut.interfaces.ISelectable;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.BitmapFont;
 import cdg.nut.util.Colors;
+import cdg.nut.util.DefaultShader;
 import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
 import cdg.nut.util.Vertex4;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.gl.GLObject;
+import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 import cdg.nut.interfaces.IKeyboardListener;
@@ -29,6 +31,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	private boolean customFont, customFontSize, customFontC, customFontHC, customFontAC, customFontDC = false;
 	private FontObject text;
 	private GLImage dsBEx;
+	private GLImage icon;
 	private ToolTip tooltip;
 	private float[] padding;
 
@@ -365,6 +368,13 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 													  this.getPixelY()+this.getPixelHeight()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
 		
 		this.setTextClipping();
+		
+		if(this.icon != null)
+		{
+			GLTexture tex = this.icon.getImage();
+			this.icon = null;
+			this.setIcon(tex);
+		}
 	}
 
 	@Override
@@ -380,6 +390,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		if (this.xsb != null && !selection && this.xscroll) this.xsb.draw();
 		if (this.ysb != null && !selection && this.yscroll) this.ysb.draw();
 		if (this.yscroll && this.xscroll && this.dsBEx != null && this.scrollable)  this.dsBEx.draw();
+		if(this.icon != null) this.icon.draw();
 		//if(this.tooltip != null && this.tooltipShown) this.tooltip.draw();
 	}
 
@@ -439,13 +450,22 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 
 	private void autosize()
 	{
+		if(this.icon != null)
+		{
+			GLTexture tex = this.icon.getImage();
+			this.icon = null;
+			this.setIcon(tex);
+		}
+		
 		if (this.autosizeWithText) {
 			this.xscroll = false;
 			this.yscroll = false;
 			this.setDimension(this.text.getPixelWidth()+this.getTextX()+this.getTextPad()-this.getPixelX(), this.text.getPixelHeight()+this.getTextY()+this.getTextPad()-this.getPixelY());
 			Logger.debug("fh: "+text.getPixelHeight(),"Component.autosize");
-			this.border.setDimension(this.text.getPixelWidth()+this.getTextX()+this.getTextPad(), this.text.getPixelHeight()+this.getTextY()+this.getTextPad());
+			this.border.setDimension(this.text.getPixelWidth()+this.getTextX()+this.getTextPad()-this.getPixelX(), this.text.getPixelHeight()+this.getTextY()+this.getTextPad()-this.getPixelY());
 		}
+		
+		
 	}
 
 	public int getTextPad() {
@@ -522,6 +542,9 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		if(!this.enabled)
 			return;
 		
+		if(this.textSelectable)
+			this.onClick(x, y, button, grabbed, grabx, graby);
+		
 		if(this.xsb != null && this.xscroll && this.xsb.isScrollDings(x, y) && grabbed && !this.yscrollGrabbed)
 		{
 			this.xscrollGrabbed = true;
@@ -563,8 +586,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 			}
 		}
 		
-		if(this.textSelectable)
-			this.onClick(x, y, button, grabbed, grabx, graby);
+		
 	}
 	
 	protected void onClick(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby){}
@@ -698,7 +720,10 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		
 		
 		if(!this.hasBackground && !this.hasBorder)
+		{
 			this.text.setPosition(this.getTextX(), this.getTextY());
+			this.setTextClipping();
+		}
 	}
 	
 
@@ -931,7 +956,10 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		this.hasBorder = hasBorder;
 		
 		if(!this.hasBackground && !this.hasBorder)
+		{
 			this.text.setPosition(this.getTextX(), this.getTextY());
+			this.setTextClipping();
+		}
 	}
 
 	public void removeKeyListener(IKeyboardListener keyListener) {
@@ -988,7 +1016,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 	
 	public int getTextX()
 	{
-		int pabs = this.getTextPad();
+		int pabs = this.getTextPad()+(this.icon!=null?this.icon.getPixelWidth()+Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class):0);
 		
 		if(this.centerText)
 		{
@@ -1303,5 +1331,41 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 	public void resetFontDisabledColor() {
 		this.setFontDisabledColor(Settings.get(SetKeys.GUI_CMP_FONT_D_COLOR, GLColor.class));
 		this.customFontDC = false;
+	}
+
+	public GLImage getIcon() {
+		return icon;
+	}
+	
+	private void createIcon(GLTexture tex)
+	{
+		int fs = Utility.glSizeToPixelSize(0,  this.text.getFontSize())[1];
+		//Logger.spam("G E N E R A T I N G -------------------------------------------------------------------------------------------------------");
+		this.icon = new GLImage(tex, this.getTextX(), this.getTextY(), fs, fs);
+		
+		this.text.setPosition(this.getTextX(), this.getTextY());
+		this.icon.setSelectable(false);
+		this.icon.setColor(Colors.WHITE.getGlColor());
+		this.icon.setShader(DefaultShader.image);
+	}
+	
+	public void setIcon(String icon) {
+		if(this.icon != null)
+			this.icon.setImage(new GLTexture(icon));
+		else
+			createIcon(new GLTexture(icon));
+	}
+	
+	public void setIcon(GLTexture icon) {
+		if(this.icon != null)
+			this.icon.setImage(icon);
+		else
+			createIcon(icon);
+	}
+
+	public void setIcon(GLImage icon) {
+		this.icon = icon;
+		
+		this.text.setPosition(this.getTextX(), this.getTextY());
 	}
 }
