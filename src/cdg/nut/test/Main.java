@@ -9,7 +9,7 @@ import java.util.Random;
 
 import javax.swing.colorchooser.ColorSelectionModel;
 
-import org.fusesource.jansi.Ansi.Color;
+//import org.fusesource.jansi.Ansi.Color;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
