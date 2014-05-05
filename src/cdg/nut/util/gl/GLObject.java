@@ -50,7 +50,7 @@ public abstract class GLObject implements ISelectable {
 	private int iVBO = -1;
 	private ShaderProgram shader = DefaultShader.simple;
 	private boolean intIndicies = false;
-	private boolean noDraw = false;
+	private boolean hidden = false;
 	
 	private boolean drawing = false;
 	
@@ -320,7 +320,7 @@ public abstract class GLObject implements ISelectable {
 	//TODO: Javadoc
 	protected void draw(boolean selection)
 	{
-		if(this.VAO == -1 || this.noDraw || (selection&&!this.selectable))
+		if(this.VAO == -1 || this.hidden|| (selection&&!this.selectable))
 			return;
 		
 		this.drawing = true;
@@ -476,9 +476,10 @@ public abstract class GLObject implements ISelectable {
 
 	//TODO: Javadoc
 	@Override
-	public void setId(int id) {
+	public int setId(int id) {
 		this.id = id;	
 		this.updateId();
+		return 1;
 	}
 
 	//TODO: Javadoc
@@ -518,14 +519,24 @@ public abstract class GLObject implements ISelectable {
 		this.shader = shader;
 	}
 
-	public boolean isNoDraw() {
-		return noDraw;
+	public boolean isHidden() {
+		return this.hidden;
 	}
 
-	public void setNoDraw(boolean noDraw) {
-		this.noDraw = noDraw;
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
 	}
 
+	public void hide()
+	{
+		this.hidden = true;
+	}
+	
+	public void show()
+	{
+		this.hidden = false;
+	}
+	
 	public boolean isSelectable() {
 		return selectable;
 	}

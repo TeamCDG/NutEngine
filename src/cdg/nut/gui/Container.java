@@ -60,15 +60,15 @@ public class Container {
 	public Component get(int id)
 	{
 		for (int i = 0; i < this.components.size(); i++) {
-			if (this.components.get(i).getId() == id) {
-				return this.components.get(i);
+			if (this.components.get(i).getById(id) != null) {
+				return this.components.get(i).getById(id);
 			}
 		}
 
 		return null;
 	}
 	
-	public <T> List<T> getComponents(Class<T> c)
+	public <T extends Component> List<T> getComponents(Class<T> c)
 	{
 		ArrayList<T> r = new ArrayList<T>(this.components.size());
 		for (int i = 0; i < this.components.size(); i++) {

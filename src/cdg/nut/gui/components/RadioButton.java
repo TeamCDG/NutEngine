@@ -321,6 +321,16 @@ public class RadioButton extends Component{
 		this.generateCircle();
 		this.generateCheck();
 	}
+	
+	@Override
+	protected void move()
+	{
+		super.move();
+		
+		this.generateBackground();
+		this.generateCircle();
+		this.generateCheck();
+	}
 
 	
 }

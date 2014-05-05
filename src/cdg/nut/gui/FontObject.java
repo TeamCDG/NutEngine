@@ -80,8 +80,19 @@ public class FontObject extends GLObject {
 
 	public void setText(String text)
 	{
-		this.colorText = text;
-		this.setupFontGL();
+		if(text == null)
+		{
+			this.setHidden(true);
+			return;
+		}
+		else
+		{
+			this.setHidden(false);
+			this.colorText = text;
+			this.setupFontGL();
+		}
+		
+		
 	}
 
 	public FontObject(float x, float y, String text)
@@ -112,6 +123,12 @@ public class FontObject extends GLObject {
 
 	private void setupFontGL()
 	{
+		if(this.colorText == null)
+		{
+			this.setHidden(true);
+			return;
+		}
+		
 		List<VertexData> ret = new LinkedList<VertexData>();
 		String finText = this.colorText;
 		this.scalingConst = this.fontSize / this.font.getHeight("A");
@@ -228,7 +245,7 @@ public class FontObject extends GLObject {
 				}
 				//END HACK
 
-				this.setNoDraw(false);
+				this.setHidden(false);
 				this.setupGL(ret.toArray(new VertexData[1]), Utility.createQuadIndicesInt(aqc));
 				this.setHeightSupEvent(yoff + this.fontSize - this.getY());
 				this.setWidthSupEvent(xoffmax);
@@ -244,7 +261,7 @@ public class FontObject extends GLObject {
 				);
 			}
 		} else {
-			this.setNoDraw(true);
+			this.setHidden(true);
 		}
 
 		this.actualText = finText;
@@ -258,6 +275,8 @@ public class FontObject extends GLObject {
 
 	public void setFontSize(float size)
 	{
+		
+		
 		this.fontSize = size;
 		this.setupFontGL();
 	}

@@ -4,7 +4,7 @@ public interface ISelectable extends IDrawable {
 
 	public void drawSelect();
 	
-	public void setId(int id);
+	public int setId(int id);
 	
 	public int getId();
 	
