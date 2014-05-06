@@ -33,35 +33,39 @@ public class Vertex3 implements IVertex {
 		return this.w;
 	}
 	
+	public double getNorm() {
+		return Math.sqrt(x*x + y*y + z*z);
+	}
+	
 	public Vertex2 toVertex2()
 	{
 		return new Vertex2(this.x,this.y);
 	}
 
 	@Override
-	public boolean isGreater(IVertex v) {
-		if(v.getX() > this.getX() ||
-				   v.getY() > this.getY() ||
-				   v.getZ() > this.getZ())
-					return true;
+	public boolean isGreaterCoords(IVertex v) {
+		if(v.getX() < this.getX() &&
+		   v.getY() < this.getY() &&
+		   v.getZ() < this.getZ())
+			return true;
 		return false;
 	}
 
 	@Override
 	public boolean isEqual(IVertex v) {
-		if(v.getX() == this.getX() ||
-				   v.getY() == this.getY() ||
-				   v.getZ() == this.getZ())
-							return true;
+		if(v.getX() == this.getX() &&
+		   v.getY() == this.getY() &&
+		   v.getZ() == this.getZ())
+			return true;
 		return false;
 	}
 
 	@Override
-	public boolean isLess(IVertex v) {
-		if(v.getX() < this.getX() ||
-				   v.getY() < this.getY() ||
-				   v.getZ() < this.getZ())
-							return true;
+	public boolean isLessCoords(IVertex v) {
+		if(v.getX() > this.getX() &&
+		   v.getY() > this.getY() &&
+		   v.getZ() > this.getZ())
+			return true;
 		return false;
 	}
 

@@ -12,7 +12,7 @@ public class Vertex2 implements IVertex {
 		this.z = 0.0f;
 		this.w = 1.0f;
 	}
-
+	
 	public float getX() {
 		return this.x;
 	}
@@ -29,29 +29,33 @@ public class Vertex2 implements IVertex {
 		return this.w;
 	}
 
+	public double getNorm() {
+		return Math.sqrt(x*x + y*y + z*z);
+	}
+	
 	@Override
-	public boolean isGreater(IVertex v) {
-		if(v.getX() > this.getX() ||
-		   v.getY() > this.getY() ||
-		   v.getZ() > this.getZ())
+	public boolean isGreaterCoords(IVertex v) {
+		if(v.getX() < this.getX() &&
+		   v.getY() < this.getY() &&
+		   v.getZ() < this.getZ())
 			return true;
 		return false;
 	}
 
 	@Override
 	public boolean isEqual(IVertex v) {
-		if(v.getX() == this.getX() ||
-		   v.getY() == this.getY() ||
+		if(v.getX() == this.getX() &&
+		   v.getY() == this.getY() &&
 		   v.getZ() == this.getZ())
 					return true;
 		return false;
 	}
 
 	@Override
-	public boolean isLess(IVertex v) {
-		if(v.getX() < this.getX() ||
-		   v.getY() < this.getY() ||
-		   v.getZ() < this.getZ())
+	public boolean isLessCoords(IVertex v) {
+		if(v.getX() > this.getX() &&
+		   v.getY() > this.getY() &&
+		   v.getZ() > this.getZ())
 					return true;
 		return false;
 	}
