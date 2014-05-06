@@ -50,6 +50,11 @@ public class Vertex3 implements IVertex {
 			return true;
 		return false;
 	}
+	
+	@Override
+	public boolean isGreaterNorm(IVertex v) {
+		return (this.getNorm() > v.getNorm());
+	}
 
 	@Override
 	public boolean isEqual(IVertex v) {
@@ -67,6 +72,11 @@ public class Vertex3 implements IVertex {
 		   v.getZ() > this.getZ())
 			return true;
 		return false;
+	}
+	
+	@Override
+	public boolean isLessNorm(IVertex v) {
+		return (this.getNorm() < v.getNorm());
 	}
 
 	@Override

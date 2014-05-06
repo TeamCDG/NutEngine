@@ -11,6 +11,8 @@ public interface IVertex
 	public float[] toArray();
 	
 	public boolean isGreaterCoords(IVertex v);
+	public boolean isGreaterNorm(IVertex v);
 	public boolean isEqual(IVertex v);
 	public boolean isLessCoords(IVertex v);
+	public boolean isLessNorm(IVertex v);
 }
