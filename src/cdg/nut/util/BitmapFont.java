@@ -46,10 +46,10 @@ public class BitmapFont
 		}
 		reader.close();
 		
-		this.fontPath = f.getPath().replace(f.getName(),"")+"\\"+this.fontName+".png";
+		this.fontPath = f.getPath().replace(f.getName(),"")+"/"+this.fontName+".png";
 		
 		if(Display.isCreated())
-			this.fontTex = new GLTexture(f.getPath().replace(f.getName(),"")+"\\"+this.fontName+".png", GL13.GL_TEXTURE0, true);
+			this.fontTex = new GLTexture(f.getPath().replace(f.getName(),"")+"/"+this.fontName+".png", GL13.GL_TEXTURE0, true);
 		
 		this.font.add(new FontChar(" ", 0, 0, this.getChar("#").getWidth(), 0));
 	}
