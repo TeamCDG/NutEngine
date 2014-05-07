@@ -12,8 +12,10 @@ import cdg.nut.gui.ToolTip;
 import cdg.nut.gui.components.Button;
 import cdg.nut.gui.components.CheckBox;
 import cdg.nut.gui.components.ColorBox;
+import cdg.nut.gui.components.GroupBox;
 import cdg.nut.gui.components.ImageBox;
 import cdg.nut.gui.components.Label;
+import cdg.nut.gui.components.Panel;
 import cdg.nut.gui.components.ProgressBar;
 import cdg.nut.gui.components.RadioButton;
 import cdg.nut.gui.components.TextBox;
@@ -52,7 +54,12 @@ public class TestFrame extends Frame {
 	Button ib;
 	TrackBar tb;
 	
+	Panel p;
+	RadioButton rp1;
+	RadioButton rp2;
+	RadioButton rp3;	
 	
+	GroupBox gb;
 	int bg = 0;
 	
 	public TestFrame()
@@ -195,6 +202,29 @@ public class TestFrame extends Frame {
 			
 		});
 		this.add(tb);
+		
+		
+		this.p = new Panel(800, b.getPixelY()+60, 100, 100);
+		this.add(p);
+		
+		this.rp1 = new RadioButton(8, 8, "la");
+		this.rp1.setTooltip("dat polygon = op");
+		this.rp1.setFontSize(20);
+		this.p.add(rp1);
+		
+		this.rp2 = new RadioButton(8, 18+rp1.getPixelHeight(), "li");
+		this.rp2.setTooltip("dat polygon = op");
+		this.rp2.setFontSize(20);
+		this.p.add(rp2);
+		
+		this.rp3 = new RadioButton(8, 28+rp1.getPixelHeight()+rp2.getPixelHeight(), "lu");
+		this.rp3.setTooltip("dat polygon = op");
+		this.rp3.setFontSize(20);
+		this.p.add(rp3);
+		
+		this.gb = new GroupBox(900, p.getPixelY(), 200, 100, "gb");
+		this.add(gb);
+		
 	}
 	
 	public void setRandomBg()

@@ -10,6 +10,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import cdg.nut.interfaces.IParent;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
@@ -20,7 +21,7 @@ import cdg.nut.util.settings.Cmd;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 
-public abstract class Frame {
+public abstract class Frame implements IParent {
 	private String title;
 	private Container con;
 	private GLImage background;
@@ -246,26 +247,29 @@ public abstract class Frame {
 		this.lastId = gotId;
 	}
 
+	@Override
 	public void add(Component c)
 	{
 		this.addComponent(c);
 	}
 	
+	@Override
 	public void addComponent(Component c)
 	{
-		c.setId(nextId);
-		nextId++;
+		this.nextId += c.setId(nextId);
 		
 		c.setParent(this);
 
 		this.con.add(c);
 	}
 
+	@Override
 	public void removeComponent(Component c)
 	{
 		this.con.remove(c);
 	}
-
+	
+	@Override
 	public void removeComponent(int id)
 	{
 		this.con.remove(id);
@@ -303,10 +307,12 @@ public abstract class Frame {
 		this.activeCursor = activeCursor;
 	}
 
+	@Override
 	public ToolTip getActiveToolTip() {
 		return activeToolTip;
 	}
-
+	
+	@Override
 	public void setActiveToolTip(ToolTip activeToolTip) {
 		this.activeToolTip = activeToolTip;
 	}
@@ -324,8 +330,58 @@ public abstract class Frame {
 		this.background.setImage(new GLTexture(path));
 	}
 	
-	public <T> List<T> getComponents(Class<T> c)
-	{
+	@Override
+	public void remove(Component c) {
+		this.con.remove(c);
+	}
+
+	@Override
+	public void remove(int id) {
+		this.con.remove(id);		
+	}
+
+	@Override
+	public void addToNextId(int i) {
+		this.nextId += i;
+	}
+
+	@Override
+	public int getNextId() {
+		return this.nextId;
+	}
+
+	@Override
+	public Component get(int id) {
+		return this.con.get(id);
+	}
+
+	@Override
+	public Component getComponent(int id) {
+		return this.con.get(id);
+	}
+
+	@Override
+	public List<Component> getAll() {
+		return this.con.getComponents();
+	}
+
+	@Override
+	public List<Component> getAllComponents() {
+		return this.con.getComponents();
+	}
+
+	@Override
+	public <T extends Component> List<T> getByClass(Class<T> c) {
+		return this.con.getComponents(c);
+	}
+
+	@Override
+	public <T extends Component> List<T> getComponentsByClass(Class<T> c) {
+		return this.con.getComponents(c);
+	}
+
+	@Override
+	public <T extends Component> List<T> getComponents(Class<T> c) {
 		return this.con.getComponents(c);
 	}
 }

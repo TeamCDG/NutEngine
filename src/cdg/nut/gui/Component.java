@@ -18,6 +18,7 @@ import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 import cdg.nut.interfaces.IKeyboardListener;
+import cdg.nut.interfaces.IParent;
 import cdg.nut.interfaces.IScrollListener;
 import cdg.nut.interfaces.ISettingsListener;
 import cdg.nut.interfaces.IClickListener;
@@ -25,7 +26,7 @@ import cdg.nut.interfaces.IClickListener;
 //TODO: this class needs some love
 public abstract class Component extends GLImage implements ISettingsListener, IScrollListener {
 
-	private Frame parent;
+	private IParent parent;
 	
 	private Border border;
 	private boolean customFont, customFontSize, customFontC, customFontHC, customFontAC, customFontDC = false;
@@ -1230,11 +1231,11 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		this.manualTTshow = val;
 	}
 
-	public Frame getParent() {
+	public IParent getParent() {
 		return parent;
 	}
 
-	public void setParent(Frame parent) {
+	public void setParent(IParent parent) {
 		this.parent = parent;
 	}
 	
@@ -1367,5 +1368,23 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		this.icon = icon;
 		
 		this.text.setPosition(this.getTextX(), this.getTextY());
+	}
+
+	public Component getById(int id) {
+		if(this.getId() == id)
+			return this;
+		else
+			return null;
+	}
+	
+	public int getBorderSize()
+	{
+		//TODO IMPLEMENT FANCY STUFF.
+		return 4;
+	}
+	
+	public void setBorderSize(int value)
+	{
+		//TODO IMPLEMENT FANCY STUFF.
 	}
 }
