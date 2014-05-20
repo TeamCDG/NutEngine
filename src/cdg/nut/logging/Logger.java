@@ -516,7 +516,6 @@ public abstract class Logger {
                                 writer.println("GL Error: "+GLU.gluErrorString(errorValue));
                         }
 
-
                         if(e != null)
                         {
                                 writer.println("-----------------------------------------------------");
@@ -538,6 +537,8 @@ public abstract class Logger {
 
                 } catch (Exception ex) {
                         // Gnarf... Error in writing crashdump.. get the hell out of here
+                		// ^ F*** you - At least do SOMETHING e.g.
+                		Logger.log(ex);
                         System.exit(-1);
                 }
         }

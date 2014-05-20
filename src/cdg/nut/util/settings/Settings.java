@@ -150,7 +150,7 @@ public class Settings {
 				
 			GL11.glViewport(0, 0, width,height);
 		} catch (LWJGLException e) {
-			Logger.createCrashDump("Unable to create/update display", "Settings.setWindowResolution", e, true, "Resolution: "+width+"x"+height+"\nFullscreen capable: "+finalMode.isFullscreenCapable()+"\nMSAA: "+get(SetKeys.R_ANTIALIAS, Integer.class));
+			Logger.createCrashDump("Unable to create/update display", "Settings.setWindowResolution", e, false, "Resolution: "+width+"x"+height+"\nFullscreen capable: "+finalMode.isFullscreenCapable()+"\nMSAA: "+get(SetKeys.R_ANTIALIAS, Integer.class));
 			System.exit(-1);
 		}
 		Display.update();
