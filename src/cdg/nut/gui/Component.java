@@ -6,11 +6,11 @@ import java.util.List;
 import cdg.nut.interfaces.ISelectable;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.BitmapFont;
-import cdg.nut.util.Colors;
 import cdg.nut.util.DefaultShader;
-import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
 import cdg.nut.util.Vertex4;
+import cdg.nut.util.enums.Colors;
+import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.gl.GLObject;
@@ -351,9 +351,9 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	}
 	
 	@Override
-	protected void move()
+	protected void move(float x, float y)
 	{
-		super.move();
+		super.move(x, y);
 		
 		//Logger.debug("Pixel coordinates: "+this.getPixelX()+" ("+this.getX()+") / "+this.getPixelY()+" ("+this.getY()+")", "Component.move");
 		this.border.setPosition(this.getPixelX(), this.getPixelY());

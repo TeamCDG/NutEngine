@@ -61,7 +61,7 @@ public class Panel extends Component implements IParent {
 	public void setSelected(boolean b){}
 	
 	@Override
-	protected void move()
+	protected void move(float x, float y)
 	{
 		List<Component> cl = this.con.getComponents();
 		for(int i = 0; i < this.con.getComponentCount(); i++)

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL30;
@@ -50,6 +51,8 @@ public class GLTexture implements IntIntChangedListener
 	
 	public static int loadPNGTexture(String filename, int textureUnit, boolean smooth) 
 	{
+		if(!Display.isCreated())
+			return -1;
 		int texId = GL11.glGenTextures();
 		loadF(filename, textureUnit, smooth, texId);
 		return texId;

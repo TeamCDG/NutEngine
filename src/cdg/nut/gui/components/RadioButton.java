@@ -11,11 +11,11 @@ import cdg.nut.gui.Border;
 import cdg.nut.gui.Component;
 import cdg.nut.interfaces.ICheckedChangedListener;
 import cdg.nut.logging.Logger;
-import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
 import cdg.nut.util.Vertex2;
 import cdg.nut.util.Vertex4;
 import cdg.nut.util.VertexData;
+import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.settings.SetKeys;
@@ -323,9 +323,9 @@ public class RadioButton extends Component{
 	}
 	
 	@Override
-	protected void move()
+	protected void move(float x, float y)
 	{
-		super.move();
+		super.move(x,y);
 		
 		this.generateBackground();
 		this.generateCircle();

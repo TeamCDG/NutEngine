@@ -24,7 +24,7 @@ import cdg.nut.util.VertexData;
 
 //TODO: implement moving, rotation and scaling
 //TODO: Javadoc
-public abstract class GLObject implements ISelectable {
+public class GLObject implements ISelectable {
 
 	private int id;
 	
@@ -55,7 +55,7 @@ public abstract class GLObject implements ISelectable {
 	private boolean drawing = false;
 	
 	
-
+	
 	public GLObject(int width, int height)
 	{
 		this(0, 0.0f, 0.0f, Utility.pixelSizeToGLSize(width, height)[0], Utility.pixelSizeToGLSize(width, height)[1]);
@@ -129,6 +129,16 @@ public abstract class GLObject implements ISelectable {
 	protected GLObject()
 	{
 		this.id = -1;
+	}
+	
+	public GLObject(GLPolygon p)
+	{
+		this.x = p.getX();
+		this.y = p.getY();
+		this.width = p.getWidth();
+		this.height = p.getHeight();
+		this.points = p.getPoints();
+		this.setupGL(p.getData(), p.getIndices());
 	}
 	
 	public GLObject(float width, float height, VertexData[] vertices,
@@ -284,7 +294,7 @@ public abstract class GLObject implements ISelectable {
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); //unbind cause we are done
 	}
 	
-	protected void move()
+	protected void move(float nx, float ny)
 	{
 		while(drawing) { } //don't change the VBO if we are currently drawing and wait until drawing has finished
 		
@@ -292,8 +302,16 @@ public abstract class GLObject implements ISelectable {
 			return;
 		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBO);
-		float xm = this.points[0].getX()-this.x;
-		float ym = this.points[0].getY()-this.y;
+		//float xm = this.x - nx;
+		//float ym = this.y - ny;
+		
+		//float xm = this.points[0].getX()-this.x;
+		//float ym = this.points[0].getY()-this.y;
+		
+		float xm = this.points[0].getX()-nx;
+		float ym = this.points[0].getY()-ny;
+
+
 		
 		//Logger.debug("moving: "+xm+"; "+ym+" / gl: "+this.points[0].getX()+"; "+this.points[0].getY(),"GLObject.move");
 		//Logger.debug("npos: "+(this.points[0].getX()-xm)+"; "+(this.points[0].getY()-ym),"GLObject.move");
@@ -314,7 +332,14 @@ public abstract class GLObject implements ISelectable {
 		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); //unbind cause we are done
 		
+
+		this.x = nx;
+		this.y = ny;
+		
+		
 		if(this.autoClipping) this.setupClippingArea();
+		
+		
 	}
 	
 	//TODO: Javadoc
@@ -390,22 +415,21 @@ public abstract class GLObject implements ISelectable {
 	public int getPixelX() { return Utility.glToPixel(this.x, this.y)[0]; }
 
 	public void setX(float x) {
-		this.x = x;
-		if(this.VAO != -1) this.move();
+		if(this.VAO != -1) this.move(x, this.y);
 	}
 	
-	public void setX(int x) { this.x = Utility.pixelToGL(x, 0)[0]; this.move();}
+	public void setX(int x) { float nx = Utility.pixelToGL(x, 0)[0]; this.move(nx, this.y);}
 
 	public float getY() { return y; }
 	
 	public int getPixelY() { return Utility.glToPixel(this.x, this.y)[1]; }
 
 	public void setY(float y) {
-		this.y = y;
-		if(this.VAO != -1) this.move();
+		//this.y = y;
+		if(this.VAO != -1) this.move(this.x, y);
 	}
 	
-	public void setY(int y) { this.y = Utility.pixelToGL(0, y)[1]; this.move();}
+	public void setY(int y) { float ny = Utility.pixelToGL(0, y)[1]; this.move(this.x, ny);}
 
 	public float getWidth() {
 		return width;
@@ -421,19 +445,17 @@ public abstract class GLObject implements ISelectable {
 		
 		
 		float[] tmp = Utility.pixelToGL(x, y);
-		this.x = tmp[0];
-		this.y = tmp[1];
+		//this.x = tmp[0];
+		//this.y = tmp[1];
 		
 		//Logger.debug("moving to: "+x+"; "+y+" / gl: "+tmp[0]+"; "+tmp[1],"GLObject.setPosition");
 		
-		if(this.VAO != -1) this.move();
+		if(this.VAO != -1) this.move(tmp[0], tmp[1]);
 	}
 	
 	public void setPosition(float x, float y)
 	{
-		this.x = x;
-		this.y = y;
-		if(this.VAO != -1) this.move();
+		if(this.VAO != -1) this.move(x,y);
 	}
 
 	protected void setWidthSupEvent(float width) {

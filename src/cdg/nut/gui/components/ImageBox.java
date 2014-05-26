@@ -1,9 +1,9 @@
 package cdg.nut.gui.components;
 
 import cdg.nut.gui.Component;
-import cdg.nut.util.Colors;
 import cdg.nut.util.DefaultShader;
 import cdg.nut.util.Utility;
+import cdg.nut.util.enums.Colors;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.settings.SetKeys;
@@ -33,9 +33,9 @@ public class ImageBox extends Component {
 	}
 	
 	@Override
-	protected void move()
+	protected void move(float x, float y)
 	{
-		super.move();
+		super.move(x, y);
 		int bs = Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
 		this.image.setPosition(this.getPixelX()+bs, this.getPixelY()+bs);
 	}

@@ -1,4 +1,4 @@
-package cdg.nut.util;
+package cdg.nut.util.enums;
 
 public enum MouseButtons {
 	

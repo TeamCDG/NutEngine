@@ -6,11 +6,11 @@ import java.util.List;
 
 import cdg.nut.interfaces.IDrawable;
 import cdg.nut.logging.Logger;
-import cdg.nut.util.Colors;
 import cdg.nut.util.Utility;
 import cdg.nut.util.Vertex2;
 import cdg.nut.util.Vertex4;
 import cdg.nut.util.VertexData;
+import cdg.nut.util.enums.Colors;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.settings.SetKeys;
@@ -18,7 +18,7 @@ import cdg.nut.util.settings.Settings;
 
 public class Border extends GLImage {
 
-	private static int customBorderSize = -1;
+	private int borderSize = -1;
 	private boolean polygonal = false;
 	private int pointCount = 4;
 	
@@ -26,10 +26,20 @@ public class Border extends GLImage {
 	{
 		super(Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class),
 				width, height,
-				makeData(x,y,width,height));
+				makeData(x,y,width,height, Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)));
 		this.setSelectable(false);
 	}
 	
+	public Border(float x, float y, float width, float height, int bs)
+	{
+		super(Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class),
+				width, height,
+				makeData(x,y,width,height, bs));
+		this.setSelectable(false);
+		this.borderSize = bs;
+	}
+	
+	/*
 	public Border(float x, float y, float width, float height, int pointCount)
 	{
 		super(Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class),
@@ -42,22 +52,22 @@ public class Border extends GLImage {
 	
 	public Border(int x, int y, int width, int height, int pointCount)
 	{
-		/*
+		
 		super(Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class),
 				width, height,
-				makeDataPolygon(x,y,width,height, pointCount), new byte[]{0,1,2});//createBorderIndices(pointCount));*/
+				makeDataPolygon(x,y,width,height, pointCount), new byte[]{0,1,2});//createBorderIndices(pointCount));
 		
 		super(Settings.get(SetKeys.GUI_CMP_BORDER_COLOR, GLColor.class), 222222220, 22222220);
 		
 		this.setupGL(makeDataPolygon(x,y,width,height, pointCount), createBorderIndices(pointCount));
 		
 		this.setClipping(false);
-		/*
+		
 		this(Utility.pixelToGL(x, y)[0],
 				Utility.pixelToGL(x, y)[1],
 				Utility.pixelSizeToGLSize(width, height)[0],
-				Utility.pixelSizeToGLSize(width, height)[1], pointCount);*/
-	}
+				Utility.pixelSizeToGLSize(width, height)[1], pointCount);
+	}*/
 
 	private static int[] createBorderIndices(int pointCount) {
 		int[] in = new int[pointCount*6];
@@ -116,15 +126,10 @@ public class Border extends GLImage {
 		return data;
 	}
 	
-	private static VertexData[] makeData(float x, float y, float width, float height)
+	private static VertexData[] makeData(float x, float y, float width, float height, int bs)
 	{
-		float sx = Utility.pixelSizeToGLSize(
-				customBorderSize == -1?Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class):customBorderSize,
-				0)[0];
-		float sy = Utility.pixelSizeToGLSize(
-				0,
-				customBorderSize == -1?Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class):customBorderSize
-				)[1];
+		float sx = Utility.pixelSizeToGLSize(bs, 0)[0];
+		float sy = Utility.pixelSizeToGLSize(0, bs)[1];
 		ArrayList<VertexData> res = new ArrayList<VertexData>(16);
 		GLColor c = new GLColor(0,0,0,0);
 
@@ -140,7 +145,7 @@ public class Border extends GLImage {
 	public void setDimension(float width, float height)
 	{
 		super.setDimension(width, height);
-		super.setupGL(makeData(this.getX(),this.getY(),width,height),
+		super.setupGL(makeData(this.getX(),this.getY(),width,height, this.borderSize),
 			Utility.createQuadIndicesByte(4));
 	}
 
@@ -154,8 +159,8 @@ public class Border extends GLImage {
 	}
 
 	public void setBorderSize(int i) {
-		customBorderSize = i;
-		this.setupGL(makeData(this.getX(), this.getY(), this.getWidth(), this.getHeight()), Utility.createQuadIndicesByte(4));
+		this.borderSize = i;
+		this.setupGL(makeData(this.getX(), this.getY(), this.getWidth(), this.getHeight(),  this.borderSize), Utility.createQuadIndicesByte(4));
 		
 	}
 }

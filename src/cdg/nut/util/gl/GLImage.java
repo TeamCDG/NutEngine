@@ -1,9 +1,9 @@
 package cdg.nut.util.gl;
 
 import cdg.nut.interfaces.IDrawable;
-import cdg.nut.util.Colors;
 import cdg.nut.util.Utility;
 import cdg.nut.util.VertexData;
+import cdg.nut.util.enums.Colors;
 
 public class GLImage extends GLObject{
 

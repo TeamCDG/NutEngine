@@ -5,8 +5,8 @@ import java.util.List;
 
 import cdg.nut.logging.Logger;
 import cdg.nut.util.BitmapFont;
-import cdg.nut.util.Colors;
 import cdg.nut.util.Utility;
+import cdg.nut.util.enums.Colors;
 import cdg.nut.util.gl.GLColor;
 
 //TODO: Javadoc

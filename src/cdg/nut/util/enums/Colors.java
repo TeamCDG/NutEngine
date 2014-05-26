@@ -1,4 +1,4 @@
-package cdg.nut.util;
+package cdg.nut.util.enums;
 
 import cdg.nut.util.gl.GLColor;
 

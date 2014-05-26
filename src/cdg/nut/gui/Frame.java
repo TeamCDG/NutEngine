@@ -12,8 +12,8 @@ import org.lwjgl.opengl.GL11;
 
 import cdg.nut.interfaces.IParent;
 import cdg.nut.logging.Logger;
-import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
+import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.gl.GLTexture;

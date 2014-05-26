@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cdg.nut.gui.Component;
-import cdg.nut.util.Colors;
-import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
+import cdg.nut.util.enums.Colors;
+import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.settings.SetKeys;
@@ -168,6 +168,12 @@ public class TrackBar extends Component{
 	public boolean isBar(int x, int y)
 	{
 		return (Utility.between(x, this.getPixelX(), this.getPixelX()+this.getPixelWidth()) && Utility.between(y, this.getPixelY(), this.getPixelY()+this.getPixelHeight()));
+	}
+	
+	@Override
+	protected void move(float x, float y)
+	{
+		
 	}
 	
 	public void addValueChangeListener(IFloatListener lis)

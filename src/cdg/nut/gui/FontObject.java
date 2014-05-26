@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
-import cdg.nut.util.Colors;
 import cdg.nut.util.DefaultShader;
 import cdg.nut.util.Vertex2;
 import cdg.nut.util.Vertex4;
 import cdg.nut.util.VertexData;
+import cdg.nut.util.enums.Colors;
 import cdg.nut.util.gl.GLObject;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.gl.GLColor;
@@ -138,6 +138,8 @@ public class FontObject extends GLObject {
 
 			float xoff = this.getX();
 			float yoff = this.getY();
+			
+			Logger.debug("xoff: "+xoff+" / yoff: "+yoff,"FontObject.setupFontGL");
 
 			GLColor currentColor = this.color;
 
@@ -435,9 +437,9 @@ public class FontObject extends GLObject {
 	}
 	
 	@Override
-	protected void move()
+	protected void move(float x, float y)
 	{
-		super.move();
+		super.move(x, y);
 		this.setupSelectionGL();
 	}
 }

@@ -1,7 +1,7 @@
 package cdg.nut.gui.components;
 
 import cdg.nut.gui.Component;
-import cdg.nut.util.Colors;
+import cdg.nut.util.enums.Colors;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLImage;
 import cdg.nut.util.gl.GLTexture;

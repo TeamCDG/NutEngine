@@ -131,15 +131,24 @@ public class ToolTip extends GLImage {
 	
 	int br = 0;
 	@Override
-	protected void move()
+	protected void move(float x, float y)
 	{
-		//super.move();
+		int tmp[] = Utility.glToPixel(x, y);
+		for(int i = 0; i < this.content.size(); i++)
+		{			
+			int xoff = this.content.get(i).getPixelX()-this.getPixelX();
+			int yoff = this.content.get(i).getPixelY()-this.getPixelY();
+			this.content.get(i).setPosition(tmp[0]+xoff,  tmp[1]+yoff);
+			Logger.debug("movedx: "+(tmp[0]+xoff)+" / movedy: "+(tmp[1]+yoff)+" / px: "+this.getPixelX()+" / py: "+this.getPixelY(),"ToolTip.move");
+		}
+		
+		super.move(x, y);
 		
 		Logger.debug("nx: "+this.getPixelX()+" / ny: "+this.getPixelY());
 		
 		super.setupGL(Utility.generateQuadData(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getColor()), Utility.createQuadIndicesByte(4));
 		
-		this.setContent(this.getContent());
+		//this.setContent(this.getContent());
 	}
 	
 	@Override
