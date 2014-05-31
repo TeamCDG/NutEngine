@@ -53,7 +53,7 @@ public class GroupBox extends Panel implements IPolygonGenerator{
 	@Override
 	protected void setup()
 	{
-		this.setHasBackground(false);
+		
 		
 		float tx = Utility.pixelToGL(this.getPixelX()+12,0)[0];
 		
@@ -61,7 +61,8 @@ public class GroupBox extends Panel implements IPolygonGenerator{
 		
 		this.title = new GLFont(tx, this.getY(),"GroupBox"); 
 		this.title.setFontSize(20); //TODO: SETTING
-		
+		this.setGen(this);
+		this.setHasBackground(true);
 		//this.generateBorder();
 		
 		this.getBorder().setGen(new IPolygonGenerator(){
@@ -106,14 +107,25 @@ public class GroupBox extends Panel implements IPolygonGenerator{
 
 	@Override
 	public VertexData[] generateData(float x, float y, float width, float height) {
-		// TODO Auto-generated method stub
-		return null;
+		float tx = Utility.pixelToGL(getPixelX()+12,0)[0];
+		float px = Utility.pixelSizeToGLSize(4,0)[0];
+		
+		float sx = Utility.pixelSizeToGLSize(getBorderSize(),0)[0];
+		float sy = Utility.pixelSizeToGLSize(0,getBorderSize())[1];
+		
+		ArrayList<VertexData> res = new ArrayList<VertexData>(20);
+		GLColor c = new GLColor(0,0,0,0);
+		
+		addAll(res, Utility.generateQuadData(this.getX()+(tx-getX())-px, this.title.getY(), title.getWidth()+px, (title.getHeight()/2), c)); //title
+		addAll(res, Utility.generateQuadData(getX(), getY()+(title.getHeight()/2), getWidth(), getHeight()-(title.getHeight()/2), c)); //everything else
+		
+		
+		return res.toArray(new VertexData[1]);
 	}
 
 	@Override
 	public int[] generateIndicies() {
-		// TODO Auto-generated method stub
-		return null;
+		return Utility.createQuadIndicesInt(2);
 	}
 
 }
