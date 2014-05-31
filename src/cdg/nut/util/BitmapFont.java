@@ -50,6 +50,7 @@ public class BitmapFont
 		
 		if(Display.isCreated())
 			this.fontTex = new GLTexture(f.getPath().replace(f.getName(),"")+File.pathSeparator+this.fontName+".png", GL13.GL_TEXTURE0, true);
+
 		
 		this.font.add(new FontChar(" ", 0, 0, this.getChar("#").getWidth(), 0));
 	}

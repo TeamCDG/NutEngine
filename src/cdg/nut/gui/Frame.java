@@ -12,10 +12,10 @@ import org.lwjgl.opengl.GL11;
 
 import cdg.nut.interfaces.IParent;
 import cdg.nut.logging.Logger;
-import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
+import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
-import cdg.nut.util.gl.GLImage;
+import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.settings.Cmd;
 import cdg.nut.util.settings.SetKeys;
@@ -24,7 +24,7 @@ import cdg.nut.util.settings.Settings;
 public abstract class Frame implements IParent {
 	private String title;
 	private Container con;
-	private GLImage background;
+	private GLPolygon background;
 	private ToolTip activeToolTip;
 	private boolean manualToolTipHide;
 	
@@ -64,7 +64,8 @@ public abstract class Frame implements IParent {
 
 	public Frame(GLTexture background)
 	{
-		this.background = new GLImage(background, -1.0f, 1.0f, 2.0f, -2.0f);
+		this.background = new GLPolygon(-1.0f, 1.0f, 2.0f, -2.0f);
+		this.background.setImage(background);
 		this.background.setColor(new GLColor(1.0f, 1.0f, 1.0f, 1.0f));
 		this.con = new Container();
 	}

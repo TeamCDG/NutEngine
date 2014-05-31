@@ -26,10 +26,12 @@ import cdg.nut.interfaces.ICommandListener;
 import cdg.nut.interfaces.IFloatListener;
 import cdg.nut.interfaces.IToolTipGenerator;
 import cdg.nut.logging.Logger;
-import cdg.nut.util.Colors;
-import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
+import cdg.nut.util.enums.Colors;
+import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
+import cdg.nut.util.gl.GLFont;
+import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.settings.Cmd;
 import cdg.nut.util.settings.SetKeys;
@@ -60,6 +62,8 @@ public class TestFrame extends Frame {
 	RadioButton rp3;	
 	
 	GroupBox gb;
+	GLPolygon poly;
+	GLFont tf;
 	int bg = 0;
 	
 	public TestFrame()
@@ -75,6 +79,8 @@ public class TestFrame extends Frame {
 			public void onClick(int x, int y, MouseButtons button, int grabx, int graby) {
 				l.setText(GLColor.random()+Utility.randomString());
 				ctest.setPosition(new Random().nextInt(100), new Random().nextInt(100));
+				poly.setDimension(new Random().nextInt(400), new Random().nextInt(400));
+				poly.setPosition(SetKeys.WIN_WIDTH.getValue(Integer.class)/2, SetKeys.WIN_HEIGHT.getValue(Integer.class)/2);
 			}});
 		this.addComponent(test);
 		this.addComponent(new Button(820, 262, Colors.BLUE+"G"+Colors.RED+" "+Colors.YELLOW+"o"+Colors.BLUE+"g"+Colors.DARKGREEN+"l"+Colors.RED+"e"));
@@ -210,20 +216,28 @@ public class TestFrame extends Frame {
 		this.rp1 = new RadioButton(8, 8, "la");
 		this.rp1.setTooltip("dat polygon = op");
 		this.rp1.setFontSize(20);
+		this.rp1.setCornerCount(3);
 		this.p.add(rp1);
 		
 		this.rp2 = new RadioButton(8, 18+rp1.getPixelHeight(), "li");
 		this.rp2.setTooltip("dat polygon = op");
 		this.rp2.setFontSize(20);
+		this.rp2.setCornerCount(4);
 		this.p.add(rp2);
 		
 		this.rp3 = new RadioButton(8, 28+rp1.getPixelHeight()+rp2.getPixelHeight(), "lu");
 		this.rp3.setTooltip("dat polygon = op");
 		this.rp3.setFontSize(20);
+		this.rp3.setCornerCount(5);
 		this.p.add(rp3);
 		
 		this.gb = new GroupBox(900, p.getPixelY(), 200, 100, "gb");
 		this.add(gb);
+		
+		this.poly = new GLPolygon(20, 20, 400, 200, false, 9, 9, 8, 0, 2);
+		this.poly.setId(200);
+		
+		//this.poly.setScaleWithBoundingBox(true);
 		
 	}
 	
@@ -238,6 +252,8 @@ public class TestFrame extends Frame {
 	public void draw()
 	{
 		super.draw();
+		this.poly.draw();
+		
 		//this.md.setText(Mouse.getX()+"/"+(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()));
 	}
 }

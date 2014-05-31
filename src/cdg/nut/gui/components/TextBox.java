@@ -11,15 +11,15 @@ import cdg.nut.interfaces.ICommandListener;
 import cdg.nut.interfaces.IKeyboardListener;
 import cdg.nut.interfaces.IToolTipGenerator;
 import cdg.nut.logging.Logger;
-import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
-import cdg.nut.util.gl.GLImage;
+import cdg.nut.util.enums.MouseButtons;
+import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 
 public class TextBox extends Component implements IKeyboardListener{
 	
-	private GLImage cursor;
+	private GLPolygon cursor;
 	private int cursorPos = 0; 
 	private int dcursorPos = 0;
 	
@@ -43,7 +43,8 @@ public class TextBox extends Component implements IKeyboardListener{
 		this.setActiveable(true);
 		this.setTextSelectable(true);
 		this.addKeyListener(this);
-		this.cursor = new GLImage(this.getFontColor(), this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor.setColor(this.getFontColor());
 	}
 
 
@@ -52,7 +53,8 @@ public class TextBox extends Component implements IKeyboardListener{
 		this.setActiveable(true);
 		this.setTextSelectable(true);
 		this.addKeyListener(this);
-		this.cursor = new GLImage(this.getFontColor(), this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor.setColor(this.getFontColor());
 	}
 	
 	public TextBox(float x, float y, String text)
@@ -61,7 +63,8 @@ public class TextBox extends Component implements IKeyboardListener{
 		this.setActiveable(true);
 		this.setTextSelectable(true);
 		this.addKeyListener(this);
-		this.cursor = new GLImage(this.getFontColor(), this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor.setColor(this.getFontColor());
 	}
 
 	public TextBox(float x, float y, float width, float height, String text) {
@@ -69,7 +72,8 @@ public class TextBox extends Component implements IKeyboardListener{
 		this.setActiveable(true);
 		this.setTextSelectable(true);
 		this.addKeyListener(this);
-		this.cursor = new GLImage(this.getFontColor(), this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor.setColor(this.getFontColor());
 	}
 	
 
@@ -79,7 +83,8 @@ public class TextBox extends Component implements IKeyboardListener{
 	{
 		super.setFontSize(f);
 		
-		this.cursor = new GLImage(this.getFontColor(), this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor.setColor(this.getFontColor());
 	}
 	
 	@Override
@@ -87,7 +92,8 @@ public class TextBox extends Component implements IKeyboardListener{
 	{
 		super.setFontSize(f);
 		
-		this.cursor = new GLImage(this.getFontColor(), this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor.setColor(this.getFontColor());
 	}
 	
 	/**

@@ -3,26 +3,26 @@ package cdg.nut.gui.components;
 import java.util.ArrayList;
 import java.util.List;
 
-import cdg.nut.gui.Border;
 import cdg.nut.gui.Component;
 import cdg.nut.interfaces.ICheckedChangedListener;
+import cdg.nut.interfaces.IPolygonGenerator;
 import cdg.nut.logging.Logger;
-import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
 import cdg.nut.util.Vertex2;
 import cdg.nut.util.Vertex4;
 import cdg.nut.util.VertexData;
 import static cdg.nut.util.VertexUtility.*;
+import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
-import cdg.nut.util.gl.GLImage;
+import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 
-public class CheckBox extends Component{
+public class CheckBox extends Component implements IPolygonGenerator{
 
-	GLImage check;
-	GLImage box;
-	Border boxBorder;
+	GLPolygon check;
+	GLPolygon box;
+	GLPolygon boxBorder;
 	
 	private List<ICheckedChangedListener> checkChangedListener = new ArrayList<ICheckedChangedListener>();
 	
@@ -53,7 +53,6 @@ public class CheckBox extends Component{
 		super.setDimension(width, height);
 		
 		this.generateBox();
-		this.generateCheck();
 	}
 	
 	@Override
@@ -99,24 +98,48 @@ public class CheckBox extends Component{
 		
 		
 		this.generateBox();
-		this.generateCheck();
 	}
 	
 	private void generateBox()
 	{
 		int s = Math.min(this.getPixelHeight(), this.getFO().getPixelHeight());
 				
-		this.box = new GLImage(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class), this.getPixelX(), this.getTextY(), s, s);
-		this.boxBorder = new Border(this.getPixelX(), this.getTextY(), s, s);
+		this.box = new GLPolygon(this.getPixelX(), this.getTextY(), s, s);
+		this.box.setColor(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class));
+		this.check = new GLPolygon(this.getPixelX(), this.getTextY(), s, s, this);
+		this.check.setColor(Settings.get(SetKeys.GUI_CHECKBOX_CHECK_COLOR, GLColor.class));
+		this.boxBorder = new GLPolygon(this.getPixelX(), this.getTextY(), s, s,0,false, box.getPixelWidth()<=20?Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)/2:Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
+		
 		
 		this.setAdditionalPadding(this.box.getPixelWidth()+Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class), 0);
 	}
-	
-	private void generateCheck()
-	{
+
+	public boolean isChecked() {
+		return checked;
+	}
+
+	public void setChecked(boolean checked) {
+		this.checked = checked;
+		
+		for(int i = 0; i < this.checkChangedListener.size(); i++)
+		{
+			this.checkChangedListener.get(0).onCheckedChange(this.checked); 
+		}
+	}
+
+	public void addCheckChangedListener(ICheckedChangedListener checkChangedListener) {
+		this.checkChangedListener.add(checkChangedListener);
+	}
+
+	public void removeCheckChangedListener(ICheckedChangedListener checkChangedListener) {
+		this.checkChangedListener.remove(checkChangedListener);
+	}
+
+	@Override
+	public VertexData[] generateData(float x, float y, float width, float height) {
 		int checkSize = Math.round((1.0f/8.0f)*(float)this.box.getPixelWidth());
 		int padding = this.box.getPixelWidth()<= 20?Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)/2:Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
-		if(padding != Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)) this.boxBorder.setBorderSize(padding);
+		if(padding != Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)) this.boxBorder.setBordersize(padding);
 		
 		Vertex2 p_bot_mid = new Vertex2(this.box.getPixelX()+(this.box.getPixelWidth()/2), this.box.getPixelY()+this.box.getPixelHeight()-padding);
 		Vertex2 p_left_mid = new Vertex2(this.box.getPixelX()+padding, this.box.getPixelY()+(this.box.getPixelHeight()/2));
@@ -148,29 +171,12 @@ public class CheckBox extends Component{
 		VertexData[] fin = new VertexData[]{q1[0],q1[1],q1[2],q1[3],
 											q2[0],q2[1],q2[2],q2[3]};
 		
-		this.check = new GLImage(Settings.get(SetKeys.GUI_CHECKBOX_CHECK_COLOR, GLColor.class), this.getHeight(), this.getWidth(), fin, Utility.createQuadIndicesByte(2));
+		return fin;
 	}
 
-	public boolean isChecked() {
-		return checked;
-	}
-
-	public void setChecked(boolean checked) {
-		if(checked && !checked) this.generateCheck();
-		this.checked = checked;
-		
-		for(int i = 0; i < this.checkChangedListener.size(); i++)
-		{
-			this.checkChangedListener.get(0).onCheckedChange(this.checked); 
-		}
-	}
-
-	public void addCheckChangedListener(ICheckedChangedListener checkChangedListener) {
-		this.checkChangedListener.add(checkChangedListener);
-	}
-
-	public void removeCheckChangedListener(ICheckedChangedListener checkChangedListener) {
-		this.checkChangedListener.remove(checkChangedListener);
+	@Override
+	public int[] generateIndicies() {
+		return Utility.createQuadIndicesInt(2);
 	}
 
 

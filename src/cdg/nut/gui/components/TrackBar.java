@@ -4,20 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cdg.nut.gui.Component;
-import cdg.nut.util.Colors;
-import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
+import cdg.nut.util.enums.Colors;
+import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
-import cdg.nut.util.gl.GLImage;
+import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 import cdg.nut.interfaces.IFloatListener;
 
 public class TrackBar extends Component{
 
-	private GLImage track;
-	private GLImage trackline;
-	private GLImage bar;
+	private GLPolygon track;
+	private GLPolygon trackline;
+	private GLPolygon bar;
 	
 	private float value = 0;
 	private float minValue = 0;
@@ -88,9 +88,12 @@ public class TrackBar extends Component{
 		int sz = Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
 		int bs = Settings.get(SetKeys.GUI_TRACKBAR_SIZE, Integer.class);
 			
-		this.track = new GLImage(Settings.get(SetKeys.GUI_TRACKBAR_TRACK_COLOR, GLColor.class), this.getPixelX(), this.getPixelY(), bs, this.getPixelHeight());
-		this.trackline = new GLImage(Settings.get(SetKeys.GUI_TRACKBAR_TRACKLINE_COLOR, GLColor.class), this.getPixelX(), this.getPixelY()+((this.getPixelHeight()-bs)/2), 0,0);
-		this.bar = new GLImage(Settings.get(SetKeys.GUI_TRACKBAR_COLOR, GLColor.class), this.getPixelX(), this.getPixelY()+((this.getPixelHeight()-bs)/2), this.getPixelWidth(), bs);
+		this.track = new GLPolygon(this.getPixelX(), this.getPixelY(), bs, this.getPixelHeight());
+		this.track.setColor(Settings.get(SetKeys.GUI_TRACKBAR_TRACK_COLOR, GLColor.class));
+		this.trackline = new GLPolygon(this.getPixelX(), this.getPixelY()+((this.getPixelHeight()-bs)/2), 0,0);
+		this.trackline.setColor(Settings.get(SetKeys.GUI_TRACKBAR_TRACKLINE_COLOR, GLColor.class));
+		this.bar = new GLPolygon(this.getPixelX(), this.getPixelY()+((this.getPixelHeight()-bs)/2), this.getPixelWidth(), bs);
+		this.bar.setColor(Settings.get(SetKeys.GUI_TRACKBAR_COLOR, GLColor.class));
 		
 		this.listener = new ArrayList<IFloatListener>();
 		
@@ -168,6 +171,12 @@ public class TrackBar extends Component{
 	public boolean isBar(int x, int y)
 	{
 		return (Utility.between(x, this.getPixelX(), this.getPixelX()+this.getPixelWidth()) && Utility.between(y, this.getPixelY(), this.getPixelY()+this.getPixelHeight()));
+	}
+	
+	@Override
+	protected void move(float x, float y)
+	{
+		
 	}
 	
 	public void addValueChangeListener(IFloatListener lis)

@@ -7,13 +7,14 @@ import cdg.nut.logging.Logger;
 import cdg.nut.util.BitmapFont;
 import cdg.nut.util.Utility;
 import cdg.nut.util.gl.GLColor;
-import cdg.nut.util.gl.GLImage;
+import cdg.nut.util.gl.GLFont;
+import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 
-public class ToolTip extends GLImage {
+public class ToolTip extends GLPolygon {
 
-	private List<FontObject> content;
+	private List<GLFont> content;
 	
 	public ToolTip(String text)
 	{
@@ -30,8 +31,8 @@ public class ToolTip extends GLImage {
 				}
 			);
 		
-		this.content = new ArrayList<FontObject>();
-		if(!text.equals("")) this.content.add(new FontObject(0, 0, text));
+		this.content = new ArrayList<GLFont>();
+		if(!text.equals("")) this.content.add(new GLFont(0, 0, text));
 	}
 	
 	public ToolTip(String[] content)
@@ -49,17 +50,15 @@ public class ToolTip extends GLImage {
 				}
 			);
 		
-		this.content = new ArrayList<FontObject>();
+		this.content = new ArrayList<GLFont>();
 		this.setContent(content);
 		
 	}
 	
 	private ToolTip(int x, int y, int[] dim, int[] add)
-	{
-		super(Settings.get(SetKeys.GUI_TOOLTIP_BACKGROUND_COLOR, GLColor.class),
-				x, y,
-				dim[0] + 2 * add[0],
-				dim[1] + 2 * add[1]);
+	{		
+		 super(x,y,dim[0] + 2 * add[0], dim[1] + 2 * add[1],0,false);
+		 this.setColor(Settings.get(SetKeys.GUI_TOOLTIP_BACKGROUND_COLOR, GLColor.class));
 	}
 	
 	
@@ -91,7 +90,7 @@ public class ToolTip extends GLImage {
 			if(con[i] == null || con[i].equals(""))
 				continue;
 			
-			FontObject fo = new FontObject(this.getPixelX()+pad, this.getPixelY()+yoff, con[i]);
+			GLFont fo = new GLFont(this.getPixelX()+pad, this.getPixelY()+yoff, con[i]);
 			fo.setFontSize(Settings.get(SetKeys.GUI_TOOLTIP_FONT_SIZE, Float.class));
 			
 			
@@ -105,7 +104,7 @@ public class ToolTip extends GLImage {
 					maxx = fo.getPixelWidth()+2*pad;
 			}
 			else 
-				this.content.add(new FontObject(this.getPixelX()+pad, this.getPixelY()+yoff-fo.getPixelHeight(), "..."));
+				this.content.add(new GLFont(this.getPixelX()+pad, this.getPixelY()+yoff-fo.getPixelHeight(), "..."));
 		}
 		
 		this.setDimension(maxx, yoff+pad);
@@ -131,15 +130,24 @@ public class ToolTip extends GLImage {
 	
 	int br = 0;
 	@Override
-	protected void move()
+	protected void move(float x, float y)
 	{
-		//super.move();
+		int tmp[] = Utility.glToPixel(x, y);
+		for(int i = 0; i < this.content.size(); i++)
+		{			
+			int xoff = this.content.get(i).getPixelX()-this.getPixelX();
+			int yoff = this.content.get(i).getPixelY()-this.getPixelY();
+			this.content.get(i).setPosition(tmp[0]+xoff,  tmp[1]+yoff);
+			Logger.debug("movedx: "+(tmp[0]+xoff)+" / movedy: "+(tmp[1]+yoff)+" / px: "+this.getPixelX()+" / py: "+this.getPixelY(),"ToolTip.move");
+		}
+		
+		super.move(x, y);
 		
 		Logger.debug("nx: "+this.getPixelX()+" / ny: "+this.getPixelY());
 		
-		super.setupGL(Utility.generateQuadData(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getColor()), Utility.createQuadIndicesByte(4));
+		//super.setupGL(Utility.generateQuadData(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getColor()), Utility.createQuadIndicesByte(4));
 		
-		this.setContent(this.getContent());
+		//this.setContent(this.getContent());
 	}
 	
 	@Override

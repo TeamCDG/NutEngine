@@ -6,14 +6,14 @@ import java.util.List;
 import cdg.nut.interfaces.ISelectable;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.BitmapFont;
-import cdg.nut.util.Colors;
 import cdg.nut.util.DefaultShader;
-import cdg.nut.util.MouseButtons;
 import cdg.nut.util.Utility;
 import cdg.nut.util.Vertex4;
+import cdg.nut.util.enums.Colors;
+import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
-import cdg.nut.util.gl.GLImage;
-import cdg.nut.util.gl.GLObject;
+import cdg.nut.util.gl.GLFont;
+import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
@@ -24,15 +24,15 @@ import cdg.nut.interfaces.ISettingsListener;
 import cdg.nut.interfaces.IClickListener;
 
 //TODO: this class needs some love
-public abstract class Component extends GLImage implements ISettingsListener, IScrollListener {
+public abstract class Component extends GLPolygon implements ISettingsListener, IScrollListener {
 
 	private IParent parent;
 	
-	private Border border;
+	private GLPolygon border;
 	private boolean customFont, customFontSize, customFontC, customFontHC, customFontAC, customFontDC = false;
-	private FontObject text;
-	private GLImage dsBEx;
-	private GLImage icon;
+	private GLFont text;
+	private GLPolygon dsBEx;
+	private GLPolygon icon;
 	private ToolTip tooltip;
 	private float[] padding;
 
@@ -73,8 +73,9 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 
 	public Component(float x, float y, float width, float height)
 	{
-		super(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class), x, y, width, height);
-		this.border = new Border(x, y, width, height);
+		super(x, y, width, height);
+		this.setColor(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class));
+		this.border = new GLPolygon(x,y,width,height,0,false, Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
 		this.autosizeWithText = false;
 		
 		this.init();
@@ -83,8 +84,9 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 
 	public Component(int x, int y, int width, int height)
 	{
-		super(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class), x, y, width, height);
-		this.border = new Border(x, y, width, height);
+		super(x, y, width, height);
+		this.setColor(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class));
+		this.border = new GLPolygon(x,y,width,height,0,false, Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
 		this.autosizeWithText = false;
 		
 		this.init();
@@ -96,7 +98,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		
 		
 		//this.setText(text);
-		this.text = new FontObject(this.getTextX(), this.getTextY(), text);
+		this.text = new GLFont(this.getTextX(), this.getTextY(), text);
 
 		this.setTextClipping();
 	}
@@ -107,7 +109,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		
 		
 		//this.setText(text);
-		this.text = new FontObject(this.getTextX(), this.getTextY(), text);
+		this.text = new GLFont(this.getTextX(), this.getTextY(), text);
 
 		this.setTextClipping();
 		
@@ -115,11 +117,15 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 
 	private Component(float x, float y, float[] dim, float[] add)
 	{
-		super(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class),
+		super(
+				
 				x, y,
 				dim[0] + 2 * add[0],
 				dim[1] + 2 * add[1]);
-		this.border = new Border(x, y, dim[0] + 2 * add[0], dim[1] + 2 * add[1]);
+		
+		this.setColor(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class));
+		this.border = new GLPolygon(x,y,dim[0] + 2 * add[0], dim[1] + 2 * add[1],0,false, Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
+		//this.border = new Border(x, y, dim[0] + 2 * add[0], dim[1] + 2 * add[1]);
 		this.autosizeWithText = true;
 		
 		this.init();
@@ -127,11 +133,14 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 
 	private Component(int x, int y, int[] dim, int[] add)
 	{
-		super(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class),
+		super(
 				x, y,
 				dim[0] + 2 * add[0],
 				dim[1] + 2 * add[1]);
-		this.border = new Border(x, y, dim[0] + 2 * add[0], dim[1] + 2 * add[1]);
+		
+		this.setColor(Settings.get(SetKeys.GUI_CMP_BACKGROUND_COLOR, GLColor.class));
+		this.border = new GLPolygon(x,y,dim[0] + 2 * add[0], dim[1] + 2 * add[1],0,false, Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
+		//this.border = new Border(x, y, dim[0] + 2 * add[0], dim[1] + 2 * add[1]);
 		this.autosizeWithText = true;
 		
 		this.init();
@@ -152,7 +161,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		);
 				
 		//this.setText(text);
-		this.text = new FontObject(this.getTextX(), this.getTextY(), text);
+		this.text = new GLFont(this.getTextX(), this.getTextY(), text);
 		
 		this.setTextClipping();
 	}
@@ -173,7 +182,7 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 		);
 		
 		//this.setText(text);
-		this.text = new FontObject(this.getTextX(), this.getTextY(), text);
+		this.text = new GLFont(this.getTextX(), this.getTextY(), text);
 
 		this.setTextClipping();
 		
@@ -200,15 +209,16 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 				this.getPixelHeight() - 2*bs);
 		this.ysb.addScrollListener(this);
 		
-		this.dsBEx = new GLImage(this.borderColor,
+		this.dsBEx = new GLPolygon(
 								 this.getPixelX()+this.getPixelWidth()-bs-sbs,
 								 this.getPixelY()+this.getPixelHeight()-bs-sbs,
 								 sbs,
 								 sbs);
+		this.dsBEx.setColor(this.borderColor);
 		
 		this.tooltip = new ToolTip("");
 		
-		this.text = new FontObject(this.getTextX(), this.getTextY(), "");
+		this.text = new GLFont(this.getTextX(), this.getTextY(), "");
 		
 	}
 	
@@ -351,9 +361,9 @@ public abstract class Component extends GLImage implements ISettingsListener, IS
 	}
 	
 	@Override
-	protected void move()
+	protected void move(float x, float y)
 	{
-		super.move();
+		super.move(x, y);
 		
 		//Logger.debug("Pixel coordinates: "+this.getPixelX()+" ("+this.getX()+") / "+this.getPixelY()+" ("+this.getY()+")", "Component.move");
 		this.border.setPosition(this.getPixelX(), this.getPixelY());
@@ -1149,7 +1159,14 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		return this.ysb;
 	}
 	
-	protected FontObject getFO()
+	/**
+	 * @return the border
+	 */
+	protected GLPolygon getBorder() {
+		return border;
+	}
+
+	protected GLFont getFO()
 	{
 		return this.text;
 	}
@@ -1334,7 +1351,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		this.customFontDC = false;
 	}
 
-	public GLImage getIcon() {
+	public GLPolygon getIcon() {
 		return icon;
 	}
 	
@@ -1342,7 +1359,8 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 	{
 		int fs = Utility.glSizeToPixelSize(0,  this.text.getFontSize())[1];
 		//Logger.spam("G E N E R A T I N G -------------------------------------------------------------------------------------------------------");
-		this.icon = new GLImage(tex, this.getTextX(), this.getTextY(), fs, fs);
+		this.icon = new GLPolygon(this.getTextX(), this.getTextY(), fs, fs);
+		this.icon.setImage(tex);
 		
 		this.text.setPosition(this.getTextX(), this.getTextY());
 		this.icon.setSelectable(false);
@@ -1359,12 +1377,13 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 	
 	public void setIcon(GLTexture icon) {
 		if(this.icon != null)
+			
 			this.icon.setImage(icon);
 		else
 			createIcon(icon);
 	}
 
-	public void setIcon(GLImage icon) {
+	public void setIcon(GLPolygon icon) {
 		this.icon = icon;
 		
 		this.text.setPosition(this.getTextX(), this.getTextY());

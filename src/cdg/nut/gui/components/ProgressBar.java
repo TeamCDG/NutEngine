@@ -2,7 +2,7 @@ package cdg.nut.gui.components;
 
 import cdg.nut.gui.Component;
 import cdg.nut.util.gl.GLColor;
-import cdg.nut.util.gl.GLImage;
+import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 
@@ -12,7 +12,8 @@ public class ProgressBar extends Component{
 		super(x, y, width, height);
 		
 		int sz = Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
-		this.progress = new GLImage(Settings.get(SetKeys.GUI_PROGRESSBAR_COLOR, GLColor.class), this.getPixelX()+sz, this.getPixelY()+sz, 0,0);
+		this.progress = new GLPolygon(this.getPixelX()+sz, this.getPixelY()+sz, 0,0);
+		this.progress.setColor(Settings.get(SetKeys.GUI_PROGRESSBAR_COLOR, GLColor.class));
 		
 		this.setScrollable(false);
 		this.setCenterText(true);
@@ -25,7 +26,8 @@ public class ProgressBar extends Component{
 		super(x, y, width, height);
 
 		int sz = Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
-		this.progress = new GLImage(Settings.get(SetKeys.GUI_PROGRESSBAR_COLOR, GLColor.class), this.getPixelX()+sz, this.getPixelY()+sz, 0,0);
+		this.progress = new GLPolygon(this.getPixelX()+sz, this.getPixelY()+sz, 0,0);
+		this.progress.setColor(Settings.get(SetKeys.GUI_PROGRESSBAR_COLOR, GLColor.class));
 		
 		this.setScrollable(false);
 		this.setCenterText(true);
@@ -43,7 +45,7 @@ public class ProgressBar extends Component{
 	private boolean horizontal = true;
 	private boolean percentage = true;
 	
-	private GLImage progress;
+	private GLPolygon progress;
 	
 	private float minValue = 0;
 	private float maxValue = 100;

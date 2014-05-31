@@ -12,39 +12,54 @@ public class Panel extends Component implements IParent {
 	private Container con = new Container();
 	private int bufferId = 0;
 	
+	private int childX;
+	private int childY;
+	
 	public Panel(float x, float y, float width, float height) {
 		super(x, y, width, height);
-		
+
+		this.childX = this.getTextX();
+		this.childY = this.getTextY();
 		this.setup();
 	}
 	
 	public Panel(int x, int y, int width, int height) {
 		super(x, y, width, height);
-		
+
+		this.childX = this.getTextX();
+		this.childY = this.getTextY();
 		this.setup();
 	}
 	
 	protected Panel(float x, float y, float width, float height, String text) {
 		super(x, y, width, height, text);
-		
+
+		this.childX = this.getTextX();
+		this.childY = this.getTextY();
 		this.setup();
 	}
 	
 	protected Panel(int x, int y, int width, int height, String text) {
 		super(x, y, width, height, text);
-		
+
+		this.childX = this.getTextX();
+		this.childY = this.getTextY();
 		this.setup();
 	}
 	
 	protected Panel(float x, float y, String text) {
 		super(x, y, text);
-		
+
+		this.childX = this.getTextX();
+		this.childY = this.getTextY();
 		this.setup();
 	}
 	
 	protected Panel(int x, int y, String text) {
 		super(x, y, text);
-		
+
+		this.childX = this.getTextX();
+		this.childY = this.getTextY();
 		this.setup();
 	}
 	
@@ -61,7 +76,7 @@ public class Panel extends Component implements IParent {
 	public void setSelected(boolean b){}
 	
 	@Override
-	protected void move()
+	protected void move(float x, float y)
 	{
 		List<Component> cl = this.con.getComponents();
 		for(int i = 0; i < this.con.getComponentCount(); i++)
@@ -240,5 +255,21 @@ public class Panel extends Component implements IParent {
 			return this.con.get(id);
 		else
 			return null;
+	}
+
+	public int getChildX() {
+		return childX;
+	}
+
+	public void setChildX(int childX) {
+		this.childX = childX;
+	}
+
+	public int getChildY() {
+		return childY;
+	}
+
+	public void setChildY(int childY) {
+		this.childY = childY;
 	}
 }

@@ -5,22 +5,23 @@ import java.util.List;
 
 import cdg.nut.interfaces.IScrollListener;
 import cdg.nut.logging.Logger;
-import cdg.nut.util.Colors;
 import cdg.nut.util.Utility;
+import cdg.nut.util.enums.Colors;
 import cdg.nut.util.gl.GLColor;
-import cdg.nut.util.gl.GLImage;
+import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 
-public class YScrollBar extends GLImage{
+public class YScrollBar extends GLPolygon{
 	
 	
 	public YScrollBar(int x, int y, int height) {
-		super(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_COLOR, GLColor.class), x, y, Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), height);
+		super(x, y, Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), height);
+		this.setColor(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_COLOR, GLColor.class));
 		this.height = height;
 	}
 
-	private GLImage scroll;
+	private GLPolygon scroll;
 	
 	private int height;
 	
@@ -75,7 +76,10 @@ public class YScrollBar extends GLImage{
 		
 		int sh = Math.max(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), this.getPixelHeight() - this.maxValue);
 		if(this.scroll == null)
-			this.scroll = new GLImage(Colors.GRAY50.getGlColor(), this.getPixelX(), this.getPixelY(), Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), sh);
+		{
+			this.scroll = new GLPolygon(this.getPixelX(), this.getPixelY(), Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), sh);
+			this.scroll.setColor(Colors.GRAY50.getGlColor());
+		}
 		else
 		{
 			//this.scroll.setPosition(getPixelX(), this.getPixelY());
