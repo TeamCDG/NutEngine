@@ -1004,4 +1004,51 @@ public class GLPolygon implements ISelectable {
 		this.image = image;
 	}
 
+	public void regen()
+	{
+		if (this.gen != null)
+		{
+			while(drawing) { };
+			if(this.scaleWithBoundingBox)
+			{
+				this.data = gen.generateData(x, y, width, height); 
+				this.indices = gen.generateIndicies();
+				if(this.data != null) this.points = Utility.extractPoints(this.data);
+				this.setupGL();
+			}
+			
+		}
+		else if(this.edgeCount == 4)
+		{
+			while(drawing) { };
+			if(this.scaleWithBoundingBox)
+			{
+				if(this.bs != -1)
+					this.createBorderQuad();
+				else
+					this.createQuad();
+				
+				this.setupGL();
+			}
+			
+			//this.setupGL(Utility.generateQuadData(this.points[0].getX(), this.points[0].getY(), width, height, new GLColor(this.id)), Utility.createQuadIndicesByte(4));
+		}
+		else
+		{
+			while(drawing) { };	
+			if(this.scaleWithBoundingBox)
+			{
+				this.xrad = this.getPixelWidth()/2;
+				this.yrad = this.getPixelHeight()/2;
+				Logger.debug("xrad: "+xrad+" / yrad: "+yrad, "GLPolygon.setDimension");
+				
+				if(this.bs != -1)
+					this.generateBorderCrefPoly();
+				else
+					this.generateCrefPoly();
+				this.setupGL();
+			}
+		}
+	}
+	
 }
