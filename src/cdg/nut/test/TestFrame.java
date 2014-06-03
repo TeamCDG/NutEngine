@@ -240,8 +240,10 @@ public class TestFrame extends Frame {
 		this.poly = new GLPolygon(20, 20, 400, 200, false, 9, 9, 8, 0, 2);
 		this.poly.setId(200);
 		
-		this.win = new InnerWindow(40, 40, 100, 100, "lawl");
-		this.win.setFontSize(14);
+		this.win = new InnerWindow(40, 40, 400, 400, "Nut Dialog");
+		this.win.setFontSize(20);
+		this.win.setIcon("nut.png");
+		this.win.setTooltip("Drag & Sizeable <3 !");
 		this.add(win);
 		
 		
