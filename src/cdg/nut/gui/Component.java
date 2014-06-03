@@ -637,6 +637,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 	{
 		super.setDimension(width, height);
 		this.setTextClipping();
+		this.border.setDimension(width, height);
 	}
 	
 	private void setScroll()
