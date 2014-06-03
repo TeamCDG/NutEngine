@@ -35,7 +35,7 @@ public enum SetKeys {
 		public void exec(List<String> parameter) {
 			Settings.setFullscreen(Boolean.valueOf(parameter.get(0)));
 		}}),
-	WIN_TITLE("<string>", "set window title", "Engine Update #6", new ICommandExecuter(){
+	WIN_TITLE("<string>", "set window title", "Engine Update #7", new ICommandExecuter(){
 		@Override
 		public void exec(List<String> parameter) {
 			Display.setTitle(parameter.get(0));
