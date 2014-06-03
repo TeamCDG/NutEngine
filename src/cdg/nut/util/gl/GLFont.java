@@ -216,12 +216,15 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	public void setFontSize(float size)
 	{
 		this.fontSize = size;
-		this.setDimension(this.getWidth(), this.getHeight());
+		//this.setDimension(this.getWidth(), this.getHeight());
+		this.regen();
 	}
 
 	public void setFontSize(int size)
 	{
+		Logger.debug("setting fs to: "+size);
 		this.setFontSize(Utility.pixelSizeToGLSize(0, size)[1]);
+		Logger.debug(this.actualText+" --------------------->: "+this.getPixelHeight());
 	}
 
 	@Override
@@ -258,7 +261,8 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 
 	public void setPasswordChar(char passwordChar) {
 		this.passwordChar = passwordChar;
-		this.setDimension(this.getWidth(), this.getHeight());
+		//this.setDimension(this.getWidth(), this.getHeight());
+		this.regen();
 	}
 
 	public int[] getCursorPos(int index) {
