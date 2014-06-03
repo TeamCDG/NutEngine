@@ -39,6 +39,16 @@ public abstract class Frame implements IParent {
 	private int mouseGrabSY;
 	private boolean grabStart = true;
 	
+	@Override
+	public int getMouseGrabSX() {
+		return mouseGrabSX;
+	}
+
+	@Override
+	public int getMouseGrabSY() {
+		return mouseGrabSY;
+	}
+
 	private int currentCursor = 0;
 	private Cursor activeCursor;
 	private Cursor normalCursor;
@@ -384,5 +394,11 @@ public abstract class Frame implements IParent {
 	@Override
 	public <T extends Component> List<T> getComponents(Class<T> c) {
 		return this.con.getComponents(c);
+	}
+	
+	@Override
+	public boolean isMouseGrabbed() {
+		// TODO Auto-generated method stub
+		return this.mouseGrabbed;
 	}
 }

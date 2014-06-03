@@ -14,6 +14,7 @@ import cdg.nut.gui.components.CheckBox;
 import cdg.nut.gui.components.ColorBox;
 import cdg.nut.gui.components.GroupBox;
 import cdg.nut.gui.components.ImageBox;
+import cdg.nut.gui.components.InnerWindow;
 import cdg.nut.gui.components.Label;
 import cdg.nut.gui.components.Panel;
 import cdg.nut.gui.components.ProgressBar;
@@ -64,6 +65,8 @@ public class TestFrame extends Frame {
 	GroupBox gb;
 	GLPolygon poly;
 	GLFont tf;
+	
+	InnerWindow win;
 	int bg = 0;
 	
 	public TestFrame()
@@ -236,6 +239,11 @@ public class TestFrame extends Frame {
 		
 		this.poly = new GLPolygon(20, 20, 400, 200, false, 9, 9, 8, 0, 2);
 		this.poly.setId(200);
+		
+		this.win = new InnerWindow(40, 40, 100, 100, "lawl");
+		this.win.setFontSize(14);
+		this.add(win);
+		
 		
 		//this.poly.setScaleWithBoundingBox(true);
 		

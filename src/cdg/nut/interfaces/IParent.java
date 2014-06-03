@@ -40,5 +40,11 @@ public interface IParent {
 	public ToolTip getActiveToolTip();
 	
 	public void setActiveToolTip(ToolTip t);
+	
+	public int getMouseGrabSX();
+	
+	public int getMouseGrabSY();
+	
+	public boolean isMouseGrabbed();
 
 }

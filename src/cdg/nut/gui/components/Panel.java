@@ -78,6 +78,8 @@ public class Panel extends Component implements IParent {
 	@Override
 	protected void move(float x, float y)
 	{
+		super.move(x, y);
+		
 		List<Component> cl = this.con.getComponents();
 		for(int i = 0; i < this.con.getComponentCount(); i++)
 		{
@@ -98,6 +100,8 @@ public class Panel extends Component implements IParent {
 			
 			r = c.checkId(id);
 		}
+		
+		
 		
 		if(super.checkId(id) &&!r)
 		{
@@ -271,5 +275,21 @@ public class Panel extends Component implements IParent {
 
 	public void setChildY(int childY) {
 		this.childY = childY;
+	}
+	
+	@Override
+	public int getMouseGrabSX() {
+		return this.getParent().getMouseGrabSX();
+	}
+
+	@Override
+	public int getMouseGrabSY() {
+		return this.getParent().getMouseGrabSY();
+	}
+
+	@Override
+	public boolean isMouseGrabbed() {
+		// TODO Auto-generated method stub
+		return this.getParent().isMouseGrabbed();
 	}
 }

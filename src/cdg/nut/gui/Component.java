@@ -698,7 +698,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		this.setTextClipping(false);
 	}
 	
-	private void setTextClipping(boolean calledByScroll)
+	protected void setTextClipping(boolean calledByScroll)
 	{
 		if(this.text != null)
 		{
