@@ -758,6 +758,11 @@ public class GLPolygon implements ISelectable {
 		if(this.autoClipping) this.setupClippingArea();
 	}
 	
+	public void setWidth(int width) {
+		float w = Utility.pixelSizeToGLSize(width, 0)[0];
+		this.setDimension(w, this.height);
+	}
+	
 	public void setWidth(float width) {
 		this.setDimension(width, this.height);
 	}
@@ -770,6 +775,11 @@ public class GLPolygon implements ISelectable {
 		Logger.debug("new height: "+height,"GLPolygon.setHeightSupEvent");
 		this.height = height;
 		if(this.autoClipping) this.setupClippingArea();
+	}
+	
+	public void setHeight(int height) {
+		float h = Utility.pixelSizeToGLSize(0, height)[1];
+		this.setDimension(this.width, h);
 	}
 	
 	public void setHeight(float height) {

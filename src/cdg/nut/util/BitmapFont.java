@@ -395,7 +395,7 @@ public class BitmapFont
 				
 				xoff += w;
 				
-				Logger.debug("xoff: "+xoff+" / yoff: "+(yoff-fontSize)+" / x: "+x+" / y:"+y,"BitmapFont.getIndexByPosition");
+				//Logger.debug("xoff: "+xoff+" / yoff: "+(yoff-fontSize)+" / x: "+x+" / y:"+y,"BitmapFont.getIndexByPosition");
 				
 				if(xoff > x && yoff-fontSize > y)
 				{

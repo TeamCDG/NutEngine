@@ -19,6 +19,9 @@ public class YScrollBar extends GLPolygon{
 		super(x, y, Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), height);
 		this.setColor(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_COLOR, GLColor.class));
 		this.height = height;
+		
+		this.scroll = new GLPolygon(this.getPixelX(), this.getPixelY(), Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 0);
+		this.scroll.setColor(Colors.GRAY50.getGlColor());
 	}
 
 	private GLPolygon scroll;
@@ -108,7 +111,9 @@ public class YScrollBar extends GLPolygon{
 	
 	public boolean isScrollDings(int x, int y)
 	{
-
+		
+		if(this.scroll == null)
+			return false;
 		//Logger.debug("x: "+x+" / y: "+y+" / tx: "+this.scroll.getPixelX()+" / ty: "+this.scroll.getPixelY()+" / txw: "+(this.scroll.getPixelX()+this.scroll.getPixelWidth())+" / tyw: "+(this.scroll.getPixelY()+this.scroll.getPixelHeight())
 		//		+" / xbt: "+Utility.between(x, this.scroll.getPixelX(), this.scroll.getPixelX()+this.scroll.getPixelWidth())+" / ybt: "+Utility.between(y, this.scroll.getPixelY(), this.scroll.getPixelY()+this.scroll.getPixelHeight()),"YScrollBar.isScrollDings");
 		
@@ -142,5 +147,12 @@ public void setDoublescroll(boolean doublescroll) {
 		}
 		this.doublescroll = doublescroll;
 		
+	}
+
+	@Override
+	public void move(float x, float y)
+	{
+		super.move(x, y);
+		this.setScrollValue(this.getScrollValue());
 	}
 }

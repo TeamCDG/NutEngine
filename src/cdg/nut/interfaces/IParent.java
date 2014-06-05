@@ -47,4 +47,8 @@ public interface IParent {
 	
 	public boolean isMouseGrabbed();
 
+	public int getMouseY();
+
+	public int getMouseX();
+
 }

@@ -2,6 +2,7 @@ package cdg.nut.util.gl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import cdg.nut.interfaces.IPolygonGenerator;
 import cdg.nut.logging.ConsoleColor;
@@ -127,7 +128,8 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 				
 				for(int i = 0; i < selectionEnd; i++)
 				{
-					
+					if(i+1 > actualText.length())
+						break;
 					String c = actualText.substring(i,i+1);
 					
 					if(passwordMode) c = ""+passwordChar;
@@ -332,12 +334,12 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 							if (cc.getAnsiColor().equals(aco)) {
 								currentColor = cc.getColor();
 								i+=4;
-								finText = finText.replaceFirst(aco, "");
+								finText = finText.replaceFirst(Pattern.quote(aco), "");
 								break;
 							}
 						}
 					} else {
-						finText = finText.replaceFirst(ConsoleColor.RESET.getAnsiColor(), "");
+						finText = finText.replaceFirst(Pattern.quote(ConsoleColor.RESET.getAnsiColor().toString()), "");
 						currentColor = this.color;
 						i+=3;
 					}
@@ -442,6 +444,10 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 		return Utility.createQuadIndicesInt(this.aqc);
 	}
 	
+	public String getColortext()
+	{
+		return this.colorText;
+	}
 	
 	@Override 
 	public void onClippingChange(Vertex4 c)

@@ -10,6 +10,7 @@ import cdg.nut.interfaces.ICommandExecuter;
 import cdg.nut.logging.Logger;
 import cdg.nut.test.Main;
 import cdg.nut.util.BitmapFont;
+import cdg.nut.util.Engine;
 import cdg.nut.util.Utility;
 import cdg.nut.util.gl.GLColor;
 
@@ -154,6 +155,12 @@ public enum SetKeys {
 		@Override
 		public void exec(List<String> parameter) {
 			Main.closeRequested = true;
+	}}),
+	
+	CONSOLE_SHOW("", "shows console", new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			Engine.console.show();
 	}}), 
 	;
 	

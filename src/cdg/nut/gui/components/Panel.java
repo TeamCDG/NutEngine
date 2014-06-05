@@ -1,16 +1,20 @@
 package cdg.nut.gui.components;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cdg.nut.gui.Component;
 import cdg.nut.gui.Container;
 import cdg.nut.gui.ToolTip;
 import cdg.nut.interfaces.IParent;
+import cdg.nut.logging.Logger;
 
 public class Panel extends Component implements IParent {
 
 	private Container con = new Container();
 	private int bufferId = 0;
+	
+	private List<Integer[]> positions = new ArrayList<Integer[]>();
 	
 	private int childX;
 	private int childY;
@@ -75,16 +79,32 @@ public class Panel extends Component implements IParent {
 	@Override
 	public void setSelected(boolean b){}
 	
+	private Integer[] getPosById(int id)
+	{
+		for(int i = 0; i < this.positions.size(); i++)
+		{
+			if(this.positions.get(i)[0] == id)
+				return this.positions.get(i);
+		}
+		return new Integer[]{0,0,0};
+	}
+	
 	@Override
 	protected void move(float x, float y)
 	{
+		int oldx = this.getPixelX();
+		int oldy = this.getPixelY();
+		
+		
 		super.move(x, y);
 		
 		List<Component> cl = this.con.getComponents();
 		for(int i = 0; i < this.con.getComponentCount(); i++)
 		{
 			Component c = cl.get(i);
-			c.setPosition(c.getPixelX()+this.getPixelX(), c.getPixelY()+this.getPixelY());
+			//Integer[] posdata = getPosById(c.getId());
+			c.setPosition(c.getPixelX()-oldx+this.getPixelX(), c.getPixelY()-oldy+this.getPixelY());
+			Logger.debug("moving panel and component...");
 		}
 	}
 	
@@ -146,8 +166,7 @@ public class Panel extends Component implements IParent {
 	public void addToNextId(int i) {
 		if(this.getParent() != null)
 			this.getParent().addToNextId(i);
-		else
-			this.bufferId += i;
+		this.bufferId += i;
 	}
 
 	@Override
@@ -204,6 +223,7 @@ public class Panel extends Component implements IParent {
 	{
 		this.addToNextId(c.setId(this.getNextId()));
 		c.setParent(this);
+		this.positions.add(new Integer[]{c.getId(), c.getPixelX(), c.getPixelY()});
 		c.setPosition(this.getPixelX()+c.getPixelX(), this.getPixelY()+c.getPixelY());
 		this.con.add(c);
 	}
@@ -243,6 +263,16 @@ public class Panel extends Component implements IParent {
 			for(int i = 0; i < this.con.getComponentCount(); i++)
 			{
 				cl.get(i).setId(cl.get(i).getId()+p.getNextId());
+			}
+			
+			p.addToNextId(this.bufferId);
+		}
+		else
+		{
+			List<Component> cl = this.con.getComponents();
+			for(int i = 0; i < this.con.getComponentCount(); i++)
+			{
+				cl.get(i).setId(i+1+p.getNextId());
 			}
 			
 			p.addToNextId(this.bufferId);
@@ -292,4 +322,15 @@ public class Panel extends Component implements IParent {
 		// TODO Auto-generated method stub
 		return this.getParent().isMouseGrabbed();
 	}
+	
+	@Override
+	public int getMouseX() {
+		return this.getParent().getMouseX();
+	}
+
+	@Override
+	public int getMouseY() {
+		return this.getParent().getMouseY();
+	}
+
 }

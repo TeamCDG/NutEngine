@@ -36,6 +36,9 @@ public class TextBox extends Component implements IKeyboardListener{
 	private IToolTipGenerator tTGen;
 	
 	List<ICommandListener> clis = new ArrayList<ICommandListener>();
+	private boolean editable = true;
+	
+	
 	
 	public TextBox(int x, int y, String text)
 	{
@@ -345,7 +348,7 @@ public class TextBox extends Component implements IKeyboardListener{
 	{
 		Logger.debug("event key: "+eventKey+" / key name: "+Keyboard.getKeyName(eventKey), "TextBox.keyDown");
 		
-		if(eventKey == Keyboard.KEY_V && (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)))
+		if(this.editable && eventKey == Keyboard.KEY_V && (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)))
 		{
 			if(!this.selection)
 			{
@@ -369,7 +372,7 @@ public class TextBox extends Component implements IKeyboardListener{
 			if(!this.isPasswordMode())
 				Utility.setClipboard(this.getSelectedText());
 		}
-		else if(eventKey == Keyboard.KEY_X && (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)))
+		else if(this.editable && eventKey == Keyboard.KEY_X && (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)))
 		{
 			if(!this.isPasswordMode() && this.selection)
 			{
@@ -391,7 +394,7 @@ public class TextBox extends Component implements IKeyboardListener{
 			this.selectionStart = 0;
 			this.setCursorPos();
 		}
-		else if(!Character.isISOControl(eventCharacter) && eventKey != Keyboard.KEY_SPACE)
+		else if(this.editable && !Character.isISOControl(eventCharacter) && eventKey != Keyboard.KEY_SPACE)
 		{
 			if(!this.selection)
 			{
@@ -412,7 +415,7 @@ public class TextBox extends Component implements IKeyboardListener{
 		}
 		else
 		{
-			if(eventKey == Keyboard.KEY_SPACE)
+			if(this.editable && eventKey == Keyboard.KEY_SPACE)
 			{
 				if(!this.selection)
 				{
@@ -431,7 +434,7 @@ public class TextBox extends Component implements IKeyboardListener{
 					this.setCursorPos();
 				}
 			}
-			else if(eventKey == Keyboard.KEY_RETURN)
+			else if(this.editable && eventKey == Keyboard.KEY_RETURN)
 			{
 				if(!this.commandMode)
 				{
@@ -464,7 +467,7 @@ public class TextBox extends Component implements IKeyboardListener{
 					this.setCursorPos();
 				}
 			}
-			else if(eventKey == Keyboard.KEY_BACK)
+			else if(this.editable && eventKey == Keyboard.KEY_BACK)
 			{
 				if(this.getText().length() >= 1 && this.cursorPos > 0 && !this.selection)
 				{
@@ -483,7 +486,7 @@ public class TextBox extends Component implements IKeyboardListener{
 					this.setCursorPos();
 				}
 			}
-			else if(eventKey == Keyboard.KEY_DELETE)
+			else if(this.editable && eventKey == Keyboard.KEY_DELETE)
 			{
 				if(this.getText().length() >= 1 && this.cursorPos != this.getText().length() && !this.selection)
 				{
@@ -643,7 +646,7 @@ public class TextBox extends Component implements IKeyboardListener{
 				this.setCursorPos();
 				this.setTextSelection(this.selectionStart, this.cursorPos);
 			}
-			else if(eventKey == Keyboard.KEY_TAB && this.isTooltipShown() && this.commandMode)
+			else if(this.editable && eventKey == Keyboard.KEY_TAB && this.isTooltipShown() && this.commandMode)
 			{
 				if(!this.getTooltip().getText(0).split(" ")[0].equals(""))
 				{
@@ -677,6 +680,11 @@ public class TextBox extends Component implements IKeyboardListener{
 	@Override
 	protected void onClick(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby)
 	{
+	
+		if(this.getYsb() != null)
+			Logger.debug("gx: "+grabx+" / graby: "+graby+" ysb: "+this.getYsb().isScrollBar(grabx, graby));
+		if((this.getXsb() != null && this.getXsb().isScrollBar(grabx, graby)) || (this.getYsb() != null && this.getYsb().isScrollBar(grabx, graby)))
+			return;
 		
 		Logger.debug("clicked ("+x+"/"+y+") grabbed: "+grabbed+" / lshift: "+Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)+" / selection: "+this.selection,"TextBox.clicked");
 		if(button == MouseButtons.LEFT && !grabbed && !(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)))
@@ -698,6 +706,9 @@ public class TextBox extends Component implements IKeyboardListener{
 		else if(button == MouseButtons.LEFT && grabbed)
 		{
 			int index = this.getIndexByPosition(x+this.getXsb().getScrollValue(), y+this.getYsb().getScrollValue());		
+			
+			Logger.debug("~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~->>>>>>>"+(x+this.getXsb().getScrollValue())+" / "+( y+this.getYsb().getScrollValue()));
+			
 			if(!this.selection)
 			{
 				int sindex = this.getIndexByPosition(grabx+this.getXsb().getScrollValue(), graby+this.getYsb().getScrollValue());
@@ -767,5 +778,16 @@ public class TextBox extends Component implements IKeyboardListener{
 
 	public void settTGen(IToolTipGenerator tTGen) {
 		this.tTGen = tTGen;
+	}
+
+
+	public void setEditable(boolean b) {
+		this.editable = b;
+		
+	}
+	
+	public boolean isEditable() {
+		return this.editable;
+		
 	}
 }

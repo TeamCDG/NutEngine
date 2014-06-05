@@ -63,13 +63,14 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	private List<IClickListener> clickListener = new ArrayList<IClickListener>();
 	private List<IKeyboardListener> keyListener = new ArrayList<IKeyboardListener>();
 	
-	@SuppressWarnings("unused")
 	private boolean hasBorder = true;
 	private GLColor fontActiveColor;
 	private GLColor fontColor;
 	private GLColor fontHighlightColor;
 	private GLColor fontDisabledColor;
 	private boolean active;
+	
+	private boolean autoscroll = false;
 
 	public Component(float x, float y, float width, float height)
 	{
@@ -638,9 +639,21 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		super.setDimension(width, height);
 		this.setTextClipping();
 		this.border.setDimension(width, height);
+		int sbs = Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class);
+		int bs = Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
+		
+		this.xsb = new XScrollBar(this.getPixelX()+bs, 
+				this.getPixelY()+this.getPixelHeight()-bs-sbs, 
+				this.getPixelWidth() - 2*bs);
+		this.xsb.addScrollListener(this);
+		
+		this.ysb = new YScrollBar(this.getPixelX()+this.getPixelWidth()-bs-sbs, 
+				this.getPixelY()+bs, 
+				this.getPixelHeight() - 2*bs);
+		this.ysb.addScrollListener(this);
 	}
 	
-	private void setScroll()
+	protected void setScroll()
 	{
 		
 		
@@ -1406,5 +1419,18 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 	public void setBorderSize(int value)
 	{
 		//TODO IMPLEMENT FANCY STUFF.
+	}
+
+	public boolean isAutoscroll() {
+		return autoscroll;
+	}
+
+	public void setAutoscroll(boolean autoscroll) {
+		this.autoscroll = autoscroll;
+	}
+	
+	public String getColortext()
+	{
+		return this.text.getColortext();
 	}
 }

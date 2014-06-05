@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 
 import cdg.nut.interfaces.IParent;
 import cdg.nut.logging.Logger;
+import cdg.nut.util.Engine;
 import cdg.nut.util.Utility;
 import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
@@ -82,6 +83,11 @@ public abstract class Frame implements IParent {
 
 	public void draw() //Never ever ask me to explain this method. it works, that's all, hua?
 	{
+		if(this.con.getComponents(Console.class).size() == 0)
+			this.add(Engine.console);
+		
+		//Logger.debug("console id: "+Engine.console.getId());
+		
 		this.selectSkip++;
 		Mouse.poll();
 		this.deltaMouseGrabbed = this.mouseGrabbed;
@@ -169,6 +175,8 @@ public abstract class Frame implements IParent {
 				
 				Component c = this.con.get(this.lastId);
 
+				//Logger.info("now active: "+this.lastId+" / actual id: "+c.getId());
+				
 				if (lastId != 0 && c != null) {
 					c.clicked(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()), MouseButtons.LEFT, this.mouseGrabbed && (Math.abs(this.mouseGrabSX - Mouse.getX()) >= 5 || Math.abs(this.mouseGrabSY - (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY())) >= 5), this.deltaMouseGrabbed, this.mouseGrabSX, this.mouseGrabSY);
 					//c.clicked(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()), MouseButtons.LEFT, this.mouseGrabbed);
@@ -400,5 +408,15 @@ public abstract class Frame implements IParent {
 	public boolean isMouseGrabbed() {
 		// TODO Auto-generated method stub
 		return this.mouseGrabbed;
+	}
+	
+	@Override
+	public int getMouseX() {
+		return Mouse.getX();
+	}
+
+	@Override
+	public int getMouseY() {
+		return SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY();
 	}
 }

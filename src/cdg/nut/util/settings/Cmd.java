@@ -88,7 +88,7 @@ public abstract class Cmd {
 		
 		if(!found)
 		{
-			Logger.info("key '"+key.toLowerCase()+"' not found!","Cmd.exec");
+			Logger.error("key '"+key.toLowerCase()+"' not found!","Cmd.exec");
 			return;
 		}
 		

@@ -8,13 +8,17 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
+
+import cdg.nut.util.Engine;
 
 public abstract class Logger {
 
 	private static LogLevel logfileLevel = LogLevel.ERROR;
 	private static LogLevel outputLevel = LogLevel.DEBUG;
+	private static LogLevel glConsoleLevel = LogLevel.INFO;
 	private static DateFormat crashDumpDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 	private static DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
@@ -25,6 +29,7 @@ public abstract class Logger {
 	private static ConsoleColor errorColor = ConsoleColor.RED;
 
 	private static PrintWriter logfile = null;
+	private static boolean disabled;
 
 	public static LogLevel getLogfileLevel() {
 		return logfileLevel;
@@ -68,6 +73,22 @@ public abstract class Logger {
 
 	public static String getLogfileLocation() {
 		return logfileLocation;
+	}
+	
+	
+	public static boolean isDisabled()
+	{
+		return Logger.disabled;
+	}
+	
+	public static void enable()
+	{
+		Logger.disabled = false;
+	}
+	
+	public static void disable()
+	{
+		Logger.disabled = true;
 	}
 
 	/**
@@ -355,6 +376,8 @@ public abstract class Logger {
 	  **/
 	 public static void log(String text, LogLevel lvl, String location, boolean suppressTime)
 	 {
+		 if(Logger.disabled)
+			 return;
 		 if(true)
 		 {
 			 try
@@ -370,6 +393,13 @@ public abstract class Logger {
 					 cn = tmp[tmp.length - 1];
 				 }
 				 
+				 /*
+				 for(int i = 0; i < se.length; i++)
+				 {
+					 if(se[i].getClassName().contains("Console"))
+						 return;
+				 }*/
+				 
 				 location = cn+"[:"+se[idx].getLineNumber()+"]."+se[idx].getMethodName();
 			 }
 			 catch(Exception e) { e.printStackTrace(); }
@@ -381,7 +411,8 @@ public abstract class Logger {
 				 Logger.logfile = new PrintWriter(new BufferedWriter(new FileWriter(Logger.logfileLocation, true)));
 			 } catch (IOException e) { }
 		 }
-		 else if(!lvl.isGreater(Logger.logfileLevel))
+		 
+		 if(!lvl.isGreater(Logger.logfileLevel))
 		 {
 			 Logger.logfile.println("["+lvl.toString()+(location == null?"":" ("+location+")")+" "+(suppressTime?"":Logger.dateFormat.format(new Date()))+"] "+text);
 		 }
@@ -408,6 +439,32 @@ public abstract class Logger {
 			 }
 
 			 System.out.println(color+"["+lvl.toString()+(location == null?"":" ("+location+")")+" "+(suppressTime?"":Logger.dateFormat.format(new Date()))+"] "+text+ConsoleColor.RESET.getAnsiColor());
+			 
+			 
+		  }
+		 
+		 if(!lvl.isGreater(Logger.glConsoleLevel))
+		 {
+			 String color = "";
+			 switch(lvl)
+			 {
+				 case ERROR:
+					 color = Logger.errorColor.getAnsiColor();
+					 break;
+				 case DEBUG:
+					 color = Logger.debugColor.getAnsiColor();
+					 break;
+				 case INFO:
+					 color = Logger.infoColor.getAnsiColor();
+					 break;
+				 default:
+					 color = "";
+					 break;
+
+			 }
+			 if(Display.isCreated() && Engine.console != null)
+				Engine.console.println(color+"["+lvl.toString()+(location == null?"":" ("+location+")")+" "+(suppressTime?"":Logger.dateFormat.format(new Date()))+"] "+text+ConsoleColor.RESET.getAnsiColor());
+			 
 		 }
 	 }
 
@@ -565,4 +622,14 @@ public abstract class Logger {
 			 System.exit(-1);
 		 }
 	 }
+
+
+	public static LogLevel getGlConsoleLevel() {
+		return glConsoleLevel;
+	}
+
+
+	public static void setGlConsoleLevel(LogLevel glConsoleLevel) {
+		Logger.glConsoleLevel = glConsoleLevel;
+	}
 }
