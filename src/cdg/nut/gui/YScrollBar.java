@@ -155,4 +155,21 @@ public void setDoublescroll(boolean doublescroll) {
 		super.move(x, y);
 		this.setScrollValue(this.getScrollValue());
 	}
+	
+	@Override
+	public void setDimension(float w, float h)
+	{
+		float nh = h;
+		
+		if(this.doublescroll)
+		{
+			nh -= Utility.pixelSizeToGLSize(0, Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class))[1];
+		}
+		
+		super.setDimension(w, nh);
+		
+		this.setScrollValue(this.scrollValue);
+	}
+	
+	
 }

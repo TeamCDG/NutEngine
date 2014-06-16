@@ -610,8 +610,7 @@ public class GLPolygon implements ISelectable {
 			float xm = this.x - nx;
 			float ym = this.y - ny;	
 			
-			//Logger.debug("moving: "+xm+"; "+ym+" / gl: "+this.points[0].getX()+"; "+this.points[0].getY(),"GLObject.move");
-			//Logger.debug("npos: "+(this.points[0].getX()-xm)+"; "+(this.points[0].getY()-ym),"GLObject.move");
+			Logger.debug("moving: "+xm+"; "+ym);
 			
 			for(int i = 0; i < points.length; i++)
 			{

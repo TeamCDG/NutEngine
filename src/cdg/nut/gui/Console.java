@@ -74,9 +74,10 @@ public class Console extends InnerWindow {
 		this.add(cb);
 		
 		this.con = new TextBox(0, 0, this.getPixelWidth()-2*this.getBorderSize(), this.cb.getPixelY()-this.getHeadHeight()-this.getBorderSize(), "");
-		this.con.setFontSize(14);
+		this.con.setFontSize(13);
 		this.con.setEditable(false);
 		this.con.setHasBorder(false);
+		this.con.setBackgroundHighlightColor(this.con.getBackgroundColor());
 		this.add(con);
 		
 		//this.hide();

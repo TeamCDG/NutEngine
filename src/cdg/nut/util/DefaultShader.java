@@ -38,9 +38,9 @@ public abstract class DefaultShader {
 			"		out_Color = pass_Color;\n"+
 			"	vec4 v = pass_Position;\n"+
 			"	if(!(v.x+1 >= clippingArea.x+1 && v.x+1 <= clippingArea.z+1 && \n"+
-			"	   v.y+1 <= clippingArea.y+1 && v.y+1 >= clippingArea.w+1) && selection == 0 && clippingArea != vec4(0.0, 0.0, 0.0, 0.0)) {\n"+
+			"	   v.y+1 <= clippingArea.y+1 && v.y+1 >= clippingArea.w+1)  && clippingArea != vec4(0.0, 0.0, 0.0, 0.0)) {\n"+
 			"		//outside of the clipping area. do not draw it.\n"+
-			"		out_Color = vec4(c.x, c.y, c.z, 0.0);"+
+			"		out_Color = vec4(0.0, 0.0, 0.0, 0.0);"+
 			"	}\n"+
 			"}", "simple");
 	
@@ -79,7 +79,7 @@ public abstract class DefaultShader {
 			"	if(!(v.x+1 >= clippingArea.x+1 && v.x+1 <= clippingArea.z+1 && \n"+
 			"	   v.y+1 <= clippingArea.y+1 && v.y+1 >= clippingArea.w+1) && selection == 0 && clippingArea != vec4(0.0, 0.0, 0.0, 0.0)) {\n"+
 			"		//outside of the clipping area. do not draw it.\n"+
-			"		out_Color = vec4(c.x, c.y, c.z, 0.0);"+
+			"		out_Color = vec4(0.0, 0.0, 0.0, 0.0);"+
 			"	}\n"+
 			"}", "image");
 	
@@ -104,6 +104,8 @@ public abstract class DefaultShader {
 			"uniform vec4 color = vec4(1.0, 1.0, 1.0, 1.0);\n"+
 			"uniform vec4 clippingArea = vec4(0.0,0.0,0.0,0.0);\n"+
 			"uniform int selection = 0;\n"+
+			"uniform float alphaTestValue = 0.25;\n"+
+			"uniform int alphaTest = 1;\n"+
 			"in vec4 pass_Color;\n"+
 			"in vec4 pass_Position;\n"+
 			"in vec2 pass_TextureCoord;\n"+
@@ -116,7 +118,14 @@ public abstract class DefaultShader {
 			"		//outside of the clipping area. do not draw it.\n"+
 			"		out_Color = vec4(c.x, c.y, c.z, 0.0);"+
 			"	} else {\n"+
-			"		out_Color = c;\n"+
+			"       if(alphaTest == 1) { \n"+
+			"       	if(c.w >= alphaTestValue) \n"+
+			"				out_Color = color*vec4(c.x, c.y, c.z, 1.0);\n"+
+			"			else\n"+
+			"				out_Color = vec4(0.0, 0.0, 0.0, 0.0);\n"+
+			"		} else {\n"+
+			"			out_Color = color*c;\n"+
+			"		}\n"+
 			"	}\n"+
 			"}", "text");
 }

@@ -35,6 +35,12 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	private int selectionEnd = 0;
 	private int aqc;
 	
+	private float alphaTestValue = 0.25f;
+	private boolean alphaTest = true;
+	private boolean autoATV = true;
+	
+	private boolean initialised = false;
+	
 	/**
 	 * @return the passwordMode
 	 */
@@ -97,7 +103,7 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	{
 		super();
 		this.colorText = text;
-		this.fontSize = Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class);
+		this.setFontSize(Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class));
 		this.load(x, y, 0, 0, this);
 		this.setup();
 	}
@@ -106,7 +112,7 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	{
 		super();
 		this.colorText = text;
-		this.fontSize = Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class);
+		this.setFontSize(Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class));
 		this.load(x, y, 0, 0, this);
 		this.setup();
 	}
@@ -208,6 +214,8 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 		this.setSelectable(false);
 		this.selectionArea.setColor(Colors.NAVY.getGlColor());
 		this.setAutoClipping(true);
+		
+		this.initialised = true;
 	}
 
 	public float getFontSize()
@@ -218,15 +226,24 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	public void setFontSize(float size)
 	{
 		this.fontSize = size;
+		int fpxs = Utility.glSizeToPixelSize(0, size)[1];
+		Logger.debug("fpxs: "+fpxs);
+		if(this.autoATV)
+		{
+			this.alphaTestValue = 1.0f/20.0f * fpxs * 0.25f;
+			if(fpxs > 30)
+				this.alphaTest = false;
+		}
+		
 		//this.setDimension(this.getWidth(), this.getHeight());
-		this.regen();
+		if(this.initialised ) this.regen();
 	}
 
 	public void setFontSize(int size)
 	{
 		Logger.debug("setting fs to: "+size);
 		this.setFontSize(Utility.pixelSizeToGLSize(0, size)[1]);
-		Logger.debug(this.actualText+" --------------------->: "+this.getPixelHeight());
+		Logger.debug(this.actualText+" --------------------->: "+this.getPixelHeight()+" / "+this.getFontSize());
 	}
 
 	@Override
@@ -254,7 +271,8 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	@Override
 	protected void passUniforms()
 	{
-
+		this.getShader().pass1f("alphaTestValue", this.alphaTestValue);
+		this.getShader().pass1i("alphaTest", this.alphaTest ? 1 : 0);
 	}
 
 	public char getPasswordChar() {
@@ -293,6 +311,7 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	{
 		super.move(x, y);
 		this.selectionArea.move(this.getX(), this.getY());
+		Logger.debug("################################################################### px: "+this.getPixelX()+" / py: "+this.getPixelY());
 	}
 
 	@Override
@@ -453,5 +472,29 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	public void onClippingChange(Vertex4 c)
 	{
 		if(this.selectionArea != null) this.selectionArea.setClippingArea(c);
+	}
+
+	public float getAlphaTestValue() {
+		return alphaTestValue;
+	}
+
+	public void setAlphaTestValue(float alphaTestValue) {
+		this.alphaTestValue = alphaTestValue;
+	}
+
+	public boolean isAutoATV() {
+		return autoATV;
+	}
+
+	public void setAutoATV(boolean autoATV) {
+		this.autoATV = autoATV;
+	}
+
+	public boolean isAlphaTest() {
+		return alphaTest;
+	}
+
+	public void setAlphaTest(boolean alphaTest) {
+		this.alphaTest = alphaTest;
 	}
 }

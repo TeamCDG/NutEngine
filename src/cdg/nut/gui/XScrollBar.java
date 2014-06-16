@@ -113,6 +113,9 @@ public class XScrollBar extends GLPolygon {
 		
 		//return !(x >= this.scroll.getPixelX() || x <= this.scroll.getPixelX()+this.scroll.getPixelWidth() &&
 		//		y <= this.scroll.getPixelY() || y <= this.scroll.getPixelY()+this.scroll.getPixelHeight());
+		if(this.scroll == null)
+			return false; 
+		
 		return (Utility.between(x, this.scroll.getPixelX(), this.scroll.getPixelX()+this.scroll.getPixelWidth()) && Utility.between(y, this.scroll.getPixelY(), this.scroll.getPixelY()+this.scroll.getPixelHeight()));
 	}
 	
@@ -143,5 +146,27 @@ public class XScrollBar extends GLPolygon {
 		
 	}
 	
+	@Override
+	public void setDimension(float w, float h)
+	{
+		float nw = w;
+		
+		if(this.doublescroll)
+		{
+			nw -= Utility.pixelSizeToGLSize(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 0)[0];
+		}
+		
+		super.setDimension(nw, h);
+				
+		this.setScrollValue(this.scrollValue);
+	}
 	
+	
+	@Override
+	public void move(float x, float y)
+	{
+		super.move(x, y);
+		this.setScrollValue(this.getScrollValue());
+	
+	}
 }

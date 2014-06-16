@@ -8,6 +8,8 @@ import cdg.nut.gui.Container;
 import cdg.nut.gui.ToolTip;
 import cdg.nut.interfaces.IParent;
 import cdg.nut.logging.Logger;
+import cdg.nut.util.Utility;
+import cdg.nut.util.Vertex4;
 
 public class Panel extends Component implements IParent {
 
@@ -95,6 +97,7 @@ public class Panel extends Component implements IParent {
 		int oldx = this.getPixelX();
 		int oldy = this.getPixelY();
 		
+		float[] bs = Utility.pixelSizeToGLSize(this.getBorderSize(), this.getBorderSize());
 		
 		super.move(x, y);
 		
@@ -104,6 +107,8 @@ public class Panel extends Component implements IParent {
 			Component c = cl.get(i);
 			//Integer[] posdata = getPosById(c.getId());
 			c.setPosition(c.getPixelX()-oldx+this.getPixelX(), c.getPixelY()-oldy+this.getPixelY());
+			//c.setClippingArea(new Vertex4(this.getX()+bs[0], this.getY()+bs[1], this.getX()+this.getWidth()-bs[0], this.getY()+this.getHeight()-bs[1]));
+			c.setClippingArea(new Vertex4(this.getX(), this.getY(), this.getX()+this.getWidth(), this.getY()+this.getHeight()));
 			Logger.debug("moving panel and component...");
 		}
 	}
@@ -225,6 +230,9 @@ public class Panel extends Component implements IParent {
 		c.setParent(this);
 		this.positions.add(new Integer[]{c.getId(), c.getPixelX(), c.getPixelY()});
 		c.setPosition(this.getPixelX()+c.getPixelX(), this.getPixelY()+c.getPixelY());
+		c.setClipping(true);
+		c.setAutoClipping(false);
+		c.setClippingArea(new Vertex4(this.getX(), this.getY(), this.getX()+this.getWidth(), this.getY()+this.getHeight()));
 		this.con.add(c);
 	}
 
@@ -333,4 +341,15 @@ public class Panel extends Component implements IParent {
 		return this.getParent().getMouseY();
 	}
 
+	@Override
+	public void setDimension(float w, float h)
+	{
+		super.setDimension(w, h);
+		List<Component> cl = this.con.getComponents();
+		for(int i = 0; i < this.con.getComponentCount(); i++)
+		{
+			Component c = cl.get(i);
+			c.setClippingArea(new Vertex4(this.getX(), this.getY(), this.getX()+this.getWidth(), this.getY()+this.getHeight()));
+		}
+	}
 }

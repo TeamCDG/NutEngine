@@ -67,6 +67,7 @@ public class TestFrame extends Frame {
 	GLFont tf;
 	
 	InnerWindow win;
+	Button cwintest;
 	int bg = 0;
 	
 	public TestFrame()
@@ -76,6 +77,7 @@ public class TestFrame extends Frame {
 		this.test.setBackgroundHighlightColor(Colors.VIOLET.getGlColor());
 		this.test.setBorderColor(Colors.LIGHTSKYBLUE.getGlColor());
 		this.test.setTooltip("nonsens button");
+		this.test.getGLFont().setAlphaTest(false);
 		this.test.addClickListener(new IClickListener(){
 
 			@Override
@@ -240,12 +242,19 @@ public class TestFrame extends Frame {
 		this.poly = new GLPolygon(20, 20, 400, 200, false, 9, 9, 8, 0, 2);
 		this.poly.setId(200);
 		
-		this.win = new InnerWindow(40, 40, 400, 400, "Nut Dialog");
+		this.win = new InnerWindow(400, 400, 200, 200, "Nut Dialog");
 		this.win.setFontSize(20);
 		this.win.setIcon("nut.png");
 		this.win.setTooltip("Drag & Sizeable <3 !");
 		this.add(win);
 		
+		
+		this.cwintest = new Button(5, 5, 250, 250, "M");
+		this.cwintest.setBackgroundColor(new GLColor(1.0f,0.0f,0.0f,1.0f));
+		this.cwintest.setBorderColor(new GLColor(1.0f,0.0f,1.0f,1.0f));
+		this.cwintest.setBorderHighlightColor(new GLColor(1.0f,1.0f,0.0f,1.0f));
+		this.cwintest.setIcon("nut.png");
+		this.win.add(this.cwintest);
 		
 		//this.poly.setScaleWithBoundingBox(true);
 		
