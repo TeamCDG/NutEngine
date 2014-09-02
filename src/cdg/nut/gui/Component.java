@@ -7,9 +7,11 @@ import cdg.nut.interfaces.ISelectable;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.BitmapFont;
 import cdg.nut.util.DefaultShader;
+import cdg.nut.util.Matrix4x4;
 import cdg.nut.util.Utility;
 import cdg.nut.util.Vertex4;
 import cdg.nut.util.enums.Colors;
+import cdg.nut.util.enums.MatrixTypes;
 import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLFont;
@@ -17,6 +19,7 @@ import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
+import cdg.nut.interfaces.IGuiObject;
 import cdg.nut.interfaces.IKeyboardListener;
 import cdg.nut.interfaces.IParent;
 import cdg.nut.interfaces.IScrollListener;
@@ -24,7 +27,7 @@ import cdg.nut.interfaces.ISettingsListener;
 import cdg.nut.interfaces.IClickListener;
 
 //TODO: this class needs some love
-public abstract class Component extends GLPolygon implements ISettingsListener, IScrollListener {
+public abstract class Component extends GLPolygon implements ISettingsListener, IScrollListener, IGuiObject {
 
 	private IParent parent;
 	
@@ -71,6 +74,8 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	private boolean active;
 	
 	private boolean autoscroll = false;
+
+	private boolean borderPaddingDisabled = false;
 
 	public Component(float x, float y, float width, float height)
 	{
@@ -425,7 +430,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		//	this.setDimensions(this.text.getWidth()+2*this.padding[0]>this.getWidth()?this.text.getWidth()+2*this.padding[0]:this.getWidth(), this.text.getHeight()+2*this.padding[1]>this.getHeight()?this.text.getHeight()+2*this.padding[1]:this.getHeight());
 	}
 
-	protected void setActive(boolean b) {
+	public void setActive(boolean b) {
 		
 		Logger.debug("active: "+b+"/ activable: "+this.activeable, "Component.setActive");
 		
@@ -443,6 +448,10 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 
 	public void setText(String text)
 	{
+		
+		if(this.text.getColortext().equals(text))
+			return; 
+		
 		this.text.setText(text);
 		
 		if(this.centerText)
@@ -452,6 +461,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		
 		//if(this.xsb != null) this.xsb.setScrollValue(this.xsb.getMaxValue());
 		this.autosize();
+		
 		Logger.debug(
 			"Dimensions: " +
 			(
@@ -492,9 +502,31 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		
 		if(!this.hasBorder && !this.hasBackground)
 			return 0;
-		else
+		else if(this.hasBackground && !this.borderPaddingDisabled)
+			return Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class);
+		else if(this.hasBorder && this.hasBackground && !this.borderPaddingDisabled)
 			return Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class) +
 				   Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
+		else if(this.hasBackground && !this.borderPaddingDisabled)
+			return 0;
+		else if(this.hasBorder && this.hasBackground && this.borderPaddingDisabled)
+			return Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
+		else 
+			return 0;
+	}
+
+	/**
+	 * @return the borderPaddingDisabled
+	 */
+	public boolean isBorderPaddingDisabled() {
+		return borderPaddingDisabled;
+	}
+
+	/**
+	 * @param borderPaddingDisabled the borderPaddingDisabled to set
+	 */
+	public void setBorderPaddingDisabled(boolean borderPaddingDisabled) {
+		this.borderPaddingDisabled = borderPaddingDisabled;
 	}
 
 	public float getFontSize()
@@ -529,15 +561,17 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		this.autosize();
 	}
 
-	protected void key(int eventKey, char eventCharacter) {
+	public boolean key(int eventKey, char eventCharacter) {
 		
 		if(!this.enabled)
-			return;
+			return false;
 		
 		for(int i = 0; i < this.keyListener.size(); i ++)
 		{
 			this.keyListener.get(i).keyDown(eventKey, eventCharacter);
 		}
+		
+		return this.keyListener.size() != 0;
 
 	}
 
@@ -555,7 +589,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 	private int addPadX;
 
 	private int addPadY;
-	protected final void clicked(int x, int y, MouseButtons button, boolean grabbed, boolean deltaDown, int grabx, int graby) {
+	public final void clicked(int x, int y, MouseButtons button, boolean grabbed, boolean deltaDown, int grabx, int graby) {
 		
 		Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed+" / yscrollGrabbed: "+this.yscrollGrabbed+" / deltadown: "+deltaDown,"Component.clicked");
 		
@@ -1025,7 +1059,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		this.clickListener.add(clickListener);
 	}
 
-	protected void dragged(int mouseGrabX, int mouseGrabY) {
+	public void dragged(int mouseGrabX, int mouseGrabY) {
 		if(this.dragable) this.setPosition(this.getPixelX()-mouseGrabX, this.getPixelY()-mouseGrabY);
 	}
 
@@ -1515,5 +1549,30 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		super.setClipping(c);
 		
 		this.border.setClipping(c);
+	}
+	
+	@Override
+	public void passUniforms()
+	{
+		this.getShader().passMatrix(Matrix4x4.getIdentity(), MatrixTypes.WINDOW);
+	}
+	
+	@Override
+	public void drawSelection() {
+		this.draw(true);		
+	}
+
+
+	@Override
+	public void unselected() {
+		this.setSelected(false);
+		
+	}
+
+
+	@Override
+	public void selected() {
+		this.setSelected(true);
+		
 	}
 }

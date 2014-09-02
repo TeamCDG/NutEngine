@@ -125,13 +125,30 @@ public class TextBox extends Component implements IKeyboardListener{
 		}*/
 	}
 	
+	
 	@Override
-	protected void setActive(boolean b)
+	public void unselected()
+	{
+		super.unselected();
+	}
+	
+	@Override
+	public void setActive(boolean b)
 	{
 		super.setActive(b);
 		
 		if(b)
 		{
+			/*
+			List<Component> e = this.getParent().getAll();
+			for(int i = 0; i < e.size(); i++)
+			{
+				if(e.get(i).getId() != this.getId())
+				{
+					e.get(i).setActive(false);
+				}
+			}*/
+			
 			this.oToolTipText = this.getTooltip().getText(0);
 			this.setManualTTshow(true);
 			this.setManualTThide(true);
@@ -790,4 +807,7 @@ public class TextBox extends Component implements IKeyboardListener{
 		return this.editable;
 		
 	}
+
+
+
 }

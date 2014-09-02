@@ -6,9 +6,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL21;
+import org.lwjgl.opengl.GL31;
+import org.lwjgl.util.glu.GLU;
 
 import cdg.nut.interfaces.IMatrix;
 import cdg.nut.logging.Logger;
+import cdg.nut.util.enums.MatrixTypes;
 import cdg.nut.util.gl.GLColor;
 
 
@@ -23,7 +27,10 @@ public final class ShaderProgram {
 	private int translationMatrixLocation;
 	private int rotationMatrixLocation;
 	private int windowMatrixLocation;
-	private int camMatrixLocation;
+	//private int camMatrixLocation;
+	//private int camRotMatrixLocation;
+	
+	private int camUniformBlockIndex;
 	
 	public ShaderProgram(File vertexShader, File fragmentShader) 
 	{
@@ -55,6 +62,8 @@ public final class ShaderProgram {
 		this.setup();
 	}
 	
+	public static final int CAM_BINING_POINT = 0;
+	
 	private void setup()
 	{
 		// Create a new shader program that links both shaders
@@ -79,7 +88,15 @@ public final class ShaderProgram {
 		this.translationMatrixLocation = GL20.glGetUniformLocation(this.shaderProgrammId, "translation_Matrix");
 		this.rotationMatrixLocation = GL20.glGetUniformLocation(this.shaderProgrammId, "rotation_Matrix");
 		this.windowMatrixLocation = GL20.glGetUniformLocation(this.shaderProgrammId, "window_Matrix");
-		this.camMatrixLocation = GL20.glGetUniformLocation(this.shaderProgrammId, "cam_Matrix");
+		//this.camMatrixLocation = GL20.glGetUniformLocation(this.shaderProgrammId, "cam_Matrix");
+		//this.camRotMatrixLocation = GL20.glGetUniformLocation(this.shaderProgrammId, "camRot_Matrix");
+		
+		this.camUniformBlockIndex = GL31.glGetUniformBlockIndex(this.shaderProgrammId, "CameraMatrices");
+		
+		if(this.camUniformBlockIndex != -1)
+		{
+			GL31.glUniformBlockBinding(this.shaderProgrammId, this.camUniformBlockIndex, ShaderProgram.CAM_BINING_POINT);
+		}
 	}
 	
 	private static String read(File file)
@@ -153,8 +170,10 @@ public final class ShaderProgram {
 			GL20.glUniformMatrix4(this.rotationMatrixLocation, false, mat.getAsBuffer());
 		else if(type == MatrixTypes.WINDOW)
 			GL20.glUniformMatrix4(this.windowMatrixLocation, false, mat.getAsBuffer());
-		else if(type == MatrixTypes.CAMERA)
-			GL20.glUniformMatrix4(this.camMatrixLocation, false, mat.getAsBuffer());
+		//else if(type == MatrixTypes.CAMERA)
+		//	GL20.glUniformMatrix4(this.camMatrixLocation, false, mat.getAsBuffer());
+		//else if(type == MatrixTypes.CAMERA_ROTATION)
+		//	GL20.glUniformMatrix4(this.camRotMatrixLocation, false, mat.getAsBuffer());
 			
 	}
 	
@@ -258,6 +277,14 @@ public final class ShaderProgram {
 	public void pass4f(String string, float[] color) {
 		pass4f(string, color[0], color[1], color[2], color[3]);
 		
+	}
+
+	public int getCamUniformBlockIndex() {
+		return camUniformBlockIndex;
+	}
+
+	public void setCamUniformBlockIndex(int camUniformBlockIndex) {
+		this.camUniformBlockIndex = camUniformBlockIndex;
 	}
 
 }

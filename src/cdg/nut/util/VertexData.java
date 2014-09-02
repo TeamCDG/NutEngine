@@ -1,5 +1,6 @@
 package cdg.nut.util;
 
+import cdg.nut.interfaces.IVertex;
 import cdg.nut.util.gl.GLColor;
 
 //TODO: lots of Javadoc
@@ -116,6 +117,12 @@ public class VertexData {
 	
 	public VertexData() {
 		// TODO Auto-generated constructor stub
+	}
+
+	
+
+	public VertexData(IVertex v) {
+		this(v.getX(), v.getY(), v.getZ(), v.getW());
 	}
 
 	// Sets XYZ

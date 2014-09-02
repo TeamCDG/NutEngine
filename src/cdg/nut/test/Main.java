@@ -12,6 +12,7 @@ import javax.swing.colorchooser.ColorSelectionModel;
 //import org.fusesource.jansi.Ansi.Color;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.Sys;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
@@ -29,10 +30,12 @@ import cdg.nut.logging.Logger;
 import cdg.nut.logging.ConsoleColor;
 import cdg.nut.util.BitmapFont;
 import cdg.nut.util.DefaultShader;
+import cdg.nut.util.Engine;
 import cdg.nut.util.ShaderProgram;
 import cdg.nut.util.Utility;
 import cdg.nut.util.VertexData;
 import cdg.nut.util.enums.Colors;
+import cdg.nut.util.game.Server;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.settings.CfgReader;
 import cdg.nut.util.settings.Cmd;
@@ -43,6 +46,8 @@ public class Main {
 
 	public static boolean closeRequested = false;
 
+	public static Frame activeFrame;
+	
 	/**
 	 * @param args
 	 * @throws IOException 
@@ -64,6 +69,8 @@ public class Main {
 		}
 
 	}
+
+	private double lastFrame;
 	
 	public Main() throws Exception
 	{
@@ -104,6 +111,8 @@ public class Main {
 		
 		Mouse.setNativeCursor(Utility.loadCursor("m_no.png"));
 		
+		Main.activeFrame = tf;
+		
 		Logger.debug("gui_cmp_font_size: "+Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class));
 		Logger.debug(""+GLColor.random());
 		Button f = new Button(30, 450, Colors.BLUE+"G"+Colors.RED+"o"+Colors.YELLOW+"o"+Colors.BLUE+"g"+Colors.DARKGREEN+"l"+Colors.RED+"e");
@@ -122,10 +131,15 @@ public class Main {
 		
 		
 		while (!Display.isCloseRequested() && !Main.closeRequested) {
+			
+			Engine.setDelta(this.calculateDelta());
+			
 			SetKeys.R_CLEAR_BOTH.execute(null);	
 			GL11.glEnable(GL11.GL_BLEND);
 			
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			
+			Server.onTick();
 			//for(int i = 0; i < boxes.size(); i++)
 			//{
 			//	if(new Random().nextInt(100) == 420) boxes.get(i).setPosition(new Random().nextInt(SetKeys.WIN_WIDTH.getValue(Integer.class)-40)+20, new Random().nextInt(SetKeys.WIN_HEIGHT.getValue(Integer.class)-40)+20);
@@ -133,7 +147,7 @@ public class Main {
 			//	boxes.get(i).draw();
 			//}
 			//if(new Random().nextInt(100) == 420) b.setText(Utility.randomString(100));
-			tf.draw();
+			Main.activeFrame.draw();
 			//b.draw();
 			//f.draw();
 			
@@ -142,6 +156,21 @@ public class Main {
 			Display.update();
 			Display.sync(60);
 		}
+		
+		
+	}
+	
+	public long getTime()
+	{
+		return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+	}
+	
+	private double calculateDelta() 
+	{
+		long currentTime = getTime();
+		double delta = (double) currentTime - (double) lastFrame;
+		this.lastFrame = getTime();
+		return delta;
 	}
 
 

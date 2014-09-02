@@ -141,6 +141,10 @@ public class GLTexture implements IntIntChangedListener
 		this(path, GL13.GL_TEXTURE0);
 	}
 
+	public GLTexture(String path, boolean b) {
+		this(path, GL13.GL_TEXTURE0, b);
+	}
+
 	public static int loadBufferdImage(BufferedImage img, int textureUnit, boolean smooth)
 	{
 		int texId = GL11.glGenTextures();

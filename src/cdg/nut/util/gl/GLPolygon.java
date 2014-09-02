@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -46,7 +47,7 @@ public class GLPolygon implements ISelectable {
 	private int VAO = -1;
 	private int VBO = -1;
 	private int iVBO = -1;
-	private boolean drawing = false;
+	protected boolean drawing = false;
 	private boolean selectable = true;
 	private boolean hidden;
 	private ShaderProgram shader = DefaultShader.simple;;
@@ -254,6 +255,10 @@ public class GLPolygon implements ISelectable {
 		this.setupGL();
 	}
 
+	public GLPolygon(float x, float y, float width, float height, boolean b) {
+		this(x, y, width, height, 0, b);
+	}
+
 	/**
 	 * @return the bs
 	 */
@@ -286,17 +291,26 @@ public class GLPolygon implements ISelectable {
 
 	private void createQuad()
 	{
-		this.points = Utility.generateQuadPoints(this.x, this.y, this.width, this.height);		
-		Vertex2[] st = Utility.generateSTPoints(1.0f, 0.0f, -1.0f, 1.0f);
-		this.data = Utility.generateQuadData(this.points, this.idColor, st);
-		this.indices = Utility.createQuadIndicesInt(1);
+		if(this.centerRef)
+		{
+			this.points = Utility.generateCenterQuadPoints(this.x, this.y, this.width, this.height);		
+			Vertex2[] st = Utility.generateSTPoints(1.0f, 0.0f, -1.0f, 1.0f);
+			this.data = Utility.generateQuadData(this.points, this.idColor, st);
+			this.indices = Utility.createQuadIndicesInt(1);
+		}
+		else
+		{
+			this.points = Utility.generateQuadPoints(this.x, this.y, this.width, this.height);		
+			Vertex2[] st = Utility.generateSTPoints(1.0f, 0.0f, -1.0f, 1.0f);
+			this.data = Utility.generateQuadData(this.points, this.idColor, st);
+			this.indices = Utility.createQuadIndicesInt(1);
+		}
 	}
 	
 	private void createBorderQuad()
 	{
 		float sx = Utility.pixelSizeToGLSize(bs, 0)[0];
 		float sy = Utility.pixelSizeToGLSize(0, bs)[1];
-		ArrayList<VertexData> res = new ArrayList<VertexData>(16);
 		
 		Vertex4[][] p = new Vertex4[4][4];
 		
@@ -521,7 +535,7 @@ public class GLPolygon implements ISelectable {
 	
 	public final void setupGL()
 	{
-		if(this.data.length == 0)
+		if(this.data == null || this.data.length == 0)
 			return;
 		
 		Logger.debug("datalength: "+data.length, "GLPolygon.setupGL");
@@ -645,7 +659,7 @@ public class GLPolygon implements ISelectable {
 		
 		this.drawing = true;
 		
-		this.shader.bind();
+		
 		
 		if(!selection)
 		{
@@ -654,6 +668,7 @@ public class GLPolygon implements ISelectable {
 		}
 		
 		
+		this.shader.bind();
 		
 		GL30.glBindVertexArray(this.VAO); //point the pointers to the right point.
 		GL20.glEnableVertexAttribArray(0);
@@ -687,7 +702,10 @@ public class GLPolygon implements ISelectable {
 		
 		this.shader.unbind();
 		
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
+		
 		this.drawChildren(selection);
+		  
 		
 		this.drawing = false;
 	}
@@ -709,7 +727,7 @@ public class GLPolygon implements ISelectable {
 	
 	protected void drawChildren(boolean selection)
 	{
-		// nothing todo here, let the user decide if he wants to unbind textures..
+		// nothing todo here, let the user decide if he wants to darw childs..
 	}
 	
 	public int getPixelX() { return Utility.glToPixel(this.x, this.y)[0]; }
@@ -816,21 +834,25 @@ public class GLPolygon implements ISelectable {
 	@Override
 	public void setSelected(boolean selection) {
 		this.selected = selection;		
+		
 	}
 
 	//TODO: Javadoc
 	@Override
 	public boolean isSelected() {
 		return this.selected;
+		
 	}
 	
 	@Override
 	public boolean checkId(int id) {
 		
 		if(this.id == id)
-			this.setSelected(true);
+			this.selected();
 		else
-			this.setSelected(false);
+			this.unselected();
+		
+		//Logger.debug("checked #"+this.id+" for "+id);
 		
 		return this.selected;
 	}
@@ -1060,4 +1082,39 @@ public class GLPolygon implements ISelectable {
 		}
 	}
 	
+	protected void x(float x)
+	{
+		this.x = x;
+	}
+	
+	protected void y(float y)
+	{
+		this.y = y;
+	}
+	
+	protected int getVAO()
+	{
+		return this.VAO;
+	}
+	
+	protected int getIVBO()
+	{
+		return this.iVBO;
+	}
+	
+	protected int getICount()
+	{
+		return this.iCount;
+	}
+	
+	
+	public void unselected() {
+		this.setSelected(false);
+	}
+
+	
+	public void selected() {
+		this.setSelected(true);
+		
+	}
 }

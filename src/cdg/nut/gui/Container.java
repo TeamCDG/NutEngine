@@ -3,6 +3,8 @@ package cdg.nut.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import cdg.nut.interfaces.IGuiObject;
+
 //TODO: Javadoc
 public class Container {
 
@@ -77,5 +79,15 @@ public class Container {
 			}
 		}
 		return r;
+	}
+
+	public List<IGuiObject> getComponentsAG() {
+		List<IGuiObject> ret = new ArrayList<IGuiObject>(this.components.size());
+		
+		for (int i = 0; i < this.components.size(); i++) {
+			ret.add(this.components.get(i));
+		}
+		
+		return ret;
 	}
 }

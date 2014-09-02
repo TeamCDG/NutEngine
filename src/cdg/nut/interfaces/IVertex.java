@@ -1,5 +1,7 @@
 package cdg.nut.interfaces;
 
+import cdg.nut.util.Vertex2;
+
 public interface IVertex 
 {
 	public float getX();
@@ -15,4 +17,5 @@ public interface IVertex
 	public boolean isEqual(IVertex v);
 	public boolean isLessCoords(IVertex v);
 	public boolean isLessNorm(IVertex v);
+	public float getDistanceTo(IVertex v);
 }

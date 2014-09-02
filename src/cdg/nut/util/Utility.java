@@ -653,4 +653,15 @@ public abstract class Utility
 		float[] gl = pixelToGL((int) v.getX(), (int) v.getY());
 		return new Vertex4(gl[0], gl[1]);
 	}
+
+	public static Vertex4[] generateCenterQuadPoints(float x, float y,
+			float width, float height) {
+		return new Vertex4[]{new Vertex4(x-(width/2.0f),y-(height/2.0f),0.0f,1.0f),  new Vertex4(x-(width/2.0f),y+(height/2.0f),0.0f,1.0f), new Vertex4(x+(width/2.0f),y+(height/2.0f),0.0f,1.0f), new Vertex4(x+(width/2.0f),y-(height/2.0f),0.0f,1.0f)};
+	}
+
+	public static float[] getMouseGL() {
+		float[] tmp = Utility.pixelToGL(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()));
+		tmp[0] = tmp[0] * SetKeys.WIN_ASPECT_RATIO.getValue(Float.class);
+		return tmp;
+	}
 }

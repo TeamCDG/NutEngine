@@ -11,6 +11,8 @@ public class Label extends Component{
 		this.setHasBorder(false);
 		this.setSelectable(false);
 		this.setAutoClipping(true);
+		this.setAutosizeWithText(true);
+		this.setScrollable(false);
 	}
 
 	public Label(int x, int y, int width, int height, String text) {
@@ -18,6 +20,7 @@ public class Label extends Component{
 		this.setHasBackground(false);
 		this.setHasBorder(false);
 		this.setSelectable(false);
+		this.setScrollable(false);
 	}
 	
 	public Label(float x, float y, String text)
@@ -27,6 +30,7 @@ public class Label extends Component{
 		this.setHasBorder(false);
 		this.setSelectable(false);
 		this.setAutoClipping(true);
+		this.setScrollable(false);
 	}
 
 	public Label(float x, float y, float width, float height, String text) {
@@ -34,5 +38,7 @@ public class Label extends Component{
 		this.setHasBackground(false);
 		this.setHasBorder(false);
 		this.setSelectable(false);
+		this.setAutosizeWithText(true);
+		this.setScrollable(false);
 	}
 }

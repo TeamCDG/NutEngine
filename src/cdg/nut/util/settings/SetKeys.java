@@ -11,6 +11,7 @@ import cdg.nut.logging.Logger;
 import cdg.nut.test.Main;
 import cdg.nut.util.BitmapFont;
 import cdg.nut.util.Engine;
+import cdg.nut.util.Matrix4x4;
 import cdg.nut.util.Utility;
 import cdg.nut.util.gl.GLColor;
 
@@ -48,6 +49,7 @@ public enum SetKeys {
 		public void exec(List<String> parameter) {
 			Settings.setWindowResolution(Integer.parseInt(parameter.get(0)), Integer.parseInt(parameter.get(1)));
 		}}),
+	WIN_MATRIX("<matrix>", "window matrix", Matrix4x4.getIdentity()),
 	
 	//----- REGION GUI ------
 	GUI_CMP_BACKGROUND_COLOR("<color>", "default background color of components", new GLColor(0.3f, 0.3f, 0.3f, 0.8f)),
@@ -117,6 +119,50 @@ public enum SetKeys {
 	GUI_CMP_FONT_H_COLOR("<color>", "default highlight text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_A_COLOR("<color>", "default active text color of components", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	GUI_CMP_FONT_D_COLOR("<color>", "default text color of disabled components", new GLColor(0.65f, 0.65f, 0.65f, 1.0f)),
+	
+	//--- REGION AI ---
+	AI_PF_USE_RANDOM("<boolean>", "true if ai should use random elements in pathfinding", true),
+	
+	//--- REGION AI ---
+	CL_TILE_OCCUPIED_COLOR("<color>", "default color of occupied tiles", new GLColor(1.0f, 0.0f, 0.0f, 1.0f)),
+	CL_TILE_NORMAL_COLOR("<color>", "default color of tiles", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
+	CL_TILE_FREE_COLOR("<color>", "default color of free tiles", new GLColor(0.0f, 1.0f, 0.0f, 1.0f)),
+	CL_TILE_SELECTED_COLOR("<color>", "default color of selected tiles", new GLColor(0.0f, 0.0f, 1.0f, 1.0f)),
+	
+	//--- REGION DEBUG ---
+	DB_LOGGER("<boolean>", "true if logger should be enabled", true, new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			
+				if(parameter.get(0).equals("true") || parameter.get(0).equals("1"))
+				{
+					SetKeys.DB_LOGGER.setValue(true);
+					Logger.enable();
+				}
+				else if(parameter.get(0).equals("false") || parameter.get(0).equals("0"))
+				{
+					SetKeys.DB_LOGGER.setValue(true);
+					Logger.enable();
+				}
+				else
+				{
+					Logger.error("Unable to change setting (db_logger): illegel parameter 0 ("+parameter.get(0)+")", "CommandExecuter.exec");
+					return;
+				}}}),
+				
+	DB_ENABLE_LOGGER("", "enable logger", new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			Logger.enable();
+		}}),
+		
+	DB_DISABLE_LOGGER("", "disable logger", new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+				Logger.enable();
+		}}),
+			
+		
 	
 	//--- REGION RENDERER ---
 	R_VSYNC("<boolean>", "true for vsync", true, new ICommandExecuter(){

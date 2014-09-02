@@ -87,4 +87,11 @@ public class Vertex2 implements IVertex {
 		return new float[]{this.x,this.y,this.z,this.w};
 	}
 
+	@Override
+	public float getDistanceTo(IVertex v) {
+		float dx = this.getX() - v.getX();
+		float dy = this.getY() - v.getY();
+		return (float)Math.sqrt(dx*dx + dy*dy);
+	}
+
 }

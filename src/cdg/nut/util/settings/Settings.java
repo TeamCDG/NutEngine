@@ -16,6 +16,7 @@ import cdg.nut.interfaces.ISettingsListener;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.BitmapFont;
 import cdg.nut.util.Globals;
+import cdg.nut.util.Matrix4x4;
 
 //TODO: Javadoc
 public class Settings {
@@ -112,6 +113,10 @@ public class Settings {
 			return;
 		
 		SetKeys.WIN_ASPECT_RATIO.setValue((float) width/ (float) height);
+		SetKeys.WIN_MATRIX.setValue(new Matrix4x4(1/((float) width/ (float) height), 0.0f, 0.0f, 0.0f,
+				  0.0f, 1.0f, 0.0f, 0.0f,
+				  0.0f, 0.0f, 1.0f, 0.0f,
+				  0.0f, 0.0f, 0.0f, 1.0f));
 		
 			/*Globals.windowMatrix.set(1/Globals.aspectRatio, 0.0f, 0.0f, 0.0f,
 												  0.0f, 1.0f, 0.0f, 0.0f,

@@ -91,9 +91,12 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 		}
 		else
 		{
-			this.setHidden(false);
-			this.colorText = text;
-			this.setDimension(this.getWidth(), this.getHeight());
+			if(!this.colorText.equals(text))
+			{
+				this.setHidden(false);
+				this.colorText = text;
+				this.setDimension(this.getWidth(), this.getHeight());
+			}
 		}
 		
 		

@@ -16,4 +16,8 @@ public interface IMatrix
 	public FloatBuffer getAsBuffer();
 	
 	public void finalize();
+	
+	public void set(String position, float value);
+	
+	public float get(String position);
 }

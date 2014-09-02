@@ -27,9 +27,12 @@ import cdg.nut.interfaces.ICommandListener;
 import cdg.nut.interfaces.IFloatListener;
 import cdg.nut.interfaces.IToolTipGenerator;
 import cdg.nut.logging.Logger;
+import cdg.nut.util.ShaderProgram;
 import cdg.nut.util.Utility;
 import cdg.nut.util.enums.Colors;
 import cdg.nut.util.enums.MouseButtons;
+import cdg.nut.util.game.Entity2D;
+import cdg.nut.util.game.GameFrame;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLFont;
 import cdg.nut.util.gl.GLPolygon;
@@ -68,6 +71,8 @@ public class TestFrame extends Frame {
 	
 	InnerWindow win;
 	Button cwintest;
+	Button gf;
+	Entity2D tetity;
 	int bg = 0;
 	
 	public TestFrame()
@@ -256,7 +261,27 @@ public class TestFrame extends Frame {
 		this.cwintest.setIcon("nut.png");
 		this.win.add(this.cwintest);
 		
+		this.tetity = new Entity2D(0.1f, 0.1f, 0.4f, 0.4f);
+		this.tetity.setPrimary(new GLTexture("plantagon.png"));
+		this.tetity.setShader(new ShaderProgram("entity2d.vert", "entity2d.frag"));
 		//this.poly.setScaleWithBoundingBox(true);
+		
+		
+		this.gf = new Button(420, 462, "BBG");
+		this.gf.setFontSize(16);
+		this.gf.setPosition(160, 10);
+		this.gf.setTooltip("~ Bang Bang Gamerang ~");
+		this.gf.addClickListener(new IClickListener(){
+
+			@Override
+			public void onClick(int x, int y, MouseButtons button, int grabx, int graby) {
+				GameFrame g = new TestGameFrame();
+				//setBackground("asparagus.png");
+				Main.activeFrame = g;
+				
+			}});
+		this.gf.setBorderHighlightColor(Colors.CORAL.getGlColor());
+		this.addComponent(gf);
 		
 	}
 	
@@ -272,6 +297,14 @@ public class TestFrame extends Frame {
 	{
 		super.draw();
 		this.poly.draw();
+		if(new Random().nextInt(120) == 23)
+		{
+			this.tetity.setPosition(new Random().nextFloat(), new Random().nextFloat());
+		}
+		
+		this.tetity.setRotation(this.tetity.getRotation() + 6.0f);
+		this.tetity.draw();
+		
 		
 		//this.md.setText(Mouse.getX()+"/"+(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()));
 	}

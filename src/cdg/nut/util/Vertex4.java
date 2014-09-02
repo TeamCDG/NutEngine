@@ -4,6 +4,13 @@ import cdg.nut.interfaces.*;
 
 public class Vertex4 implements IVertex {
 	
+	public static final Vertex4 ORIGIN = new Vertex4(0.0f, 0.0f, 0.0f, 0.0f);
+	
+	public static Vertex4 vec4(float x, float y, float z, float w)
+	{
+		return new Vertex4(x,y,z,w);
+	}
+	
 	@Override
 	public String toString() {
 		return "Vertex4 [x=" + x + ", y=" + y + ", z=" + z + ", w=" + w + "]";
@@ -97,4 +104,11 @@ public class Vertex4 implements IVertex {
 		return new float[]{this.x,this.y,this.z,this.w};
 	}
 
+	@Override
+	public float getDistanceTo(IVertex v) {
+		float dx = this.getX() - v.getX();
+		float dy = this.getY() - v.getY();
+		float dz = this.getZ() - v.getZ();
+		return (float)Math.sqrt(dx*dx + dy*dy + dz*dz);
+	}
 }

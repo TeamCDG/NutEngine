@@ -1,7 +1,9 @@
 package cdg.nut.gui;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.lwjgl.LWJGLException;
@@ -10,6 +12,10 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import cdg.nut.gui.components.InnerWindow;
+import cdg.nut.gui.components.Panel;
+import cdg.nut.interfaces.IEntity;
+import cdg.nut.interfaces.IGuiObject;
 import cdg.nut.interfaces.IParent;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.Engine;
@@ -23,22 +29,22 @@ import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 
 public abstract class Frame implements IParent {
-	private String title;
-	private Container con;
-	private GLPolygon background;
-	private ToolTip activeToolTip;
-	private boolean manualToolTipHide;
+	protected String title;
+	protected Container con;
+	protected GLPolygon background;
+	protected ToolTip activeToolTip;
+	protected boolean manualToolTipHide;
 	
-	private boolean forceSelect = false;
+	protected boolean forceSelect = false;
 
-	private int frNoMove = 0;
-	private int oldMouseX;
-	private int oldMouseY;
-	private int mouseGrabX;
-	private int mouseGrabY;
-	private int mouseGrabSX;
-	private int mouseGrabSY;
-	private boolean grabStart = true;
+	protected int frNoMove = 0;
+	protected int oldMouseX;
+	protected int oldMouseY;
+	protected int mouseGrabX;
+	protected int mouseGrabY;
+	protected int mouseGrabSX;
+	protected int mouseGrabSY;
+	protected boolean grabStart = true;
 	
 	@Override
 	public int getMouseGrabSX() {
@@ -50,23 +56,23 @@ public abstract class Frame implements IParent {
 		return mouseGrabSY;
 	}
 
-	private int currentCursor = 0;
-	private Cursor activeCursor;
-	private Cursor normalCursor;
-	private boolean mouseLeftPressed;
-	private boolean mouseGrabbed;
-	private boolean deltaMouseGrabbed;
-	private boolean mouseRightPressed;
+	protected int currentCursor = 0;
+	protected Cursor activeCursor;
+	protected Cursor normalCursor;
+	protected boolean mouseLeftPressed;
+	protected boolean mouseGrabbed;
+	protected boolean deltaMouseGrabbed;
+	protected boolean mouseRightPressed;
 
-	private Component active;
+	protected IGuiObject active;
 
-	private int nextId = 1;
-	private int lastId;
+	protected int nextId = 1;
+	protected int lastId;
 
-	private int maxSelectSkip = Settings.get(SetKeys.GUI_MAX_SELECT_SKIP, Integer.class);
-	private int selectSkip = Settings.get(SetKeys.GUI_MAX_SELECT_SKIP, Integer.class);
-	private int grabId;
-	private boolean grabable;;
+	protected int maxSelectSkip = Settings.get(SetKeys.GUI_MAX_SELECT_SKIP, Integer.class);
+	protected int selectSkip = Settings.get(SetKeys.GUI_MAX_SELECT_SKIP, Integer.class);
+	protected int grabId;
+	protected boolean grabable;;
 
 	public Frame()
 	{
@@ -238,7 +244,7 @@ public abstract class Frame implements IParent {
 			this.activeToolTip.draw();
 	}
 
-	private void select()
+	protected int select()
 	{
 		this.con.drawComponentSelection();
 
@@ -264,6 +270,23 @@ public abstract class Frame implements IParent {
 		}
 
 		this.lastId = gotId;
+		return gotId;
+	}
+	
+	protected int getSelectionId()
+	{
+
+		ByteBuffer pixel = ByteBuffer.allocateDirect(16);
+		GL11.glReadPixels(Mouse.getX(), Mouse.getY(), 1, 1, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixel);
+
+		int[] vs = new int[] {
+			(int) (pixel.get(0) & 0xFF),
+			(int) (pixel.get(1) & 0xFF),
+			(int) (pixel.get(2) & 0xFF),
+			(int) (pixel.get(3) & 0xFF)
+		};
+
+		return Utility.glColorToId(vs, false);
 	}
 
 	@Override
@@ -345,7 +368,12 @@ public abstract class Frame implements IParent {
 	}
 	
 	public void setBackground(String path)
-	{
+	{		
+		if(this.background == null)
+		{
+			this.background = new GLPolygon(-1.0f, 1.0f, 2.0f, -2.0f);
+			this.background.setColor(new GLColor(1.0f, 1.0f, 1.0f, 1.0f));
+		}
 		this.background.setImage(new GLTexture(path));
 	}
 	
@@ -418,5 +446,32 @@ public abstract class Frame implements IParent {
 	@Override
 	public int getMouseY() {
 		return SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY();
+	}
+
+	public List<? extends IGuiObject> getSelPos() {
+
+
+		List<IGuiObject> e = this.con.getComponentsAG();
+		List<IGuiObject> pssbl = new ArrayList<IGuiObject>(10);
+		
+		for(int i = 0; i < e.size(); i++)
+		{
+					
+			if(Utility.between(Mouse.getX(), ((IGuiObject)e.get(i)).getPixelX(), ((IGuiObject)e.get(i)).getPixelX()+((IGuiObject)e.get(i)).getPixelWidth()) &&
+					Utility.between(SetKeys.WIN_HEIGHT.getValue(Integer.class) - Mouse.getY(), ((IGuiObject)e.get(i)).getPixelY(), ((IGuiObject)e.get(i)).getPixelY()+((IGuiObject)e.get(i)).getPixelHeight()))
+			{
+				if(Panel.class.isAssignableFrom(e.get(i).getClass()))
+					pssbl.addAll(((Panel)e.get(i)).getSelPos());
+				else if(InnerWindow.class.isAssignableFrom(e.get(i).getClass()))
+					pssbl.addAll(((InnerWindow)e.get(i)).getSelPos());
+				else
+					pssbl.add(e.get(i));
+			}
+			else
+			{
+				e.get(i).unselected();
+			}
+		}
+		return pssbl;
 	}
 }

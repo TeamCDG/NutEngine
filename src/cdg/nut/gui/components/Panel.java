@@ -1,15 +1,20 @@
 package cdg.nut.gui.components;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.lwjgl.input.Mouse;
 
 import cdg.nut.gui.Component;
 import cdg.nut.gui.Container;
 import cdg.nut.gui.ToolTip;
+import cdg.nut.interfaces.IGuiObject;
 import cdg.nut.interfaces.IParent;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.Utility;
 import cdg.nut.util.Vertex4;
+import cdg.nut.util.settings.SetKeys;
 
 public class Panel extends Component implements IParent {
 
@@ -351,5 +356,42 @@ public class Panel extends Component implements IParent {
 			Component c = cl.get(i);
 			c.setClippingArea(new Vertex4(this.getX(), this.getY(), this.getX()+this.getWidth(), this.getY()+this.getHeight()));
 		}
+	}
+
+	public Collection<? extends IGuiObject> getSelPos() {
+		List<IGuiObject> e = this.con.getComponentsAG();
+		List<IGuiObject> pssbl = new ArrayList<IGuiObject>(10);
+		
+		for(int i = 0; i < e.size(); i++)
+		{
+					
+			if(Utility.between(Mouse.getX(), ((IGuiObject)e.get(i)).getPixelX(), ((IGuiObject)e.get(i)).getPixelX()+((IGuiObject)e.get(i)).getPixelWidth()) &&
+					Utility.between(SetKeys.WIN_HEIGHT.getValue(Integer.class) - Mouse.getY(), ((IGuiObject)e.get(i)).getPixelY(), ((IGuiObject)e.get(i)).getPixelY()+((IGuiObject)e.get(i)).getPixelHeight()))
+			{
+				if(Panel.class.isAssignableFrom(e.get(i).getClass()))
+					pssbl.addAll(((Panel)e.get(i)).getSelPos());
+				else if(InnerWindow.class.isAssignableFrom(e.get(i).getClass()))
+					pssbl.addAll(((InnerWindow)e.get(i)).getSelPos());
+				else
+					pssbl.add(e.get(i));
+			}
+			else
+			{
+				e.get(i).unselected();
+			}
+		}
+		
+		if(Utility.between(Mouse.getX(), this.getPixelX(), this.getPixelX()+this.getPixelWidth()) &&
+				Utility.between(SetKeys.WIN_HEIGHT.getValue(Integer.class) - Mouse.getY(), this.getPixelY(), this.getPixelY()+this.getPixelHeight()))
+		{
+			pssbl.add(this);
+		}
+		
+		
+		return pssbl;
+	}
+
+	public List<IGuiObject> getComponentsAG() {
+		return this.con.getComponentsAG();
 	}
 }

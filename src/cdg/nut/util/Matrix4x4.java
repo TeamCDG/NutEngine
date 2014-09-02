@@ -10,6 +10,11 @@ import cdg.nut.interfaces.IVertex;
 public class Matrix4x4 implements IMatrix 
 {
 
+	public static final Matrix4x4 IDENTITY = new Matrix4x4(1.0f, 0.0f, 0.0f, 0.0f,
+			 0.0f, 1.0f, 0.0f, 0.0f,
+			 0.0f, 0.0f, 1.0f, 0.0f,
+			 0.0f, 0.0f, 0.0f, 1.0f);
+	
 	float[] matrix;
 	FloatBuffer matrixBuf = BufferUtils.createFloatBuffer(16);
 	
@@ -54,9 +59,9 @@ public class Matrix4x4 implements IMatrix
 	
 	public static Matrix4x4 getIdentity() {
 		return new Matrix4x4(1.0f, 0.0f, 0.0f, 0.0f,
-							 0.0f, 1.0f, 0.0f, 0.0f,
-							 0.0f, 0.0f, 1.0f, 0.0f,
-							 0.0f, 0.0f, 0.0f, 1.0f);
+				 0.0f, 1.0f, 0.0f, 0.0f,
+				 0.0f, 0.0f, 1.0f, 0.0f,
+				 0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
 	@Override
@@ -161,6 +166,68 @@ public class Matrix4x4 implements IMatrix
 				 ret[12], ret[13], ret[14], ret[15]);
 	}
 
-	
+	@Override
+	public void set(String position, float value)
+	{
+		if(position.length() != 2)
+			throw new IllegalArgumentException("position has to be in format <row(x,y,z,w)column(1,2,3,4)>");
+		else
+		{
+			int row = 0;
+			switch(position.charAt(0))
+			{
+				case 'x':
+					row = 0;
+					break;
+				case 'y':
+					row = 1;
+					break;
+				case 'z':
+					row = 2;
+					break;
+				case 'w':
+					row = 3;
+					break;
+				default:
+					throw new IllegalArgumentException("position has to be in format <row(x,y,z,w)column(1,2,3,4)>");
+			}
+			
+			int col = Integer.valueOf(position.substring(1));
+			
+			this.matrix[row * 4 + col] = value;
+		}
+	}
 
+	
+	@Override
+	public float get(String position)
+	{
+		if(position.length() != 2)
+			throw new IllegalArgumentException("position has to be in format <row(x,y,z,w)column(1,2,3,4)>");
+		else
+		{
+			int row = 0;
+			switch(position.charAt(0))
+			{
+				case 'x':
+					row = 0;
+					break;
+				case 'y':
+					row = 1;
+					break;
+				case 'z':
+					row = 2;
+					break;
+				case 'w':
+					row = 3;
+					break;
+				default:
+					throw new IllegalArgumentException("position has to be in format <row(x,y,z,w)column(1,2,3,4)>");
+			}
+			
+			int col = Integer.valueOf(position.substring(1));
+			
+			return this.matrix[row * 4 + col];
+		}
+	}
 }

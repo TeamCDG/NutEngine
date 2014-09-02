@@ -632,4 +632,11 @@ public abstract class Logger {
 	public static void setGlConsoleLevel(LogLevel glConsoleLevel) {
 		Logger.glConsoleLevel = glConsoleLevel;
 	}
+	
+	
+	public static void printGLError()
+	{
+		int errorValue = GL11.glGetError();
+			Logger.error("GL Error: "+GLU.gluErrorString(errorValue));
+	}
 }

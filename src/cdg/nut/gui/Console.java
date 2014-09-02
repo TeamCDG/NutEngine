@@ -21,6 +21,13 @@ public class Console extends InnerWindow {
 	private ColorBox cb;
 	private TextBox con;
 
+	@Override
+	public int setId(int id)
+	{
+		super.setId(id);
+		return 10;
+	}
+	
 	public Console()
 	{
 		super(0, 0, 200, 200, "Console");
@@ -112,5 +119,7 @@ public class Console extends InnerWindow {
 		if(!b) Logger.disable();
 		this.con.setText(this.con.getColortext()+text+"\n");
 		if(!b) Logger.enable();
+		
+		this.con.getYsb().setScrollValue(this.con.getYsb().getMaxValue());
 	}
 }
