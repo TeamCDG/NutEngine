@@ -1,6 +1,10 @@
 package cdg.nut.gui;
 
 import java.util.LinkedList;
+import java.util.List;
+
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
 
 import cdg.nut.gui.components.ColorBox;
 import cdg.nut.gui.components.InnerWindow;
@@ -20,6 +24,7 @@ public class Console extends InnerWindow {
 	private TextBox com;
 	private ColorBox cb;
 	private TextBox con;
+	private List<String> asyncPrints = new LinkedList<String>();
 
 	@Override
 	public int setId(int id)
@@ -115,11 +120,57 @@ public class Console extends InnerWindow {
 	
 	public void println(String text)
 	{
-		boolean b = Logger.isDisabled();
-		if(!b) Logger.disable();
-		this.con.setText(this.con.getColortext()+text+"\n");
-		if(!b) Logger.enable();
 		
-		this.con.getYsb().setScrollValue(this.con.getYsb().getMaxValue());
+		try {
+			if(Display.isCurrent())
+			{
+				boolean b = Logger.isDisabled();
+				if(!b) Logger.disable();
+				this.con.setText(this.con.getColortext()+text+"\n");
+				if(!b) Logger.enable();
+				
+				this.con.getYsb().setScrollValue(this.con.getYsb().getMaxValue());
+			}
+			else
+			{
+				this.asyncPrints.add(text+"\n");
+			}
+		} catch (LWJGLException e) {
+			Logger.log(e);
+		}
+	}
+	
+	public void print(String text)
+	{
+		
+		try {
+			if(Display.isCurrent())
+			{
+				boolean b = Logger.isDisabled();
+				if(!b) Logger.disable();
+				this.con.setText(this.con.getColortext()+text);
+				if(!b) Logger.enable();
+				
+				this.con.getYsb().setScrollValue(this.con.getYsb().getMaxValue());
+			}
+			else
+			{
+				this.asyncPrints.add(text);
+			}
+		} catch (LWJGLException e) {
+			Logger.log(e);
+		}
+	}
+	
+	@Override
+	public void draw()
+	{
+		while(this.asyncPrints.size() > 0)
+		{
+			this.print(this.asyncPrints.get(0));
+			this.asyncPrints.remove(0);
+		}
+		
+		super.draw();
 	}
 }

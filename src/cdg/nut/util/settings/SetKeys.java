@@ -123,7 +123,10 @@ public enum SetKeys {
 	//--- REGION AI ---
 	AI_PF_USE_RANDOM("<boolean>", "true if ai should use random elements in pathfinding", true),
 	
-	//--- REGION AI ---
+	//--- REGION 
+	
+	
+	//--- REGION CLIENT ---
 	CL_TILE_OCCUPIED_COLOR("<color>", "default color of occupied tiles", new GLColor(1.0f, 0.0f, 0.0f, 1.0f)),
 	CL_TILE_NORMAL_COLOR("<color>", "default color of tiles", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	CL_TILE_FREE_COLOR("<color>", "default color of free tiles", new GLColor(0.0f, 1.0f, 0.0f, 1.0f)),
@@ -165,6 +168,8 @@ public enum SetKeys {
 		
 	
 	//--- REGION RENDERER ---
+	R_DRAW("<boolean>", "true for vsync", true),
+	
 	R_VSYNC("<boolean>", "true for vsync", true, new ICommandExecuter(){
 		@Override
 		public void exec(List<String> parameter) {

@@ -5,6 +5,8 @@ import cdg.nut.util.game.World;
 
 public class FishWorld extends World {
 
+	public FishWorld() {}
+	
 	public FishWorld(int width, int height) {
 		super(width, height);
 		// TODO Auto-generated constructor stub

@@ -72,7 +72,6 @@ public class TestFrame extends Frame {
 	InnerWindow win;
 	Button cwintest;
 	Button gf;
-	Entity2D tetity;
 	int bg = 0;
 	
 	public TestFrame()
@@ -261,9 +260,6 @@ public class TestFrame extends Frame {
 		this.cwintest.setIcon("nut.png");
 		this.win.add(this.cwintest);
 		
-		this.tetity = new Entity2D(0.1f, 0.1f, 0.4f, 0.4f);
-		this.tetity.setPrimary(new GLTexture("plantagon.png"));
-		this.tetity.setShader(new ShaderProgram("entity2d.vert", "entity2d.frag"));
 		//this.poly.setScaleWithBoundingBox(true);
 		
 		
@@ -297,13 +293,6 @@ public class TestFrame extends Frame {
 	{
 		super.draw();
 		this.poly.draw();
-		if(new Random().nextInt(120) == 23)
-		{
-			this.tetity.setPosition(new Random().nextFloat(), new Random().nextFloat());
-		}
-		
-		this.tetity.setRotation(this.tetity.getRotation() + 6.0f);
-		this.tetity.draw();
 		
 		
 		//this.md.setText(Mouse.getX()+"/"+(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()));

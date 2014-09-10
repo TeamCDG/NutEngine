@@ -9,6 +9,8 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import com.google.gson.JsonObject;
+
 import cdg.nut.interfaces.IGuiObject;
 import cdg.nut.interfaces.IPolygonGenerator;
 import cdg.nut.logging.Logger;
@@ -22,18 +24,40 @@ import cdg.nut.util.settings.SetKeys;
 
 public class Grid extends GLPolygon implements IPolygonGenerator {
 	
-	private World parent;
+	private transient World parent;
 	
 	private Tile[][] grid;
 	
-	private int width;
-	private int height;
+	private int horizontalTiles;
+	private int verticalTiles;
+
+	public Grid() {}
 	
-	public  Grid(int width, int height, World parent)
+	@Override
+	public void deserialize(JsonObject json)
+	{
+		super.deserialize(json);
+		
+		this.horizontalTiles = json.get("horizontalTiles").getAsInt();
+		this.verticalTiles = json.get("verticalTiles").getAsInt();
+		
+		super.setGen(this);
+		
+		this.setClipping(false);
+		this.setShader(Entity2D.DEFAULT_SHADER);
+	}
+	
+	public void setGrid(Tile[][] g)
+	{
+		this.grid = g;
+	}
+	
+
+	public Grid(int width, int height, World parent)
 	{
 		super();
-		this.width = width;
-		this.height = height;
+		this.horizontalTiles = width;
+		this.verticalTiles = height;
 		this.parent = parent;
 		
 		super.setGen(this);
@@ -51,9 +75,9 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 	{
 		Tile[][] grid = new Tile[height][width];
 		
-		for(int h = 0; h < this.height; h++)
+		for(int h = 0; h < this.verticalTiles; h++)
 		{
-			for(int w = 0; w < this.width; w++)
+			for(int w = 0; w < this.horizontalTiles; w++)
 			{
 				grid[h][w] = new Tile(w * 0.1f, h * -0.1f -0.1f, h * width + w +1, w, h);
 				grid[h][w].setParent(this.parent);
@@ -76,16 +100,16 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 		//r: row
 		//c: column
 		
-		for(int r = 0; r < width + 1; r++)
+		for(int r = 0; r < horizontalTiles + 1; r++)
 		{
 			pOL.add(new Vertex4(0.0f,r * -0.1f, 0.0f, 1.0f));
-			pOL.add(new Vertex4((this.width) * 0.1f,r * -0.1f, 0.0f, 1.0f));
+			pOL.add(new Vertex4((this.horizontalTiles) * 0.1f,r * -0.1f, 0.0f, 1.0f));
 		}
 		
-		for(int c = 0; c < height + 1; c++)
+		for(int c = 0; c < verticalTiles + 1; c++)
 		{
 			pOL.add(new Vertex4(c * 0.1f, 0.0f, 0.0f, 1.0f));
-			pOL.add(new Vertex4(c * 0.1f, (height) * -0.1f, 0.0f, 1.0f));
+			pOL.add(new Vertex4(c * 0.1f, (verticalTiles) * -0.1f, 0.0f, 1.0f));
 		}
 		
 		VertexData[] data = new VertexData[pOL.size()];
@@ -101,7 +125,7 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 	@Override
 	public int[] generateIndicies() {
 		
-		int lc = this.width + this.height + 2;
+		int lc = this.horizontalTiles + this.verticalTiles + 2;
 		
 		int[] lineIndicies = new int[lc*2];
 		
@@ -130,9 +154,9 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 		if(this.parent != null) this.getShader().passMatrix(this.parent.getCamera().getMatrix(), MatrixTypes.CAMERA);
 		if(this.parent != null) this.getShader().passMatrix(this.parent.getCamera().getRotMatrix(), MatrixTypes.CAMERA_ROTATION);
 		
-		for(int h = 0; h < width; h++)
+		for(int h = 0; h < horizontalTiles; h++)
 		{
-			for(int w = 0; w < width; w++)
+			for(int w = 0; w < horizontalTiles; w++)
 			{
 				this.grid[h][w].draw();
 			}
@@ -210,9 +234,9 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 	{
 		boolean found = false;
 		
-		for(int h = 0; h < this.height; h++)
+		for(int h = 0; h < this.verticalTiles; h++)
 		{
-			for(int w = 0; w < this.width; w++)
+			for(int w = 0; w < this.horizontalTiles; w++)
 			{
 				if(this.grid[h][w].getId() == id && !this.grid[h][w].isSelected())
 				{
@@ -246,9 +270,9 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 		if(this.parent != null) this.getShader().passMatrix(this.parent.getCamera().getMatrix(), MatrixTypes.CAMERA);
 		if(this.parent != null) this.getShader().passMatrix(this.parent.getCamera().getRotMatrix(), MatrixTypes.CAMERA_ROTATION);
 		
-		for(int h = 0; h < this.height; h++)
+		for(int h = 0; h < this.verticalTiles; h++)
 		{
-			for(int w = 0; w < this.width; w++)
+			for(int w = 0; w < this.horizontalTiles; w++)
 			{
 				this.grid[h][w].drawSelect();
 			}
@@ -273,7 +297,7 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 				/*try
 				{Logger.debug("Tile ("+w+"/"+h+"): w < 0: "+(w < 0)+" | w > = width: "+(w >= this.width)+" | h < 0: "+(h < 0)+" | h > = height: "+(h >= this.height)+" | occupied: "+getTile(w,h).isOccupied());}
 						catch(Exception e){}*/
-				if(w < 0 || w >= this.width || h < 0 || y >= this.height || getTile(w,h).isOccupied())
+				if(w < 0 || w >= this.horizontalTiles || h < 0 || y >= this.verticalTiles || getTile(w,h).isOccupied())
 					allgood = false;
 			}
 		}
@@ -289,7 +313,7 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 		{
 			for(int h = y-ny; h <= y + py; h++)
 			{
-				if(w >= 0 && w < this.width && h >= 0 && y < this.height)
+				if(w >= 0 && w < this.horizontalTiles && h >= 0 && y < this.verticalTiles)
 					temp.add(getTile(w, h));
 			}
 		}
@@ -307,23 +331,23 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 			
 			if(y - 1 >= 0)
 				temp.add(this.getTile(x - 1, y - 1));
-			if(y + 1 < this.width)
+			if(y + 1 < this.verticalTiles)
 				temp.add(this.getTile(x - 1, y + 1));		
 		}
 		
-		if(x + 1 < this.width)
+		if(x + 1 < this.horizontalTiles)
 		{
 			temp.add(this.getTile(x + 1, y));
 			
 			if(y - 1 >= 0)
 				temp.add(this.getTile(x + 1, y - 1));
-			if(y + 1 < this.width)
+			if(y + 1 < this.verticalTiles)
 				temp.add(this.getTile(x + 1, y + 1));		
 		}
 		
 		if(y - 1 >= 0)
 			temp.add(this.getTile(x, y - 1));
-		if(y + 1 < this.width)
+		if(y + 1 < this.verticalTiles)
 			temp.add(this.getTile(x, y + 1));	
 		
 		return temp.toArray(new Tile[1]);
@@ -335,12 +359,12 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 		int xt = (int) Math.abs(x / 0.1f);
 		int yt = (int) Math.abs(y / 0.1f);
 		
+		//Logger.debug("x: "+x+" --> "+xt+" | y: "+y+" --> "+yt);
+		if (xt > horizontalTiles -1)
+			xt = horizontalTiles -1;
 		
-		if (xt > width -1)
-			xt = width -1;
-		
-		if (yt > height -1)
-			yt = height -1;
+		if (yt > verticalTiles -1)
+			yt = verticalTiles -1;
 		//Logger.debug("dat x: "+x+"| dat y: "+y+" ergo: ("+xt+"/"+yt+")");
 		return this.grid[yt][xt];
 	}
@@ -352,9 +376,9 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 	
 	public Tile getTile(int id)
 	{
-		for(int h = 0; h < this.height; h++)
+		for(int h = 0; h < this.verticalTiles; h++)
 		{
-			for(int w = 0; w < this.width; w++)
+			for(int w = 0; w < this.horizontalTiles; w++)
 			{
 				if(this.grid[h][w].getId() == id)
 					return this.grid[h][w];
@@ -366,9 +390,9 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 	
 	public IGuiObject getTileAsIGuiObject(int id)
 	{
-		for(int h = 0; h < this.height; h++)
+		for(int h = 0; h < this.verticalTiles; h++)
 		{
-			for(int w = 0; w < this.width; w++)
+			for(int w = 0; w < this.horizontalTiles; w++)
 			{
 				if(this.grid[h][w].getId() == id)
 					return (IGuiObject)this.grid[h][w];
@@ -379,16 +403,16 @@ public class Grid extends GLPolygon implements IPolygonGenerator {
 	}
 
 	public int getTileCount() {
-		return this.width * this.height;
+		return this.horizontalTiles * this.verticalTiles;
 	}
 
 	public int getHTileCount() {
 		// TODO Auto-generated method stub
-		return this.height;
+		return this.verticalTiles;
 	}
 
 	public int getVTileCount() {
 		// TODO Auto-generated method stub
-		return this.width;
+		return this.horizontalTiles;
 	}
 }

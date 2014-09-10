@@ -1,5 +1,7 @@
 package cdg.nut.util.game;
 
+import com.google.gson.JsonObject;
+
 import cdg.nut.interfaces.IGuiObject;
 import cdg.nut.util.Matrix4x4;
 import cdg.nut.util.Utility;
@@ -16,28 +18,43 @@ public class Tile extends GLPolygon implements IGuiObject{
 
 	private boolean occupied;
 	private int entityId;
-	private World parent;
+	private transient World parent;
 	
-	private GLColor occupiedColor =  SetKeys.CL_TILE_OCCUPIED_COLOR.getValue(GLColor.class);
-	private GLColor freeColor =  SetKeys.CL_TILE_FREE_COLOR.getValue(GLColor.class);
-	private GLColor normalColor =  SetKeys.CL_TILE_NORMAL_COLOR.getValue(GLColor.class);
-	private GLColor selectedColor =  SetKeys.CL_TILE_SELECTED_COLOR.getValue(GLColor.class);
+	private transient GLColor occupiedColor =  SetKeys.CL_TILE_OCCUPIED_COLOR.getValue(GLColor.class);
+	private transient GLColor freeColor =  SetKeys.CL_TILE_FREE_COLOR.getValue(GLColor.class);
+	private transient GLColor normalColor =  SetKeys.CL_TILE_NORMAL_COLOR.getValue(GLColor.class);
+	private transient GLColor selectedColor =  SetKeys.CL_TILE_SELECTED_COLOR.getValue(GLColor.class);
 	
-	private boolean visible = true;
-	private float oldCamX = 1337.0f;
-	private float oldCamY = 1337.0f;
-	private float oldCamScale = 1337.0f;
-	private float oldCamRotation = 1337.0f;
+	private transient boolean visible = true;
+	private transient float oldCamX = 1337.0f;
+	private transient float oldCamY = 1337.0f;
+	private transient float oldCamScale = 1337.0f;
+	private transient float oldCamRotation = 1337.0f;
 	
-	int tx;
-	int ty;
+	private int tx;
+	private int ty;	
+	
+	@Override
+	public void deserialize(JsonObject json)
+	{
+		super.deserialize(json);
+		
+		this.occupied = json.get("occupied").getAsBoolean();
+		this.entityId = json.get("entityId").getAsInt();
+		this.tx = json.get("tx").getAsInt();
+		this.ty = json.get("ty").getAsInt();
+		
+		this.setShader(Entity2D.DEFAULT_SHADER);
+	}
+	
+	public Tile() {}
 	
 	public Tile(float x, float y, int id, int w, int h)
 	{
 		this(x,y,id,w,h, null);
 	}
 	
-	public Tile(float x, float y, int id, int w, int h, GLTexture tex)
+	protected Tile(float x, float y, int id, int w, int h, GLTexture tex)
 	{
 		super(x, y, 0.1f, 0.1f);	
 		super.setId(id);
@@ -158,14 +175,14 @@ public class Tile extends GLPolygon implements IGuiObject{
 			float s = 0.1f * this.parent.getCamera().getScale();
 			float sx = s * (SetKeys.WIN_ASPECT_RATIO.getValue(Float.class));
 			
-			if((Utility.between(tx + 0.5f * sx, -1.1f, 1.1f ) && 
-					   Utility.between(ty + 0.5f * s, -1.1f, 1.1f)) ||
-					   (Utility.between(tx - 0.5f * sx, -1.1f, 1.1f) && 
-					   Utility.between(ty - 0.5f * s, -1.1f, 1.1f)) || 
-					   (Utility.between(tx + 0.5f * sx, -1.1f, 1.1f) && 
-					   Utility.between(ty - 0.5f * s, -1.1f, 1.1f)) ||
-					   (Utility.between(tx - 0.5f * sx, -1.1f, 1.1f) && 
-					   Utility.between(ty + 0.5f * s, -1.1f, 1.1f)))
+			if((Utility.between((tx + 0.5f) * sx, -1.1f, 1.1f ) && 
+					   Utility.between((ty + 0.5f) * s, -1.1f, 1.1f)) ||
+					   (Utility.between((tx - 0.5f) * sx, -1.1f, 1.1f) && 
+					   Utility.between((ty - 0.5f) * s, -1.1f, 1.1f)) || 
+					   (Utility.between((tx + 0.5f) * sx, -1.1f, 1.1f) && 
+					   Utility.between((ty - 0.5f) * s, -1.1f, 1.1f)) ||
+					   (Utility.between((tx - 0.5f) * sx, -1.1f, 1.1f) && 
+					   Utility.between((ty + 0.5f) * s, -1.1f, 1.1f)))
 			{
 				
 				

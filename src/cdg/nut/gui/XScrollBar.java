@@ -45,7 +45,7 @@ public class XScrollBar extends GLPolygon {
 		if(this.scroll != null)
 		{
 			int sz = Math.round((((float)this.getPixelWidth()-(float)this.scroll.getPixelWidth())/(float)this.maxValue)*(float)value);
-			Logger.debug("ScrollPosition: "+sz,"XScrollBar.getScrollPixel");
+			//Logger.debug("ScrollPosition: "+sz,"XScrollBar.getScrollPixel");
 			return Math.max(0,Math.min(sz, this.getPixelWidth()-this.scroll.getPixelWidth()));
 		}
 		return 0;
@@ -95,7 +95,7 @@ public class XScrollBar extends GLPolygon {
 	public void setScrollValue(int value) {
 		this.scrollValue = Math.max(0, Math.min(this.maxValue,value));
 		
-		Logger.debug("new value: "+scrollValue+" / is max value: "+(this.maxValue==this.scrollValue),"XScrollBar.setScrollValue");
+		//Logger.debug("new value: "+scrollValue+" / is max value: "+(this.maxValue==this.scrollValue),"XScrollBar.setScrollValue");
 		
 		if(this.scroll != null) this.scroll.setPosition(this.getPixelX()+this.getScrollPixel(value), this.getPixelY());
 		

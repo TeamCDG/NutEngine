@@ -37,7 +37,6 @@ public class GameFrame extends Frame {
 	private Label mouseTileDebug;
 	
 	private Button ddReset;
-	private Player localPlayer;	
 	
 	private IGuiObject clickedOne;
 	private List<IEntity> selectedEntities = new LinkedList<IEntity>();
@@ -106,7 +105,7 @@ public class GameFrame extends Frame {
 		this.mouseTileDebug.setBorderPaddingDisabled(true);
 		this.add(this.mouseTileDebug);
 		
-		this.setLocalPlayer(new Player(Colors.FUCHSIA.getGlColor(), "feget"));
+		this.world.addPlayer("feget", GLColor.random(), true);
 	}
 	
 	/**
@@ -598,7 +597,6 @@ public class GameFrame extends Frame {
 		wy = wy / this.world.getCamera().getScale();
 		
 		
-		
 		if(this.getWorld() != null)
 		{
 			Tile t = this.getWorld().getGrid().getTile(wx, wy);
@@ -629,10 +627,7 @@ public class GameFrame extends Frame {
 	}
 
 	public Player getLocalPlayer() {
-		return localPlayer;
+		return this.world.getLocalPlayer();
 	}
 
-	public void setLocalPlayer(Player localPlayer) {
-		this.localPlayer = localPlayer;
-	}
 }

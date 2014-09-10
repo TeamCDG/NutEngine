@@ -24,6 +24,10 @@ public class Vertex4 implements IVertex {
 		this.z = z;
 		this.w = w;
 	}
+	
+	public Vertex4() {
+		this(0.0f, 0.0f, 0.0f, 1.0f);
+	}
 
 	public Vertex4(Vertex2 vertex2) {
 		this(vertex2.getX(), vertex2.getY(), 0.0f, 1.0f);

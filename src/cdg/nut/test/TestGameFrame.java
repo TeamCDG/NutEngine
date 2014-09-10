@@ -1,8 +1,15 @@
 package cdg.nut.test;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 
 import org.lwjgl.input.Keyboard;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import cdg.nut.gui.components.Button;
 import cdg.nut.interfaces.IClickListener;
@@ -13,7 +20,7 @@ import cdg.nut.util.game.GameFrame;
 import cdg.nut.util.game.Player;
 import cdg.nut.util.game.Tile;
 import cdg.nut.util.game.World;
-import cdg.nut.util.game.fish.Bulding;
+import cdg.nut.util.game.fish.Building;
 import cdg.nut.util.game.fish.Coral;
 import cdg.nut.util.game.fish.FishWorld;
 import cdg.nut.util.game.fish.PeasantHut;
@@ -24,10 +31,10 @@ import cdg.nut.util.gl.GLPolygon;
 public class TestGameFrame extends GameFrame {
 
 	private Button gf;	
-	private Tety test;
-	private Bulding building;
+	private Building building;
 	private boolean build;
 	private boolean buildable = false;
+	private Button gsont;
 	// LINE TEST: private LinePoly lp;
 
 	public TestGameFrame()
@@ -51,11 +58,24 @@ public class TestGameFrame extends GameFrame {
 		this.gf.setBorderHighlightColor(Colors.CORAL.getGlColor());
 		this.addComponent(gf);
 		
-		test = new Tety(0.0f, 0.0f, 0.2f, 0.2f);
-		test.setPosition(0.2f, -0.2f);
-		this.addEntity(test);
+		this.gsont = new Button(420, 462, "GSON Test");
+		this.gsont.setFontSize(16);
+		this.gsont.setPosition(460+this.gf.getPixelWidth()+10, 10);
+		this.gsont.setTooltip("~ Bang Bang Gamerang ~");
+		this.gsont.addClickListener(new IClickListener(){
+
+			@Override
+			public void onClick(int x, int y, MouseButtons button, int grabx, int graby) {
+				
+				getWorld().serialize("world.sav");
+				setWorld(World.deserialize("world.sav"));
+			}});
+		this.gsont.setBorderHighlightColor(GLColor.random());
+		this.addComponent(gsont);
 		
-		for(int i = 0; i < 10; i++) this.addEntity(new WorkerFish(new java.util.Random().nextFloat(), new java.util.Random().nextFloat()-0.5f, this.getLocalPlayer()));
+		
+		
+		for(int i = 0; i < 10; i++) this.addEntity(new WorkerFish(new java.util.Random().nextFloat(), new java.util.Random().nextFloat()-0.5f, this.getLocalPlayer().getPlayerId()));
 		
 		
 		for(int h = 0; h < this.getWorld().getGrid().getHTileCount(); h++)
@@ -64,7 +84,7 @@ public class TestGameFrame extends GameFrame {
 			{
 				if(new java.util.Random().nextInt(7) == 5)
 				{
-					Coral c = new Coral(w * 0.1f + ((new java.util.Random().nextFloat()*2.0f-1.0f) * 0.02f) + 0.05f, -h * 0.1f + ((new java.util.Random().nextFloat()*2.0f-1.0f) * 0.02f) - 0.05f, new Player(Colors.TRANSPARENT.getGlColor(), "WORLD"));
+					Coral c = new Coral(w * 0.1f + ((new java.util.Random().nextFloat()*2.0f-1.0f) * 0.01f) + 0.05f, -h * 0.1f + ((new java.util.Random().nextFloat()*2.0f-1.0f) * -0.01f) - 0.05f, this.getWorld().getPlayer(0).getPlayerId());
 					this.getWorld().getGrid().getTile(w,h).setOccupied(true);
 					this.addEntity(c);
 					this.getWorld().getGrid().getTile(w,h).setEntityId(c.getId());
@@ -80,7 +100,8 @@ public class TestGameFrame extends GameFrame {
 		if(key == Keyboard.KEY_B)
 		{
 			float[] mc = Utility.getMouseGL();
-			this.building = new PeasantHut(mc[0], mc[1], this.getLocalPlayer());		
+			this.building = new PeasantHut(mc[0], mc[1], this.getLocalPlayer().getPlayerId());	
+			this.building.setParent(this.getWorld());
 			this.building.setColor(new GLColor(1.0f, 0.0f, 0.0f, 0.5f));
 			this.build = true;
 		}
@@ -143,7 +164,6 @@ public class TestGameFrame extends GameFrame {
 		super.draw();
 		//
 		
-		this.test.setRotation(this.test.getRotation() + 6.0f);
 		
 		
 		

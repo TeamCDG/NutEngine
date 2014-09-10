@@ -1,5 +1,7 @@
 package cdg.nut.interfaces;
 
+import com.google.gson.JsonObject;
+
 import cdg.nut.util.enums.MouseButtons;
 
 public interface IGuiObject {
@@ -38,5 +40,6 @@ public interface IGuiObject {
 	public float getWidth();
 
 	public float getHeight();
+	
 	
 }

@@ -12,6 +12,8 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
+import com.google.gson.JsonObject;
+
 import cdg.nut.interfaces.IPolygonGenerator;
 import cdg.nut.interfaces.ISelectable;
 import cdg.nut.logging.Logger;
@@ -37,33 +39,34 @@ public class GLPolygon implements ISelectable {
 	
 	private boolean centerRef;
 	
-	private int[] indices;	
-	private VertexData[] data;
-	private Vertex4[] points;
+	private transient int[] indices;	
+	private transient VertexData[] data;
+	private transient Vertex4[] points;
 	
 	private float xrad;
 	private float yrad;
-	private int iCount;
-	private int VAO = -1;
-	private int VBO = -1;
-	private int iVBO = -1;
-	protected boolean drawing = false;
+	private transient int iCount;
+	private transient int VAO = -1;
+	private transient int VBO = -1;
+	private transient int iVBO = -1;
+	protected transient boolean drawing = false;
 	private boolean selectable = true;
 	private boolean hidden;
-	private ShaderProgram shader = DefaultShader.simple;;
+	private transient ShaderProgram shader = DefaultShader.simple;;
 	private int id;
 	private boolean selected = false;
 	private boolean autoClipping = true;
 	private boolean clipping = false;
 	private boolean scaleWithBoundingBox = true;
-	private Vertex4 clippingArea;
-	private GLColor idColor;
+	private transient Vertex4 clippingArea;
+	private transient GLColor idColor;
 	private int bs = -1;
 	
-	private IPolygonGenerator gen;
+	private transient IPolygonGenerator gen;
 	
-	private GLTexture image;
+	private transient GLTexture image;
 	private GLColor color = Colors.WHITE.getGlColor();
+	private String type;
 	
 	protected GLPolygon(){}
 	
@@ -79,6 +82,47 @@ public class GLPolygon implements ISelectable {
 		this.gen = gen;
 		if(this.data != null) this.points = Utility.extractPoints(this.data);
 		
+		this.setupGL();
+	}
+	
+	
+	protected void deserialize(JsonObject json)
+	{
+		this.x = json.get("x").getAsFloat();
+		this.y = json.get("y").getAsFloat();		
+		this.width = json.get("width").getAsFloat();
+		this.height = json.get("height").getAsFloat();		
+		this.centerRef = json.get("centerRef").getAsBoolean();
+		this.xrad = json.get("xrad").getAsFloat();	
+		this.yrad = json.get("yrad").getAsFloat();	
+		this.id = json.get("id").getAsInt();
+		this.idColor = new GLColor(this.id);
+		this.bs = json.get("bs").getAsInt();
+		//this.setId(id);
+		JsonObject col = json.get("color").getAsJsonObject();
+		this.color = new GLColor(col.get("r").getAsFloat(), col.get("g").getAsFloat(),col.get("b").getAsFloat(),col.get("a").getAsFloat());
+		this.clipping = json.get("clipping").getAsBoolean();
+		this.hidden = json.get("hidden").getAsBoolean();
+		this.selectable = json.get("selectable").getAsBoolean();
+		this.edgeCount = json.get("edgeCount").getAsInt();
+		this.autoClipping = json.get("autoClipping").getAsBoolean();
+		this.scaleWithBoundingBox = json.get("scaleWithBoundingBox").getAsBoolean();
+		
+		this.createQuad();
+		this.setupGL();
+		
+		this.setSelected(json.get("selected").getAsBoolean());
+	}
+	
+	protected void load(float x, float y, float width, float height, boolean cref)
+	{
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.centerRef = cref;
+		
+		this.createQuad();
 		this.setupGL();
 	}
 	
@@ -366,7 +410,7 @@ public class GLPolygon implements ISelectable {
 			
 			points.add(Utility.toGL(new Vertex4(px,py)));
 			
-			Logger.debug("P: "+i+" / c: "+this.edgeCount+" / deg: "+rad+" / px: "+px+" / py: "+py+" / cx: "+center.getX()+" / cy: "+center.getY()+" / xr: "+xrad+" / yr: "+yrad, "Polygon.generateCrefPoly");
+			//Logger.debug("P: "+i+" / c: "+this.edgeCount+" / deg: "+rad+" / px: "+px+" / py: "+py+" / cx: "+center.getX()+" / cy: "+center.getY()+" / xr: "+xrad+" / yr: "+yrad, "Polygon.generateCrefPoly");
 			
 			rad+=alpha;
 		}
@@ -425,7 +469,7 @@ public class GLPolygon implements ISelectable {
 			points.add(Utility.toGL(new Vertex4(px,py)));
 			points.add(Utility.toGL(new Vertex4(plx,ply)));
 			
-			Logger.debug("P: "+i+" / c: "+this.edgeCount+" / deg: "+rad+" / px: "+px+" / py: "+py+" / cx: "+center.getX()+" / cy: "+center.getY()+" / xr: "+xrad+" / yr: "+yrad, "Polygon.generateCrefPoly");
+			//Logger.debug("P: "+i+" / c: "+this.edgeCount+" / deg: "+rad+" / px: "+px+" / py: "+py+" / cx: "+center.getX()+" / cy: "+center.getY()+" / xr: "+xrad+" / yr: "+yrad, "Polygon.generateCrefPoly");
 			
 			rad+=alpha;
 		}
@@ -535,10 +579,12 @@ public class GLPolygon implements ISelectable {
 	
 	public final void setupGL()
 	{
+		this.type = this.getClass().getName();
+		
 		if(this.data == null || this.data.length == 0)
 			return;
 		
-		Logger.debug("datalength: "+data.length, "GLPolygon.setupGL");
+		//Logger.debug("datalength: "+data.length, "GLPolygon.setupGL");
 		
 		FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(this.data.length *
 				VertexData.ELEMENT_COUNT);
@@ -624,7 +670,7 @@ public class GLPolygon implements ISelectable {
 			float xm = this.x - nx;
 			float ym = this.y - ny;	
 			
-			Logger.debug("moving: "+xm+"; "+ym);
+			//Logger.debug("moving: "+xm+"; "+ym);
 			
 			for(int i = 0; i < points.length; i++)
 			{
@@ -684,7 +730,7 @@ public class GLPolygon implements ISelectable {
 		if(this.color != null) this.getShader().passColor("color", this.color);
 		//this.mainShader.pass4f("visible_Area",this.visibleArea.getX(),this.visibleArea.getY(),this.visibleArea.getZ(),this.visibleArea.getW());
 		// Draw the vertices
-		GL11.glDrawElements(GL11.GL_TRIANGLES, this.iCount, GL11.GL_UNSIGNED_INT, 0); //finallay draw
+		if(SetKeys.R_DRAW.getValue(Boolean.class)) GL11.glDrawElements(GL11.GL_TRIANGLES, this.iCount, GL11.GL_UNSIGNED_INT, 0); //finallay draw
 				
 		//reset everything (undpoint pointing pointers... ;) )
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0); 
@@ -789,7 +835,7 @@ public class GLPolygon implements ISelectable {
 	}
 	
 	protected void setHeightSupEvent(float height) {
-		Logger.debug("new height: "+height,"GLPolygon.setHeightSupEvent");
+		//Logger.debug("new height: "+height,"GLPolygon.setHeightSupEvent");
 		this.height = height;
 		if(this.autoClipping) this.setupClippingArea();
 	}
@@ -935,7 +981,7 @@ public class GLPolygon implements ISelectable {
 			{
 				this.xrad = this.getPixelWidth()/2;
 				this.yrad = this.getPixelHeight()/2;
-				Logger.debug("xrad: "+xrad+" / yrad: "+yrad, "GLPolygon.setDimension");
+				//Logger.debug("xrad: "+xrad+" / yrad: "+yrad, "GLPolygon.setDimension");
 				
 				if(this.bs != -1)
 					this.generateBorderCrefPoly();
@@ -1071,7 +1117,7 @@ public class GLPolygon implements ISelectable {
 			{
 				this.xrad = this.getPixelWidth()/2;
 				this.yrad = this.getPixelHeight()/2;
-				Logger.debug("xrad: "+xrad+" / yrad: "+yrad, "GLPolygon.setDimension");
+				//Logger.debug("xrad: "+xrad+" / yrad: "+yrad, "GLPolygon.setDimension");
 				
 				if(this.bs != -1)
 					this.generateBorderCrefPoly();

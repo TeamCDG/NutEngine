@@ -19,25 +19,25 @@ import cdg.nut.util.gl.GLColor;
 //TODO: Javadoc
 public final class ShaderProgram {
 	
-	private int shaderProgrammId;
-	private int vertexShaderId;
-	private int fragmentShaderId;
+	private transient int shaderProgrammId;
+	private transient int vertexShaderId;
+	private transient int fragmentShaderId;
 	
-	private int scalingMatrixLocation;
-	private int translationMatrixLocation;
-	private int rotationMatrixLocation;
-	private int windowMatrixLocation;
+	private transient int scalingMatrixLocation;
+	private transient int translationMatrixLocation;
+	private transient int rotationMatrixLocation;
+	private transient int windowMatrixLocation;
 	//private int camMatrixLocation;
 	//private int camRotMatrixLocation;
 	
-	private int camUniformBlockIndex;
+	private transient int camUniformBlockIndex;
 	
 	public ShaderProgram(File vertexShader, File fragmentShader) 
 	{
 		// Load the vertex shader
-		this.vertexShaderId = ShaderProgram.loadShader(vertexShader, GL20.GL_VERTEX_SHADER);
+		this.vertexShaderId = this.loadShader(vertexShader, GL20.GL_VERTEX_SHADER);
 		// Load the fragment shader
-		this.fragmentShaderId = ShaderProgram.loadShader(fragmentShader, GL20.GL_FRAGMENT_SHADER);
+		this.fragmentShaderId = this.loadShader(fragmentShader, GL20.GL_FRAGMENT_SHADER);
 				
 		this.setup();
 	}
@@ -45,9 +45,9 @@ public final class ShaderProgram {
 	public ShaderProgram(String vertexShaderPath, String fragmentShaderPath) 
 	{
 		// Load the vertex shader
-		this.vertexShaderId = ShaderProgram.loadShader(new File(vertexShaderPath), GL20.GL_VERTEX_SHADER);
+		this.vertexShaderId = this.loadShader(new File(vertexShaderPath), GL20.GL_VERTEX_SHADER);
 		// Load the fragment shader
-		this.fragmentShaderId = ShaderProgram.loadShader(new File(fragmentShaderPath), GL20.GL_FRAGMENT_SHADER);
+		this.fragmentShaderId = this.loadShader(new File(fragmentShaderPath), GL20.GL_FRAGMENT_SHADER);
 				
 		this.setup();
 	}
@@ -55,9 +55,9 @@ public final class ShaderProgram {
 	public ShaderProgram(String vertexShader, String fragmentShader, String name) 
 	{
 		// Load the vertex shader
-		this.vertexShaderId = ShaderProgram.loadShader(vertexShader, name, GL20.GL_VERTEX_SHADER);
+		this.vertexShaderId = this.loadShader(vertexShader, name, GL20.GL_VERTEX_SHADER);
 		// Load the fragment shader
-		this.fragmentShaderId = ShaderProgram.loadShader(fragmentShader, name, GL20.GL_FRAGMENT_SHADER);
+		this.fragmentShaderId = this.loadShader(fragmentShader, name, GL20.GL_FRAGMENT_SHADER);
 				
 		this.setup();
 	}
@@ -133,14 +133,29 @@ public final class ShaderProgram {
 		return shaderID;
 	}
 	
+	private String vshaderSrc;
+	private String fshaderSrc;
+	
 	/**
 	 * @param file location of the shader source file
 	 * @param type type of the shader: either GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
 	 */
-	public static int loadShader(File file, int type) 
+	private int loadShader(File file, int type) 
 	{
 		Logger.info("loading shader: "+file.getName());
-		return compile(read(file), file.getAbsolutePath(), type);	
+		
+		String src = read(file);
+		if(type == GL20.GL_VERTEX_SHADER)
+		{
+			this.vshaderSrc = src;
+			
+		}
+		else
+		{
+			this.fshaderSrc = src;
+		}
+		
+		return compile(src, file.getAbsolutePath(), type);	
 	}
 	
 	/**
@@ -148,9 +163,15 @@ public final class ShaderProgram {
 	 * @param name name of the shader
 	 * @param type type of the shader: either GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
 	 */
-	public static int loadShader(String src, String name, int type) 
+	private int loadShader(String src, String name, int type) 
 	{
 		Logger.info("loading shader: "+name+(type==GL20.GL_VERTEX_SHADER?".vert":".frag"));
+		
+		if(type == GL20.GL_VERTEX_SHADER)
+			this.vshaderSrc = src;
+		else
+			this.fshaderSrc = src;
+		
 		return compile(src, name+(type==GL20.GL_VERTEX_SHADER?".vert":".frag"), type);		
 	}
 	
@@ -281,10 +302,6 @@ public final class ShaderProgram {
 
 	public int getCamUniformBlockIndex() {
 		return camUniformBlockIndex;
-	}
-
-	public void setCamUniformBlockIndex(int camUniformBlockIndex) {
-		this.camUniformBlockIndex = camUniformBlockIndex;
 	}
 
 }

@@ -23,13 +23,13 @@ import de.matthiasmann.twl.utils.PNGDecoder.Format;
 public class GLTexture implements IntIntChangedListener
 {
 	
-	public static final int FILTER_NONSMOOTH_MIN = 0;
-	public static final int FILTER_NONSMOOTH_MAG = 1;
-	public static final int FILTER_SMOOTH_MIN = 2;
-	public static final int FILTER_SMOOTH_MAG = 3;
-	public static final int RELOAD = 4;
+	public static transient final int FILTER_NONSMOOTH_MIN = 0;
+	public static transient final int FILTER_NONSMOOTH_MAG = 1;
+	public static transient final int FILTER_SMOOTH_MIN = 2;
+	public static transient final int FILTER_SMOOTH_MAG = 3;
+	public static transient final int RELOAD = 4;
 	
-	private int textureId;
+	private transient int textureId;
 	private int textureUnit;
 	private String filename;
 	private BufferedImage image;

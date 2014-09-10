@@ -233,8 +233,8 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		if(!this.enabled)
 		{
 			
-			Logger.debug("border: "+this.borderDisabledColor.toReadableString(),"Component.setColor()");
-			Logger.debug("background: "+this.backgroundDisabledColor.toReadableString(),"Component.setColor()");
+			//Logger.debug("border: "+this.borderDisabledColor.toReadableString(),"Component.setColor()");
+			//Logger.debug("background: "+this.backgroundDisabledColor.toReadableString(),"Component.setColor()");
 			this.setColor(this.backgroundDisabledColor);
 			if(this.border != null) this.border.setColor(this.borderDisabledColor);
 			if(this.dsBEx != null)  this.dsBEx.setColor(this.borderDisabledColor);
@@ -432,7 +432,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 
 	public void setActive(boolean b) {
 		
-		Logger.debug("active: "+b+"/ activable: "+this.activeable, "Component.setActive");
+		//Logger.debug("active: "+b+"/ activable: "+this.activeable, "Component.setActive");
 		
 		if(this.activeable && this.enabled)
 		{
@@ -462,7 +462,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		//if(this.xsb != null) this.xsb.setScrollValue(this.xsb.getMaxValue());
 		this.autosize();
 		
-		Logger.debug(
+		/*Logger.debug(
 			"Dimensions: " +
 			(
 				this.text.getWidth() +
@@ -475,7 +475,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 			2 *
 			this.padding[1]
 			)
-		);
+		);*/
 	}
 
 	private void autosize()
@@ -491,7 +491,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 			this.xscroll = false;
 			this.yscroll = false;
 			this.setDimension(this.text.getPixelWidth()+this.getTextX()+this.getTextPad()-this.getPixelX(), this.text.getPixelHeight()+this.getTextY()+this.getTextPad()-this.getPixelY());
-			Logger.debug("fh: "+text.getPixelHeight(),"Component.autosize");
+			//Logger.debug("fh: "+text.getPixelHeight(),"Component.autosize");
 			this.border.setDimension(this.text.getPixelWidth()+this.getTextX()+this.getTextPad()-this.getPixelX(), this.text.getPixelHeight()+this.getTextY()+this.getTextPad()-this.getPixelY());
 		}
 		
@@ -551,7 +551,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		this.text.setFontSize(fontSize);
 		this.customFontSize = true;
 		this.autosize();
-Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+this.getPixelHeight(),"Component.setFontSize");
+//Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+this.getPixelHeight(),"Component.setFontSize");
 	}
 
 	public void resetFontSize()
@@ -591,7 +591,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 	private int addPadY;
 	public final void clicked(int x, int y, MouseButtons button, boolean grabbed, boolean deltaDown, int grabx, int graby) {
 		
-		Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed+" / yscrollGrabbed: "+this.yscrollGrabbed+" / deltadown: "+deltaDown,"Component.clicked");
+		//Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed+" / yscrollGrabbed: "+this.yscrollGrabbed+" / deltadown: "+deltaDown,"Component.clicked");
 		
 		if(!this.enabled)
 			return;
@@ -742,7 +742,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 			if(this.ysb != null) { this.ysb.setScrollValue(0); this.ysb.setMaxValue(0);}
 		}
 		
-		Logger.debug("xscroll: "+this.xscroll+" / yscroll: "+this.yscroll,"Component.setScroll");
+		//Logger.debug("xscroll: "+this.xscroll+" / yscroll: "+this.yscroll,"Component.setScroll");
 		
 		if(this.xsb != null) this.xsb.setDoublescroll(this.xscroll && this.yscroll);
 		if(this.ysb != null) this.ysb.setDoublescroll(this.xscroll && this.yscroll);
@@ -784,7 +784,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 			if(!calledByScroll) this.setScroll();
 			
 			
-			Logger.debug("text clipping area: "+ca.toString(), "Component.setTextClipping");
+			//Logger.debug("text clipping area: "+ca.toString(), "Component.setTextClipping");
 		}
 	}
 
@@ -1164,7 +1164,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 	
 	protected int getIndexByPosition(int x, int y)
 	{
-		Logger.debug("x: "+x+" / y: "+y+" / textX: "+this.getTextX()+" / textY: "+this.getTextY(),"Component.getIndexByPosition");
+		//Logger.debug("x: "+x+" / y: "+y+" / textX: "+this.getTextX()+" / textY: "+this.getTextY(),"Component.getIndexByPosition");
 		return this.text.getIndexByPosition(this.getTextX()-x,this.getTextY()-y);
 	}
 	
@@ -1201,7 +1201,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 	{
 		if(horizontal && this.xscroll)
 		{
-			Logger.debug("scrollvalue: "+sv, "Component.onScroll");
+			//Logger.debug("scrollvalue: "+sv, "Component.onScroll");
 			if(this.text != null) this.text.setX(this.getTextX()-sv);
 		}
 		else if(!this.xscroll && horizontal)
@@ -1210,7 +1210,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 		}
 		else if(!horizontal && this.yscroll)
 		{
-			Logger.debug("scrollvalue: "+sv, "Component.onScroll");
+			//Logger.debug("scrollvalue: "+sv, "Component.onScroll");
 			if(this.text != null) this.text.setY(this.getTextY()-sv);
 		}
 		else if(!this.yscroll && !horizontal)
@@ -1261,7 +1261,7 @@ Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+th
 	public void mwheel(int value)
 	{
 		int v = Math.round((float)value*Settings.get(SetKeys.GUI_CMP_SCROLL_MWHEELFACTOR, Float.class));
-		Logger.debug("Scroll value: "+v+" / wheel: "+value);
+		//Logger.debug("Scroll value: "+v+" / wheel: "+value);
 		if(this.yscroll)
 			this.ysb.setScrollValue(this.ysb.getScrollValue()-v);
 		else if(this.xscroll && Settings.get(SetKeys.GUI_CMP_SCROLL_XFALLBACK, Boolean.class))

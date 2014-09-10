@@ -1,10 +1,12 @@
 package cdg.nut.interfaces;
 
+import com.google.gson.JsonObject;
+
 import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.game.World;
 
 public interface IEntity extends IGuiObject{
-	public void onTick();
+	public boolean onTick();
 
 	public int getId();
 	
@@ -16,5 +18,7 @@ public interface IEntity extends IGuiObject{
 
 	public void setParent(World parent);
 
-	public void rightClickhappened(IEntity entity, float worldX, float worldY);
+	public void rightClickhappened(IEntity entity, float worldX, float worldY);	
+
+	public void deserialize(JsonObject json);
 }

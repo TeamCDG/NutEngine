@@ -244,9 +244,9 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 
 	public void setFontSize(int size)
 	{
-		Logger.debug("setting fs to: "+size);
+		//Logger.debug("setting fs to: "+size);
 		this.setFontSize(Utility.pixelSizeToGLSize(0, size)[1]);
-		Logger.debug(this.actualText+" --------------------->: "+this.getPixelHeight()+" / "+this.getFontSize());
+		//Logger.debug(this.actualText+" --------------------->: "+this.getPixelHeight()+" / "+this.getFontSize());
 	}
 
 	@Override
@@ -314,7 +314,7 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	{
 		super.move(x, y);
 		this.selectionArea.move(this.getX(), this.getY());
-		Logger.debug("################################################################### px: "+this.getPixelX()+" / py: "+this.getPixelY());
+		//Logger.debug("################################################################### px: "+this.getPixelX()+" / py: "+this.getPixelY());
 	}
 
 	@Override
@@ -334,7 +334,7 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 			float xoff = this.getX();
 			float yoff = this.getY();
 			
-			Logger.debug("xoff: "+xoff+" / yoff: "+yoff,"GLFont.setupFontGL");
+			//Logger.debug("xoff: "+xoff+" / yoff: "+yoff,"GLFont.setupFontGL");
 
 			GLColor currentColor = this.color;
 
@@ -430,27 +430,27 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 
 				this.setHidden(false);
 				//this.setupGL(ret.toArray(new VertexData[1]), Utility.createQuadIndicesInt(aqc));
-				Logger.spam(
-						(
-							"ydim: " +
-							(yoff + this.fontSize - this.getY()) +
-							"/ xdim: " +
-							xoffmax
-						),
-						"GLFont.setupFontGL"
-					);
+				//Logger.spam(
+				//		(
+				//			"ydim: " +
+				//			(yoff + this.fontSize - this.getY()) +
+				//			"/ xdim: " +
+				//			xoffmax
+				//		),
+				//		"GLFont.setupFontGL"
+				//	);
 				this.setHeightSupEvent(yoff + this.fontSize - this.getY());
 				this.setWidthSupEvent(xoffmax);
 				this.aqc = aqc;
-				Logger.spam(
-					(
-						"Text dimension: " +
-						this.getWidth() +
-						"/" +
-						this.getHeight()
-					),
-					"GLFont.setupFontGL"
-				);
+				//Logger.spam(
+				//	(
+				//		"Text dimension: " +
+				//		this.getWidth() +
+				//		"/" +
+				//		this.getHeight()
+				//	),
+				//	"GLFont.setupFontGL"
+				//);
 			}
 		} else {
 			this.setHidden(true);

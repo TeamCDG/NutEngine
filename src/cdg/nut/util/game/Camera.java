@@ -9,6 +9,8 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL32;
 
+import com.google.gson.JsonObject;
+
 import cdg.nut.logging.Logger;
 import cdg.nut.util.Matrix4x4;
 import cdg.nut.util.ShaderProgram;
@@ -21,10 +23,21 @@ public class Camera {
 	private float rotation = 0.0f;
 	private float scale = 1.0f;
 	
-	private Matrix4x4 matrix = Matrix4x4.getIdentity();
-	private Matrix4x4 rotMatrix = Matrix4x4.getIdentity();
+	private transient Matrix4x4 matrix = Matrix4x4.getIdentity();
+	private transient Matrix4x4 rotMatrix = Matrix4x4.getIdentity();
 
-	private int cameraMatricesUBO;
+	private transient int cameraMatricesUBO;
+	
+	
+	public void deserialize(JsonObject json)
+	{
+		
+		this.setXmove(json.get("xmove").getAsFloat());
+		this.setYmove(json.get("ymove").getAsFloat());
+		this.setRotation(json.get("rotation").getAsFloat());
+		this.setScale(json.get("scale").getAsFloat());
+		
+	}
 	
 	public Camera()
 	{
@@ -52,10 +65,11 @@ public class Camera {
 	private void uploadRotMatrix()
 	{
 		GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, this.cameraMatricesUBO);
-		FloatBuffer fb = BufferUtils.createFloatBuffer(16);
+		FloatBuffer fb = BufferUtils.createFloatBuffer(32);
+		fb.put(this.matrix.toArray());
 		fb.put(this.rotMatrix.toArray());
 		fb.rewind();
-		GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 16, fb);
+		GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, fb, GL15.GL_DYNAMIC_DRAW);
 		GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
 	}
 	

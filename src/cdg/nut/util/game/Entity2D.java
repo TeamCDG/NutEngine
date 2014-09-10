@@ -5,6 +5,8 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
+import com.google.gson.JsonObject;
+
 import cdg.nut.interfaces.IEntity;
 import cdg.nut.interfaces.IGuiObject;
 import cdg.nut.logging.Logger;
@@ -18,34 +20,36 @@ import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.settings.SetKeys;
 
-public class Entity2D extends GLPolygon implements IEntity{
+public abstract class Entity2D extends GLPolygon implements IEntity{
 	
-	private GLTexture primary;
+	private transient GLTexture primary;
 	
 
-	private GLTexture layer1;
-	private GLTexture layer2;
-	private GLTexture layer3;
-	private GLTexture layer4;
-	private GLTexture layer5;
-	private GLTexture layer6;
+	private transient GLTexture layer1;
+	private transient GLTexture layer2;
+	private transient GLTexture layer3;
+	private transient GLTexture layer4;
+	private transient GLTexture layer5;
+	private transient GLTexture layer6;
 	
-	private World parent;
+	private transient World parent;
 	
 	private float rotation;
 	
-	private Matrix4x4 translationMat = Matrix4x4.getIdentity();
-	private Matrix4x4 rotationMat = Matrix4x4.getIdentity();;
-	private Matrix4x4 scalingMat = Matrix4x4.getIdentity();;
+	private transient Matrix4x4 translationMat = Matrix4x4.getIdentity();
+	private transient Matrix4x4 rotationMat = Matrix4x4.getIdentity();;
+	private transient Matrix4x4 scalingMat = Matrix4x4.getIdentity();;
 	
 	public static ShaderProgram DEFAULT_SHADER = new ShaderProgram("entity2d.vert", "entity2d.frag");
 	
-	private boolean active = false;
-	private boolean visible = true;
-	private float oldCamX;
-	private float oldCamY;
-	private float oldCamScale;
-	private float oldCamRotation;
+	private transient boolean active = false;
+	private transient boolean visible = true;
+	private transient float oldCamX;
+	private transient float oldCamY;
+	private transient float oldCamScale;
+	private transient float oldCamRotation;
+	
+	public Entity2D() {}
 	
 	public Entity2D(float x, float y, float width, float height)
 	{
@@ -163,7 +167,7 @@ public class Entity2D extends GLPolygon implements IEntity{
 	}
 	
 	@Override
-	public void passUniforms()
+	protected void passUniforms()
 	{
 		if(this.getShader() != null)
 		{
@@ -196,9 +200,27 @@ public class Entity2D extends GLPolygon implements IEntity{
 																						 0.0f, 													  0.0f, 0.0f, 1.0f);
 	}
 	
-	public void onTick()
+	@Override
+	public void deserialize(JsonObject json)
 	{
+		float x = json.get("x").getAsFloat();
+		float y = json.get("y").getAsFloat();
+		json.addProperty("x", 0.0f);
+		json.addProperty("y", 0.0f);
 		
+		super.deserialize(json);
+		
+		
+		this.move(x, y);
+		
+		float rot = json.get("rotation").getAsFloat();		
+		this.setRotation(rot);
+		this.setShader(Entity2D.DEFAULT_SHADER);		
+	}
+	
+	public boolean onTick()
+	{
+		return false;
 	}
 
 	@Override
@@ -350,4 +372,6 @@ public class Entity2D extends GLPolygon implements IEntity{
 		// TODO Auto-generated method stub
 		
 	}
+
+
 }

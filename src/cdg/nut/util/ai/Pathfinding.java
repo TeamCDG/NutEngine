@@ -14,6 +14,102 @@ import cdg.nut.util.game.Tile;
 public abstract class Pathfinding {
 
 	
+	public static List<IVertex> findNextFree(Grid g, int sx, int sy) // using Dijkstra
+	{
+		
+		List<PFTile> open = new ArrayList<PFTile>(g.getTileCount());
+		List<PFTile> closed = new ArrayList<PFTile>(g.getHTileCount() + g.getVTileCount());
+		
+		byte[][] whr = new byte[g.getVTileCount()][g.getHTileCount()]; // save in which list we find the tile... way faster than searching
+		
+		
+		Logger.info("Dijkstra: from Tile( "+sx+" / "+sy+" ) for next free Tile");
+		
+		closed.add(new PFTile(0, 0, sx, sy));
+		whr[sx][sy] = Pathfinding.CLOSED;
+		PFTile previous = closed.get(0);
+		
+		boolean pFound = false;
+		
+		while(!pFound)
+		{
+			
+			if(whr[previous.getX()][previous.getY()] == Pathfinding.OPEN)
+				open.remove(previous);
+			closed.add(previous);
+			whr[previous.getX()][previous.getY()] = Pathfinding.CLOSED;
+			
+			if(!g.getTile(previous.getX(), previous.getY()).isOccupied())
+			{
+				pFound = true;
+				break;
+			}
+			
+			
+			Tile[] tmp = g.getTileSurroundings(previous.getX(), previous.getY());
+			
+			for(int i = 0; i < tmp.length; i++)
+			{
+				
+				
+				if(whr[tmp[i].getTX()][tmp[i].getTY()] == Pathfinding.NOT_LISTED)
+				//if(!inList(tmp[i].getTX(),tmp[i].getTY(), open) && !inList(tmp[i].getTX(),tmp[i].getTY(), closed))
+				{
+					PFTile t = new PFTile(g(tmp[i].getTX(), tmp[i].getTY(), previous), 0, tmp[i].getTX(), tmp[i].getTY(), previous);
+					whr[t.getX()][t.getY()] = Pathfinding.OPEN;
+					open.add(getIdx(t, open), t);
+					
+				}
+				else if (whr[tmp[i].getTX()][tmp[i].getTY()] == Pathfinding.OPEN)
+				//else if (inList(tmp[i].getTX(),tmp[i].getTY(), open))
+				{
+					int tIdx = getTile(tmp[i].getTX(), tmp[i].getTY(), open);
+					int gOld = open.get(tIdx).getG();
+					int gNew = g(open.get(tIdx).getX(), open.get(tIdx).getY(), previous);
+					
+					if(gOld >= gNew)
+					{
+						PFTile t = open.get(tIdx);
+						open.remove(tIdx);
+						t.setG(gNew);
+						open.add(getIdx(t, open), t);
+					}
+				}
+			}
+			
+			if(open.size() == 0)
+				break;
+			
+			previous = open.get(0);
+		}
+		
+		if(!pFound)
+			return null; // no path found :(
+		
+		List<IVertex> points = new ArrayList<IVertex>(closed.size());
+		
+		boolean bts = false;
+		PFTile step = closed.get(closed.size()-1);
+		
+		while(!bts)
+		{
+			Logger.debug("step: ( "+step.getX()+" / "+step.getY()+" )");
+			points.add(0, new Vertex2(step.getX(), step.getY()));
+			
+			step = step.getPrevious();
+			
+			if(step.getX() == sx && step.getY() == sy)
+				bts = true;
+		}
+		
+		points.add(0, new Vertex2(step.getX(), step.getY()));
+		
+		return points;
+	}
+	
+	
+	
+
 	public static List<IVertex> astar(Grid g, IVertex begin, IVertex end)
 	{
 		Tile s = g.getTile(begin.getX(), begin.getY());
@@ -55,8 +151,7 @@ public abstract class Pathfinding {
 		
 		byte[][] whr = new byte[g.getVTileCount()][g.getHTileCount()]; // save in which list we find the tile... way faster than searching
 		
-		
-		Logger.info("A*: from Tile( "+sx+" / "+sy+" ) to Tile( "+ex+" / "+ey+" )");
+		Logger.info("A*: from tile( "+sx+" / "+sy+" ) to tile( "+ex+" / "+ey+" )");
 		
 		closed.add(new PFTile(0, Pathfinding.manhatten(sx, sy, ex, ey), sx, sy));
 		whr[sx][sy] = Pathfinding.CLOSED;
@@ -69,8 +164,10 @@ public abstract class Pathfinding {
 			
 			if(whr[previous.getX()][previous.getY()] == Pathfinding.OPEN)
 				open.remove(previous);
+			
 			closed.add(previous);
 			whr[previous.getX()][previous.getY()] = Pathfinding.CLOSED;
+			
 			
 			if(previous.getX() == ex && previous.getY() == ey)
 			{
@@ -83,32 +180,149 @@ public abstract class Pathfinding {
 			
 			for(int i = 0; i < tmp.length; i++)
 			{
-				if(tmp[i].isOccupied()) continue;
+				
+				if((tmp[i].getTX() == ex && tmp[i].getTY() == ey && tmp[i].isOccupied()) || !tmp[i].isOccupied())
+				{
+					if(whr[tmp[i].getTX()][tmp[i].getTY()] == Pathfinding.NOT_LISTED)
+						//if(!inList(tmp[i].getTX(),tmp[i].getTY(), open) && !inList(tmp[i].getTX(),tmp[i].getTY(), closed))
+						{
+							PFTile t = new PFTile(g(tmp[i].getTX(), tmp[i].getTY(), previous), manhatten(tmp[i].getTX(), tmp[i].getTY(), ex, ey), tmp[i].getTX(), tmp[i].getTY(), previous);
+							whr[t.getX()][t.getY()] = Pathfinding.OPEN;
+							open.add(getIdx(t, open), t);
+							
+						}
+						else if (whr[tmp[i].getTX()][tmp[i].getTY()] == Pathfinding.OPEN)
+						//else if (inList(tmp[i].getTX(),tmp[i].getTY(), open))
+						{
+							int tIdx = getTile(tmp[i].getTX(), tmp[i].getTY(), open);
+							int gOld = open.get(tIdx).getG();
+							int gNew = g(open.get(tIdx).getX(), open.get(tIdx).getY(), previous);
+							
+							if(gOld >= gNew)
+							{
+								PFTile t = open.get(tIdx);
+								open.remove(tIdx);
+								t.setG(gNew);
+								open.add(getIdx(t, open), t);
+							}
+						}
+				}
 				
 				
-				if(whr[tmp[i].getTX()][tmp[i].getTY()] == Pathfinding.NOT_LISTED)
-				//if(!inList(tmp[i].getTX(),tmp[i].getTY(), open) && !inList(tmp[i].getTX(),tmp[i].getTY(), closed))
+				//if(tmp[i].isOccupied()) continue;
+				
+				
+				
+			}
+			
+			if(open.size() == 0)
+				break;
+			
+			previous = open.get(0);
+		}
+		
+		if(!pFound)
+			return null; // no path found :(
+		
+		List<IVertex> points = new ArrayList<IVertex>(closed.size());
+		
+		boolean bts = false;
+		PFTile step = closed.get(closed.size()-1);
+		
+		while(!bts)
+		{
+			//Logger.debug("step: ( "+step.getX()+" / "+step.getY()+" )");
+			points.add(0, new Vertex2(step.getX(), step.getY()));
+			
+			step = step.getPrevious();
+			
+			if(step.getX() == sx && step.getY() == sy)
+				bts = true;
+		}
+		
+		points.add(0, new Vertex2(step.getX(), step.getY()));
+		
+		return points;
+	}
+	
+	public static List<IVertex> astar(Grid g, int sx, int sy, int ex, int ey, int bid) //building.... some hack to go, defnitely needs better
+	{
+		
+		if(sx == ex && sy == ey)
+		{
+			List<IVertex> points = new ArrayList<IVertex>(1);
+			points.add(new Vertex2(sx,sy));
+			return points;
+		}
+			
+		
+		List<PFTile> open = new ArrayList<PFTile>(g.getTileCount());
+		List<PFTile> closed = new ArrayList<PFTile>(g.getHTileCount() + g.getVTileCount());
+		
+		byte[][] whr = new byte[g.getVTileCount()][g.getHTileCount()]; // save in which list we find the tile... way faster than searching
+		
+		Logger.info("A*: from tile( "+sx+" / "+sy+" ) to tile( "+ex+" / "+ey+" )");
+		
+		closed.add(new PFTile(0, Pathfinding.manhatten(sx, sy, ex, ey), sx, sy));
+		whr[sx][sy] = Pathfinding.CLOSED;
+		PFTile previous = closed.get(0);
+		
+		boolean pFound = false;
+		
+		while(!pFound)
+		{
+			
+			if(whr[previous.getX()][previous.getY()] == Pathfinding.OPEN)
+				open.remove(previous);
+			
+			closed.add(previous);
+			whr[previous.getX()][previous.getY()] = Pathfinding.CLOSED;
+			
+			
+			if(g.getTile(previous.getX(), previous.getY()).getEntityId() == bid)
+			{
+				pFound = true;
+				break;
+			}
+			
+			
+			Tile[] tmp = g.getTileSurroundings(previous.getX(), previous.getY());
+			
+			for(int i = 0; i < tmp.length; i++)
+			{
+				
+				if((tmp[i].getEntityId() == bid && tmp[i].isOccupied()) || tmp[i].isOccupied() == false)
 				{
-					PFTile t = new PFTile(g(tmp[i].getTX(), tmp[i].getTY(), previous), manhatten(tmp[i].getTX(), tmp[i].getTY(), ex, ey), tmp[i].getTX(), tmp[i].getTY(), previous);
-					whr[t.getX()][t.getY()] = Pathfinding.OPEN;
-					open.add(getIdx(t, open), t);
-					
+					if(whr[tmp[i].getTX()][tmp[i].getTY()] == Pathfinding.NOT_LISTED)
+						//if(!inList(tmp[i].getTX(),tmp[i].getTY(), open) && !inList(tmp[i].getTX(),tmp[i].getTY(), closed))
+						{
+							PFTile t = new PFTile(g(tmp[i].getTX(), tmp[i].getTY(), previous), manhatten(tmp[i].getTX(), tmp[i].getTY(), ex, ey), tmp[i].getTX(), tmp[i].getTY(), previous);
+							whr[t.getX()][t.getY()] = Pathfinding.OPEN;
+							open.add(getIdx(t, open), t);
+							
+						}
+						else if (whr[tmp[i].getTX()][tmp[i].getTY()] == Pathfinding.OPEN)
+						//else if (inList(tmp[i].getTX(),tmp[i].getTY(), open))
+						{
+							int tIdx = getTile(tmp[i].getTX(), tmp[i].getTY(), open);
+							int gOld = open.get(tIdx).getG();
+							int gNew = g(open.get(tIdx).getX(), open.get(tIdx).getY(), previous);
+							
+							if(gOld >= gNew)
+							{
+								PFTile t = open.get(tIdx);
+								open.remove(tIdx);
+								t.setG(gNew);
+								open.add(getIdx(t, open), t);
+							}
+						}
 				}
-				else if (whr[tmp[i].getTX()][tmp[i].getTY()] == Pathfinding.OPEN)
-				//else if (inList(tmp[i].getTX(),tmp[i].getTY(), open))
-				{
-					int tIdx = getTile(tmp[i].getTX(), tmp[i].getTY(), open);
-					int gOld = open.get(tIdx).getG();
-					int gNew = g(open.get(tIdx).getX(), open.get(tIdx).getY(), previous);
-					
-					if(gOld >= gNew)
-					{
-						PFTile t = open.get(tIdx);
-						open.remove(tIdx);
-						t.setG(gNew);
-						open.add(getIdx(t, open), t);
-					}
-				}
+				
+				
+				//if(tmp[i].isOccupied()) continue;
+				
+				
+				
 			}
 			
 			if(open.size() == 0)

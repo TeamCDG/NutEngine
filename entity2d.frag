@@ -11,7 +11,7 @@ layout(binding=5) uniform sampler2D layer5;
 
 //uniform vec4 shield_color = vec4(0.4, 1.0, 0.4, 1.0);
 //uniform float shield_level = 1.0;
-//uniform vec4 team_color = vec4(0.0, 0.6, 0.0, 1.0);
+uniform vec4 playerColor = vec4(1.0, 1.0, 1.0, 1.0);
 uniform vec2 seed = vec2(1.0, 0.5);
 uniform vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
 
@@ -47,7 +47,7 @@ void main(void)
 			vec4 l1 = color * texture2D(layer1,vec2(pass_TextureCoord.x, -pass_TextureCoord.y));
 			vec4 l2 = color * texture2D(layer2,vec2(pass_TextureCoord.x, -pass_TextureCoord.y));
 			vec4 l3 = color * texture2D(layer3,vec2(pass_TextureCoord.x, -pass_TextureCoord.y));
-			vec4 l4 = color * texture2D(layer4,vec2(pass_TextureCoord.x, -pass_TextureCoord.y));
+			vec4 l4 = playerColor * texture2D(layer4,vec2(pass_TextureCoord.x, -pass_TextureCoord.y));
 			
 			
 

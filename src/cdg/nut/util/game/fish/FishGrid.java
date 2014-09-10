@@ -7,7 +7,8 @@ import cdg.nut.util.gl.GLTexture;
 
 public class FishGrid extends Grid {
 
-	public static GLTexture SAND = new GLTexture("res/fish/sand.png");
+	public FishGrid() {}
+	
 	public FishGrid(int width, int height, World parent) {
 		super(width, height, parent);
 		// TODO Auto-generated constructor stub
@@ -22,7 +23,7 @@ public class FishGrid extends Grid {
 		{
 			for(int w = 0; w < width; w++)
 			{
-				grid[h][w] = new Tile(w * 0.1f, h * -0.1f -0.1f, h * width + w +1, w, h, FishGrid.SAND);
+				grid[h][w] = new SandTile(w * 0.1f, h * -0.1f -0.1f, h * width + w +1, w, h);
 				grid[h][w].setParent(this.getParent());
 			}
 		}
