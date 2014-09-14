@@ -1,5 +1,7 @@
 package cdg.nut.util.game;
 
+import java.net.Socket;
+
 import com.google.gson.JsonObject;
 
 import cdg.nut.util.gl.GLColor;
@@ -10,6 +12,7 @@ public class Player {
 	private String name;
 	private boolean isLocal;
 	private int playerId;
+	private Socket client;
 	
 	public Player() {}
 	
@@ -61,5 +64,13 @@ public class Player {
 
 	public void setPlayerId(int playerId) {
 		this.playerId = playerId;
+	}
+
+	public Socket getClient() {
+		return client;
+	}
+
+	public void setClient(Socket client) {
+		this.client = client;
 	}
 }

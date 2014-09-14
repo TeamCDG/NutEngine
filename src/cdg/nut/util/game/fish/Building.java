@@ -1,7 +1,17 @@
 package cdg.nut.util.game.fish;
 
+import java.util.ArrayList;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import cdg.nut.interfaces.IEntity;
+import cdg.nut.interfaces.IVertex;
+import cdg.nut.util.Vertex4;
+import cdg.nut.util.enums.Commands;
 import cdg.nut.util.game.Entity2D;
+import cdg.nut.util.game.PathRender;
 import cdg.nut.util.game.Player;
 
 public class Building extends FishGameEntity {
@@ -16,6 +26,25 @@ public class Building extends FishGameEntity {
 	private int buildPoints = 0;
 	private int maxBuildPoints = 100;
 	
+	
+	public Building() {}
+	
+	
+	@Override
+	public void deserialize(JsonObject json)
+	{
+		super.deserialize(json);
+		
+		this.tileHeight = json.get("tileHeight").getAsInt();
+		this.tileWidth = json.get("tileWidth").getAsInt();
+		this.tileXMove = json.get("tileXMove").getAsInt();
+		this.tileYMove = json.get("tileYMove").getAsInt();
+		
+		this.built = json.get("built").getAsBoolean();
+		
+		this.buildPoints = json.get("buildPoints").getAsInt();
+		this.maxBuildPoints = json.get("maxBuildPoints").getAsInt();		
+	}
 	
 	public Building(float x, float y, float width, float height, int owner) {
 		super(x, y, width, height, owner);

@@ -71,6 +71,8 @@ public class Main {
 	}
 
 	private double lastFrame;
+	private float fpstime = 0;
+	private int fps = 0;
 	
 	public Main() throws Exception
 	{
@@ -128,7 +130,7 @@ public class Main {
 		}*/
 		//b.setShader(DefaultShader.simple);
 		
-		
+		Server.init();
 		
 		while (!Display.isCloseRequested() && !Main.closeRequested) {
 			
@@ -139,7 +141,7 @@ public class Main {
 			
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			
-			Server.onTick();
+			//Server.onTick();
 			//for(int i = 0; i < boxes.size(); i++)
 			//{
 			//	if(new Random().nextInt(100) == 420) boxes.get(i).setPosition(new Random().nextInt(SetKeys.WIN_WIDTH.getValue(Integer.class)-40)+20, new Random().nextInt(SetKeys.WIN_HEIGHT.getValue(Integer.class)-40)+20);
@@ -147,15 +149,28 @@ public class Main {
 			//	boxes.get(i).draw();
 			//}
 			//if(new Random().nextInt(100) == 420) b.setText(Utility.randomString(100));
+			
+			
 			Main.activeFrame.draw();
 			//b.draw();
 			//f.draw();
 			
+			this.fpstime += Engine.getDelta();
+			this.fps++;
 			
+			if(fpstime > 1000)
+			{
+				fpstime = 0;
+				Engine.setFPS(fps);
+				fps = 0;
+			}
 			
 			Display.update();
+			//Display.sync(SetKeys.R_MAX_FPS.getValue(Integer.class));
 			Display.sync(60);
 		}
+		
+		Server.setCloseRequested(true);
 		
 		
 	}

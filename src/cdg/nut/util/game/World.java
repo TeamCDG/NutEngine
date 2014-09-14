@@ -3,11 +3,18 @@ package cdg.nut.util.game;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,6 +54,9 @@ public class World {
 	private List<IEntity> entities;
 	private List<Player> player;
 	
+	private transient List<Integer> added = new LinkedList<Integer>();
+	private transient List<Integer> removed = new LinkedList<Integer>();
+	
 	private Grid grid;
 	private String type;
 	
@@ -56,6 +66,24 @@ public class World {
 	 */
 	public int getWidth() {
 		return width;
+	}
+
+	/**
+	 * @return the added
+	 */
+	protected List<Integer> getAdded() {
+		List<Integer> cloned = new LinkedList<Integer>(added);
+		this.added.clear();
+		return cloned;		
+	}
+
+	/**
+	 * @return the removed
+	 */
+	protected List<Integer> getRemoved() {
+		List<Integer> cloned = new LinkedList<Integer>(removed);
+		this.removed.clear();
+		return cloned;
 	}
 
 	/**
@@ -119,6 +147,7 @@ public class World {
 		this.nextId += e.setId(this.nextId);
 		e.setParent(this);
 		this.entities.add(e);
+		this.added.add(e.getId());
 	}
 	
 	public IEntity get(int id)
@@ -137,6 +166,25 @@ public class World {
 		}
 		
 		return null;
+	}
+	
+	public void removeEntity(IEntity e)
+	{
+		this.entities.remove(e);
+		this.removed.add(e.getId());
+	}
+	
+	public void removeEntity(int id)
+	{
+		for(int i = 0; i < this.entities.size(); i++)
+		{
+			if(this.entities.get(i).getId() == id)
+			{
+				this.entities.remove(i);
+				this.removed.add(i);
+				break;
+			}
+		}
 	}
 	
 	public List<IEntity> getEntites()
@@ -284,9 +332,14 @@ public class World {
 	
 	public static World deserialize(String path)
 	{
+		return World.deserialize(path, false);
+	}
+	
+	public static World deserialize(String path, boolean gl_less)
+	{
 	    BufferedReader br = null;
 	    try {
-	    	br = new BufferedReader(new FileReader(path));
+	    	br = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path))));
 	        JsonReader r = new JsonReader(br);
 	        r.setLenient(true);
 	        JsonObject world = new JsonParser().parse(r).getAsJsonObject();
@@ -392,7 +445,10 @@ public class World {
 		BufferedWriter writer = null;
 		try
 		{
-			writer = new BufferedWriter(new FileWriter(f, true));
+			writer = new BufferedWriter(
+                    new OutputStreamWriter(
+                            new GZIPOutputStream(new FileOutputStream(f))
+                        ));//new BufferedWriter(new FileWriter(f, true));
 			writer.write(t);
 			
 		}

@@ -35,6 +35,7 @@ public class GameFrame extends Frame {
 	private Label deltaDebug;
 	private Label tileCullingDebug;
 	private Label mouseTileDebug;
+	private Label fps;
 	
 	private Button ddReset;
 	
@@ -104,6 +105,14 @@ public class GameFrame extends Frame {
 		this.mouseTileDebug.setHasBackground(true);
 		this.mouseTileDebug.setBorderPaddingDisabled(true);
 		this.add(this.mouseTileDebug);
+		
+		this.fps = new Label(0, this.mouseTileDebug.getPixelY() + this.mouseTileDebug.getPixelHeight(), "FPS: "+Engine.getFPS());
+		this.fps.setFontSize(16);
+		this.fps.setScrollable(false);
+		this.fps.setBackgroundColor(debugBG);
+		this.fps.setHasBackground(true);
+		this.fps.setBorderPaddingDisabled(true);
+		this.add(this.fps);
 		
 		this.world.addPlayer("feget", GLColor.random(), true);
 	}
@@ -297,13 +306,18 @@ public class GameFrame extends Frame {
 		if(this.world != null) this.world.draw();
 		
 		this.tileCullingDebug.setText("Tiles --> drawn: "+this.world.getDrawnTiles()+" / skipped: "+this.world.getSkippedTiles());
+		this.fps.setText("FPS: "+Engine.getFPS());
 		
 		this.con.drawComponents();
 		
 		if(this.activeToolTip != null)
 			this.activeToolTip.draw();
 		
+		long t1 = System.currentTimeMillis();
 		this.world.onTick(); //TODO: hell out of here...
+		
+		long t2 = System.currentTimeMillis() - t1;
+
 	}
 	 
 	

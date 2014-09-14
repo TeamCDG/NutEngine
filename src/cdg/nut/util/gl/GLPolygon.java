@@ -29,6 +29,8 @@ import cdg.nut.util.settings.Settings;
 
 public class GLPolygon implements ISelectable {
 	
+	private transient boolean gl_less = false;
+	
 	private float x;
 	private float y;
 	
@@ -108,8 +110,8 @@ public class GLPolygon implements ISelectable {
 		this.autoClipping = json.get("autoClipping").getAsBoolean();
 		this.scaleWithBoundingBox = json.get("scaleWithBoundingBox").getAsBoolean();
 		
-		this.createQuad();
-		this.setupGL();
+		if(!this.gl_less) this.createQuad();
+		if(!this.gl_less) this.setupGL();
 		
 		this.setSelected(json.get("selected").getAsBoolean());
 	}
@@ -1162,5 +1164,13 @@ public class GLPolygon implements ISelectable {
 	public void selected() {
 		this.setSelected(true);
 		
+	}
+
+	public boolean isGl_less() {
+		return gl_less;
+	}
+
+	public void setGl_less(boolean gl_less) {
+		this.gl_less = gl_less;
 	}
 }

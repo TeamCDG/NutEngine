@@ -2,6 +2,8 @@ package cdg.nut.util.game.fish;
 
 import org.lwjgl.opengl.GL13;
 
+import com.google.gson.JsonObject;
+
 import cdg.nut.interfaces.IEntity;
 import cdg.nut.util.game.Player;
 import cdg.nut.util.gl.GLTexture;
@@ -15,6 +17,40 @@ public class PeasantHut extends Building{
 	
 	private boolean firstTick = true;
 	private int stage = 0;
+	
+	
+	public PeasantHut() {}
+	
+	@Override
+	public void deserialize(JsonObject json)
+	{
+		super.deserialize(json);
+		
+		this.stage = json.get("stage").getAsInt();
+		this.firstTick = json.get("firstTick").getAsBoolean();
+		
+		if(this.firstTick)
+		{
+			this.setPrimary(PeasantHut.TEXTURE_FINAL);
+			this.setLayer4(PeasantHut.TEXTURE_HEAD);
+		}
+		else
+		{
+			if((float)this.getBuildPoints() / (float)this.getMaxBuildPoints() > 0.33f && this.stage == 0)
+			{
+				this.setPrimary(TEXTURE_STAGE1);
+			}
+			else if((float)this.getBuildPoints() / (float)this.getMaxBuildPoints() > 0.66f && this.stage >= 1)
+			{
+				this.setPrimary(TEXTURE_FINAL);
+			}
+			
+			if(this.isBuilt() && this.stage == 2)
+			{
+				this.setLayer4(PeasantHut.TEXTURE_HEAD);
+			}	
+		}
+	}
 	
 	public PeasantHut(float x, float y, int owner) {
 		super(x, y, 0.3f, 0.3f, owner);

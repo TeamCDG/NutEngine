@@ -123,7 +123,10 @@ public enum SetKeys {
 	//--- REGION AI ---
 	AI_PF_USE_RANDOM("<boolean>", "true if ai should use random elements in pathfinding", true),
 	
-	//--- REGION 
+	//--- REGION SERVER ---
+	SV_PORT("<int>", "portnumber", 1337),
+	SV_AUTOSAVE_INTERVAL("<int>", "autosave interval in minutes", 15),
+	SV_TICKRATE("<int>", "ticks per second", 60),
 	
 	
 	//--- REGION CLIENT ---
