@@ -23,7 +23,7 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	private GLColor color = Settings.get(SetKeys.GUI_CMP_FONT_COLOR, GLColor.class);
 	private String colorText = "";
 	private String actualText = "";
-	private float fontSize;
+	private float fontSize = SetKeys.GUI_CMP_FONT_SIZE.getValue(Float.class);
 	private float scalingConst;
 	
 	private GLPolygon selectionArea;

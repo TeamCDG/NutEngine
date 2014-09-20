@@ -12,7 +12,6 @@ public class Player {
 	private String name;
 	private boolean isLocal;
 	private int playerId;
-	private Socket client;
 	
 	public Player() {}
 	
@@ -66,11 +65,4 @@ public class Player {
 		this.playerId = playerId;
 	}
 
-	public Socket getClient() {
-		return client;
-	}
-
-	public void setClient(Socket client) {
-		this.client = client;
-	}
 }

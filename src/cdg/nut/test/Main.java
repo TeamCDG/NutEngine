@@ -35,12 +35,13 @@ import cdg.nut.util.ShaderProgram;
 import cdg.nut.util.Utility;
 import cdg.nut.util.VertexData;
 import cdg.nut.util.enums.Colors;
-import cdg.nut.util.game.Server;
 import cdg.nut.util.gl.GLColor;
+import cdg.nut.util.net.Server;
 import cdg.nut.util.settings.CfgReader;
 import cdg.nut.util.settings.Cmd;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
+import cdg.nut.util.game.fish.frames.*;
 
 public class Main {
 
@@ -107,13 +108,13 @@ public class Main {
 			x+=s;
 		}
 		
-		Frame tf = new TestFrame();
-		tf.setNormalCursor(Utility.loadCursor("m_no.png"));
-		tf.setActiveCursor(Utility.loadCursor("m_cl.png"));
+		//Frame tf = new TestFrame();
+		//tf.setNormalCursor(Utility.loadCursor("m_no.png"));
+		//tf.setActiveCursor(Utility.loadCursor("m_cl.png"));
 		
 		Mouse.setNativeCursor(Utility.loadCursor("m_no.png"));
 		
-		Main.activeFrame = tf;
+		Main.activeFrame = new MainMenu();//tf;
 		
 		Logger.debug("gui_cmp_font_size: "+Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class));
 		Logger.debug(""+GLColor.random());

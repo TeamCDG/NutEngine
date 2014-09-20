@@ -39,6 +39,7 @@ public class BitmapFont
 		BufferedReader reader = new BufferedReader(r);
 		String line = reader.readLine();
 		this.fontName = line.split(";")[0];
+		if(this.fontName.startsWith(";")) this.fontName = this.fontName.replace(";", "");
 		this.staticHeight = Float.valueOf(line.split(";")[4]);
 		while((line = reader.readLine()) != null)
 		{

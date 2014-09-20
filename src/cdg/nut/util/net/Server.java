@@ -1,4 +1,4 @@
-package cdg.nut.util.game;
+package cdg.nut.util.net;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -8,6 +8,7 @@ import java.util.List;
 
 import cdg.nut.interfaces.IEntity;
 import cdg.nut.logging.Logger;
+import cdg.nut.util.game.World;
 
 public class Server {
 

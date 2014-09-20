@@ -495,7 +495,8 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 			this.border.setDimension(this.text.getPixelWidth()+this.getTextX()+this.getTextPad()-this.getPixelX(), this.text.getPixelHeight()+this.getTextY()+this.getTextPad()-this.getPixelY());
 		}
 		
-		
+		this.setTextClipping(true);
+		this.text.setPosition(this.getTextX(), this.getTextY());
 	}
 
 	public int getTextPad() {
@@ -548,7 +549,10 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 
 	public void setFontSize(int fontSize)
 	{
+		int ow = this.text.getPixelWidth();
+		int oh = this.text.getPixelHeight();
 		this.text.setFontSize(fontSize);
+		//Logger.error(this.getText()+": dim b4 ("+ow+"/"+oh+") later: ("+this.text.getPixelWidth()+"/"+this.text.getPixelWidth()+")");
 		this.customFontSize = true;
 		this.autosize();
 //Logger.debug("size: "+fontSize+" / fh: "+this.text.getPixelHeight()+" / th: "+this.getPixelHeight(),"Component.setFontSize");
@@ -695,6 +699,8 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 				this.getPixelY()+bs);
 		
 		this.dsBEx.setPosition(this.ysb.getPixelX(),this.xsb.getPixelY());
+		
+		this.text.setPosition(this.getTextX(), this.getTextY());
 	}
 	
 	protected void setScroll()
@@ -1358,6 +1364,8 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 
 	public void setCenterText(boolean centerText) {
 		this.centerText = centerText;
+		this.text.setPosition(this.getTextX(), this.getTextY());
+		//Logger.error("text size ("+this.getText()+"): "+this.text.getPixelWidth());
 	}
 	
 	public void setAdditionalPadding(int addPadX, int addPadY)
@@ -1484,7 +1492,8 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	
 	public void setBorderSize(int value)
 	{
-		//TODO IMPLEMENT FANCY STUFF.
+		if(this.border != null)
+			this.border.setBordersize(value);
 	}
 
 	public boolean isAutoscroll() {
