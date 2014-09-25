@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -28,6 +29,7 @@ import cdg.nut.interfaces.IEntity;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.enums.Colors;
 import cdg.nut.util.gl.GLColor;
+import cdg.nut.util.net.Package;
 
 public class World {
 
@@ -59,6 +61,7 @@ public class World {
 	
 	private Grid grid;
 	private String type;
+	
 	
 	
 	/**
@@ -93,7 +96,7 @@ public class World {
 		return height;
 	}
 	
-	public World() {}
+	public World() {this.player = new ArrayList<Player>();}
 	
 	public void deserialize(int width, int height, Camera cam, List<Player> p, Grid g, List<IEntity> entities)
 	{
@@ -117,12 +120,12 @@ public class World {
 		this.grid = this.initGrid(width, height);
 		this.player = new ArrayList<Player>();
 
-		this.addPlayer("world", Colors.WHITE.getGlColor(), false);
 		this.type = this.getClass().getName();
 	}
 	
 	public Grid initGrid(int width, int height)
 	{
+		
 		return new Grid(width, height, this);
 	}
 	
@@ -433,6 +436,12 @@ public class World {
 		this.entities = entities;		
 	}
 
+	public String serialize()
+	{
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		return gson.toJson(this);		
+	}
+	
 	public void serialize(String path)
 	{
 		this.serialize(new File(path));
@@ -440,8 +449,7 @@ public class World {
 	
 	public void serialize(File f)
 	{
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		String t = gson.toJson(this);
+		
 		BufferedWriter writer = null;
 		try
 		{
@@ -449,7 +457,7 @@ public class World {
                     new OutputStreamWriter(
                             new GZIPOutputStream(new FileOutputStream(f))
                         ));//new BufferedWriter(new FileWriter(f, true));
-			writer.write(t);
+			writer.write(serialize());
 			
 		}
 		catch(Exception e)
@@ -465,5 +473,40 @@ public class World {
 				Logger.log(e1);
 			}
 		}
+	}
+
+	public int getPlayerCount() {
+		return this.player.size();
+	}
+	
+	public List<Player> getAllPlayer()
+	{
+		return this.player;
+	}
+
+	public void onPackage(Package p) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void removePlayer(int id) {
+		
+		for(int i = 0; i < this.player.size(); i++)
+		{
+			if(this.player.get(i).getPlayerId() == id)
+			{
+				this.player.remove(i);
+				break;
+			}
+		}
+			
+		//Iterator<IEntity> i = this.entities.iterator();
+		//while (i.hasNext()) {
+		//   IEntity s = i.next();
+		   
+		   
+		//  i.remove();
+		//}
+		
 	}
 }

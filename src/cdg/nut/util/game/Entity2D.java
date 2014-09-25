@@ -18,13 +18,16 @@ import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.gl.GLTexture;
+import cdg.nut.util.net.NetUpdates;
+import cdg.nut.util.net.UpdatePackage;
 import cdg.nut.util.settings.SetKeys;
 
 public abstract class Entity2D extends GLPolygon implements IEntity{
 	
 	private transient GLTexture primary;
 	
-
+	private transient UpdatePackage update;
+	
 	private transient GLTexture layer1;
 	private transient GLTexture layer2;
 	private transient GLTexture layer3;
@@ -60,6 +63,13 @@ public abstract class Entity2D extends GLPolygon implements IEntity{
 	}
 	
 	@Override
+	public int setId(int id)
+	{
+		this.update = new UpdatePackage(id);
+		return super.setId(id);
+	}
+	
+	@Override
 	public void move(float x, float y)
 	{
 		
@@ -68,8 +78,18 @@ public abstract class Entity2D extends GLPolygon implements IEntity{
 				 0.0f, 0.0f, 1.0f, 0.0f,
 				 x, y, 0.0f, 1.0f);
 		
+		if(this.update != null)
+			this.update.addData(NetUpdates.POSITION_UPDATE, new float[]{x,y});
+		
 		this.x(x);
 		this.y(y);
+	}
+
+	/**
+	 * @return the update
+	 */
+	public UpdatePackage getUpdate() {
+		return update;
 	}
 
 	public void moveAdd(float x, float y)
@@ -198,6 +218,9 @@ public abstract class Entity2D extends GLPolygon implements IEntity{
 											(float) Math.sin(Utility.rad(this.rotation)), 		 (float) Math.cos(Utility.rad(this.rotation)), 0.0f, 0.0f,
 																						 0.0f, 													  0.0f, 1.0f, 0.0f,
 																						 0.0f, 													  0.0f, 0.0f, 1.0f);
+		
+		if(this.update != null)
+			this.update.addData(NetUpdates.ROTATION_UPDATE, this.rotation);
 	}
 	
 	@Override

@@ -665,11 +665,19 @@ public class TextBox extends Component implements IKeyboardListener{
 			}
 			else if(this.editable && eventKey == Keyboard.KEY_TAB && this.isTooltipShown() && this.commandMode)
 			{
-				if(!this.getTooltip().getText(0).split(" ")[0].equals(""))
+				try
 				{
-					this.setText(this.getTooltip().getText(0).split(" ")[0]);
-					this.cursorPos = this.getText().length();
-					this.setCursorPos();
+					if(!this.getTooltip().getText(0).split(" ")[0].equals(""))
+					{
+					
+						this.setText(this.getTooltip().getText(0).split(" ")[0]);
+						this.cursorPos = this.getText().length();
+						this.setCursorPos();					
+					}
+				}
+				catch(Exception e)
+				{
+						this.setText("");
 				}
 			}
 		}

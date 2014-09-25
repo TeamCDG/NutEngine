@@ -14,6 +14,8 @@ import cdg.nut.util.Engine;
 import cdg.nut.util.Matrix4x4;
 import cdg.nut.util.Utility;
 import cdg.nut.util.gl.GLColor;
+import cdg.nut.util.net.ServerInfo;
+import cdg.nut.util.net.Server;
 
 public enum SetKeys {
 	
@@ -127,6 +129,10 @@ public enum SetKeys {
 	SV_PORT("<int>", "portnumber", 1337),
 	SV_AUTOSAVE_INTERVAL("<int>", "autosave interval in minutes", 15),
 	SV_TICKRATE("<int>", "ticks per second", 60),
+	SV_PACKAGE_COMPRESSION_SIZE("<int>", "min data size for compression", 256),
+	SV_MAX_PLAYER("<int>", "max player count", 4),
+	SV_NAME("<string>", "server name", "a NutEngine game server"),
+	SV_MOTD("<string>", "message of the day", "Welcome to the League of Nuts..."),
 	
 	
 	//--- REGION CLIENT ---
@@ -209,6 +215,26 @@ public enum SetKeys {
 		@Override
 		public void exec(List<String> parameter) {
 			Main.closeRequested = true;
+	}}),
+	
+	SERV_INIT("", "[DEBUG] inits a server", new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			if(Engine.getServer() != null)
+				Engine.getServer().shutdown();
+			Engine.setServer(new Server());
+			Engine.getServer().init();
+	}}),
+	
+	SERVERINFO("<string>", "retrieve info from server", new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			String ip = parameter.get(0).split(":")[0];
+			int port = parameter.get(0).split(":").length>1?Integer.parseInt(parameter.get(0).split(":")[1]):1337;
+			
+			ServerInfo info = ServerInfo.fromServer(ip, port);
+			Logger.info(info.getPing()+"ms ---> "+ info.getName() +" ("+info.getPlayerCount()+"/"+info.getMaxPlayerCount()+"): \n"+info.getMotd());
+			
 	}}),
 	
 	CONSOLE_SHOW("", "shows console", new ICommandExecuter(){

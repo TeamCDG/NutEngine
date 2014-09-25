@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 
 import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.game.World;
+import cdg.nut.util.net.UpdatePackage;
 
 public interface IEntity extends IGuiObject{
 	public boolean onTick();
@@ -21,4 +22,6 @@ public interface IEntity extends IGuiObject{
 	public void rightClickhappened(IEntity entity, float worldX, float worldY);	
 
 	public void deserialize(JsonObject json);
+
+	public UpdatePackage getUpdate();
 }

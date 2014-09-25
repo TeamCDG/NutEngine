@@ -12,6 +12,7 @@ public class Player {
 	private String name;
 	private boolean isLocal;
 	private int playerId;
+	private int ping;
 	
 	public Player() {}
 	
@@ -19,7 +20,9 @@ public class Player {
 	{
 		this.name = json.get("name").getAsString();
 		this.isLocal = json.get("isLocal").getAsBoolean();
-		this.playerId = json.get("playerId").getAsInt();
+		
+		if(json.has("playerId"))
+			this.playerId = json.get("playerId").getAsInt();
 		
 		JsonObject col = json.get("playerColor").getAsJsonObject();
 		this.playerColor = new GLColor(col.get("r").getAsFloat(), col.get("g").getAsFloat(),col.get("b").getAsFloat(),col.get("a").getAsFloat());
@@ -63,6 +66,14 @@ public class Player {
 
 	public void setPlayerId(int playerId) {
 		this.playerId = playerId;
+	}
+
+	public int getPing() {
+		return ping;
+	}
+
+	public void setPing(int ping) {
+		this.ping = ping;
 	}
 
 }

@@ -131,7 +131,7 @@ public class Main {
 		}*/
 		//b.setShader(DefaultShader.simple);
 		
-		Server.init();
+		//Server.init();
 		
 		while (!Display.isCloseRequested() && !Main.closeRequested) {
 			
@@ -171,7 +171,7 @@ public class Main {
 			Display.sync(60);
 		}
 		
-		Server.setCloseRequested(true);
+		Engine.setCloseRequested(true);
 		
 		
 	}
