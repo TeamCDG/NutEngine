@@ -33,7 +33,7 @@ import cdg.nut.util.net.Package;
 
 public class World {
 
-	int nextId = 1; //TODO: use global id's frame and world...
+	int nextId = Short.MAX_VALUE; //TODO: use global id's frame and world...
 	
 	
 	

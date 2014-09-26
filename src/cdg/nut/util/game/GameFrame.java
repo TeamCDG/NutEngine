@@ -22,15 +22,17 @@ import cdg.nut.util.Utility;
 import cdg.nut.util.enums.Colors;
 import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
+import cdg.nut.util.net.Client;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
 
 public class GameFrame extends Frame {
 
-	private World world;
+	//private World world;
 	
 	float dd = Engine.getDelta();
 	
+	private Client client;
 	private Label camDebug;
 	private Label deltaDebug;
 	private Label tileCullingDebug;
@@ -59,9 +61,7 @@ public class GameFrame extends Frame {
 		
 		this.nextId = 1 + (wrldWidth * wrldHeight);
 		
-		
-		this.world = this.initWorld(wrldWidth, wrldHeight);
-		this.camDebug = new Label(0, 0, this.world.getCamera().toString());
+		this.camDebug = new Label(0, 0, this.client.getWorld().getCamera().toString());
 		this.camDebug.setFontSize(16);
 		this.camDebug.setScrollable(false);
 		this.camDebug.setBackgroundColor(debugBG);
@@ -90,7 +90,7 @@ public class GameFrame extends Frame {
 			}});
 		this.add(this.ddReset);
 		
-		this.tileCullingDebug = new Label(0, this.ddReset.getPixelY() + this.ddReset.getPixelHeight(), "Tiles --> drawn: "+this.world.getDrawnTiles()+" / skipped: "+this.world.getSkippedTiles());
+		this.tileCullingDebug = new Label(0, this.ddReset.getPixelY() + this.ddReset.getPixelHeight(), "Tiles --> drawn: "+this.client.getWorld().getDrawnTiles()+" / skipped: "+this.client.getWorld().getSkippedTiles());
 		this.tileCullingDebug.setFontSize(16);
 		this.tileCullingDebug.setScrollable(false);
 		this.tileCullingDebug.setBackgroundColor(debugBG);
@@ -114,7 +114,7 @@ public class GameFrame extends Frame {
 		this.fps.setBorderPaddingDisabled(true);
 		this.add(this.fps);
 		
-		this.world.addPlayer("feget", GLColor.random(), true);
+		//this.world.addPlayer("feget", GLColor.random(), true);
 	}
 	
 	/**
@@ -140,14 +140,7 @@ public class GameFrame extends Frame {
 	 * @return the world
 	 */
 	public World getWorld() {
-		return world;
-	}
-
-	/**
-	 * @param world the world to set
-	 */
-	public void setWorld(World world) {
-		this.world = world;
+		return client.getWorld();
 	}
 
 	@Override
@@ -156,8 +149,6 @@ public class GameFrame extends Frame {
 		if(this.con.getComponents(Console.class).size() == 0)
 		{
 			 this.add(Engine.console);
-			 this.world.setNextId(this.nextId +1);
-			 this.nextId++;
 		}
 		
 		//Logger.debug("console id: "+Engine.console.getId());
@@ -265,12 +256,12 @@ public class GameFrame extends Frame {
 		if(!Mouse.isButtonDown(MouseButtons.RIGHT.getKey()) && this.mouseRightPressed) //ergo click
 		{
 			float[] rpos = Utility.pixelToGL(Mouse.getX(), SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY());
-			float wx =  rpos[0] * SetKeys.WIN_ASPECT_RATIO.getValue(Float.class) - this.world.getCamera().getXmove();
-			float wy = rpos[1] - this.world.getCamera().getYmove();
+			float wx =  rpos[0] * SetKeys.WIN_ASPECT_RATIO.getValue(Float.class) - this.client.getWorld().getCamera().getXmove();
+			float wy = rpos[1] - this.client.getWorld().getCamera().getYmove();
 			for(int i = 0; i < this.selectedEntities.size(); i++)
 			{
 				IEntity e = this.selectedEntities.get(i);
-				if(e != null) e.rightClickhappened(this.world.get(this.lastId), wx / this.world.getCamera().getScale(), wy / this.world.getCamera().getScale());
+				if(e != null) e.rightClickhappened(this.client.getWorld().get(this.lastId), wx / this.client.getWorld().getCamera().getScale(), wy / this.client.getWorld().getCamera().getScale());
 				else this.selectedEntities.remove(e);
 			}
 		}
@@ -303,9 +294,9 @@ public class GameFrame extends Frame {
 		if (this.background != null) this.background.draw();
 
 		
-		if(this.world != null) this.world.draw();
+		if(this.client.getWorld() != null) this.client.getWorld().draw();
 		
-		this.tileCullingDebug.setText("Tiles --> drawn: "+this.world.getDrawnTiles()+" / skipped: "+this.world.getSkippedTiles());
+		this.tileCullingDebug.setText("Tiles --> drawn: "+this.client.getWorld().getDrawnTiles()+" / skipped: "+this.client.getWorld().getSkippedTiles());
 		this.fps.setText("FPS: "+Engine.getFPS());
 		
 		this.con.drawComponents();
@@ -314,7 +305,7 @@ public class GameFrame extends Frame {
 			this.activeToolTip.draw();
 		
 		long t1 = System.currentTimeMillis();
-		this.world.onTick(); //TODO: hell out of here...
+		//this.world.onTick(); //TODO: hell out of here...
 		
 		long t2 = System.currentTimeMillis() - t1;
 
@@ -332,7 +323,7 @@ public class GameFrame extends Frame {
 		this.selectedEntities.clear();
 		
 		Component c = this.con.get(this.lastId);
-		IEntity t = this.world.get(this.lastId);
+		IEntity t = this.client.getWorld().get(this.lastId);
 
 		IGuiObject go = null;
 		
@@ -397,7 +388,7 @@ public class GameFrame extends Frame {
 		if(this.camChange)
 		{
 			
-			this.camDebug.setText(this.world.getCamera().toString());
+			this.camDebug.setText(this.client.getWorld().getCamera().toString());
 			this.forceSelect = true;
 		}
 	}
@@ -409,55 +400,55 @@ public class GameFrame extends Frame {
 		
 		if(key == Keyboard.KEY_RIGHT)
 		{
-			this.world.getCamera().setXmove(this.world.getCamera().getXmove() - 0.1f);
+			this.client.getWorld().getCamera().setXmove(this.client.getWorld().getCamera().getXmove() - 0.1f);
 			this.camChange = true;
 		}
 		else if(key == Keyboard.KEY_LEFT)
 		{
-			this.world.getCamera().setXmove(this.world.getCamera().getXmove() + 0.1f);
+			this.client.getWorld().getCamera().setXmove(this.client.getWorld().getCamera().getXmove() + 0.1f);
 			this.camChange = true;
 		}
 		else if(key == Keyboard.KEY_UP)
 		{
-			this.world.getCamera().setYmove(this.world.getCamera().getYmove() - 0.1f);
+			this.client.getWorld().getCamera().setYmove(this.client.getWorld().getCamera().getYmove() - 0.1f);
 			this.camChange = true;
 		}
 		else if(key == Keyboard.KEY_DOWN)
 		{
-			this.world.getCamera().setYmove(this.world.getCamera().getYmove() + 0.1f);
+			this.client.getWorld().getCamera().setYmove(this.client.getWorld().getCamera().getYmove() + 0.1f);
 			this.camChange = true;
 		}
 		else if(key == Keyboard.KEY_ADD)
 		{
-			this.world.getCamera().setScale(this.world.getCamera().getScale() + 0.1f);
+			this.client.getWorld().getCamera().setScale(this.client.getWorld().getCamera().getScale() + 0.1f);
 			this.camChange = true;
 		}
 		else if(key == Keyboard.KEY_SUBTRACT)
 		{
-			this.world.getCamera().setScale(this.world.getCamera().getScale() - 0.1f);
+			this.client.getWorld().getCamera().setScale(this.client.getWorld().getCamera().getScale() - 0.1f);
 			this.camChange = true;
 		}
 		else if(key == Keyboard.KEY_Q)
 		{
-			this.world.getCamera().setRotation(this.world.getCamera().getRotation() + 3.0f);
+			this.client.getWorld().getCamera().setRotation(this.client.getWorld().getCamera().getRotation() + 3.0f);
 			this.camChange = true;
 		}
 		else if(key == Keyboard.KEY_E)
 		{
-			this.world.getCamera().setRotation(this.world.getCamera().getRotation() - 3.0f);
+			this.client.getWorld().getCamera().setRotation(this.client.getWorld().getCamera().getRotation() - 3.0f);
 			this.camChange = true;
 		}
 		else if(key == Keyboard.KEY_O)
 		{
-			this.world.setRenderGridOccupiedView(!this.world.isRenderGridOccupiedView());
+			this.client.getWorld().setRenderGridOccupiedView(!this.client.getWorld().isRenderGridOccupiedView());
 		}
 		else if(key == Keyboard.KEY_G)
 		{
-			this.world.setRenderGrid(!this.world.isRenderGrid());
+			this.client.getWorld().setRenderGrid(!this.client.getWorld().isRenderGrid());
 		}
 		else if(key == Keyboard.KEY_S)
 		{
-			this.world.setForceSelectionRender(!this.world.isForceSelectionRender());
+			this.client.getWorld().setForceSelectionRender(!this.client.getWorld().isForceSelectionRender());
 		}
 		else if(key == 43 && Engine.console.isHidden()) //43 is the '^' key
 		{
@@ -471,18 +462,18 @@ public class GameFrame extends Frame {
 	{
 		
 		List<IGuiObject> pssbl = new ArrayList<IGuiObject>(10);
-		if(this.world != null)
+		if(this.client.getWorld() != null)
 		{
-			for(int x = 0; x < this.world.getWidth(); x++)
+			for(int x = 0; x < this.client.getWorld().getWidth(); x++)
 			{
-				for(int y = 0; y < this.world.getHeight(); y++)
+				for(int y = 0; y < this.client.getWorld().getHeight(); y++)
 				{
-					Tile t = this.world.getGrid().getTile(x, y);
-					float tx = (this.world.getCamera().getXmove() + t.getX() * this.world.getCamera().getScale()) * (1.0f/SetKeys.WIN_ASPECT_RATIO.getValue(Float.class));
-					float ty = (this.world.getCamera().getYmove() + t.getY() * this.world.getCamera().getScale()) ;
+					Tile t = this.client.getWorld().getGrid().getTile(x, y);
+					float tx = (this.client.getWorld().getCamera().getXmove() + t.getX() * this.client.getWorld().getCamera().getScale()) * (1.0f/SetKeys.WIN_ASPECT_RATIO.getValue(Float.class));
+					float ty = (this.client.getWorld().getCamera().getYmove() + t.getY() * this.client.getWorld().getCamera().getScale()) ;
 					
 					
-					float s = 0.1f * this.world.getCamera().getScale();
+					float s = 0.1f * this.client.getWorld().getCamera().getScale();
 					
 					int[] ps = Utility.glSizeToPixelSize(s * (1.0f/SetKeys.WIN_ASPECT_RATIO.getValue(Float.class)), s);
 					int[] ppos = Utility.glToPixel(tx, ty);
@@ -494,28 +485,28 @@ public class GameFrame extends Frame {
 					{
 						pssbl.add(t);
 					}
-					else if(this.world.getCamera().getRotation() != 0.0f){
-						pssbl.add(this.world.getGrid().getTile(x, y));
+					else if(this.client.getWorld().getCamera().getRotation() != 0.0f){
+						pssbl.add(this.client.getWorld().getGrid().getTile(x, y));
 					}
 					else
 					{
-						this.world.getGrid().getTile(x, y).unselected();
+						this.client.getWorld().getGrid().getTile(x, y).unselected();
 					}
 				}
 			}
 			
 			//this.world.getGrid().drawSelect();
 			
-			List<IEntity> e = this.world.getEntites();
+			List<IEntity> e = this.client.getWorld().getEntites();
 			for(int i = 0; i < e.size(); i++)
 			{
 				//((IGuiObject)e.get(i)).drawSelection();
 				
-				float tx = (this.world.getCamera().getXmove() + ((IGuiObject)e.get(i)).getX() * this.world.getCamera().getScale()) * (1.0f/SetKeys.WIN_ASPECT_RATIO.getValue(Float.class));
-				float ty = (this.world.getCamera().getYmove() + ((IGuiObject)e.get(i)).getY() * this.world.getCamera().getScale());
+				float tx = (this.client.getWorld().getCamera().getXmove() + ((IGuiObject)e.get(i)).getX() * this.client.getWorld().getCamera().getScale()) * (1.0f/SetKeys.WIN_ASPECT_RATIO.getValue(Float.class));
+				float ty = (this.client.getWorld().getCamera().getYmove() + ((IGuiObject)e.get(i)).getY() * this.client.getWorld().getCamera().getScale());
 				
 				
-				int[] ps = Utility.glSizeToPixelSize(((IGuiObject)e.get(i)).getWidth() * this.world.getCamera().getScale(), ((IGuiObject)e.get(i)).getHeight() * this.world.getCamera().getScale());
+				int[] ps = Utility.glSizeToPixelSize(((IGuiObject)e.get(i)).getWidth() * this.client.getWorld().getCamera().getScale(), ((IGuiObject)e.get(i)).getHeight() * this.client.getWorld().getCamera().getScale());
 				int[] ppos = Utility.glToPixel(tx, ty);
 				
 				//Logger.debug("MPicking #"+e.get(i).getId()+": tx: "+tx+" / ty: "+ty+" / s: "+s+" / ps: {"+ps[0]+","+ps[1]+"} / ppos: {"+ppos[0]+","+ppos[1]+"} / Mouse: {"+Mouse.getX()+","+(SetKeys.WIN_HEIGHT.getValue(Integer.class) - Mouse.getY())+"} ");
@@ -526,7 +517,7 @@ public class GameFrame extends Frame {
 				{
 					pssbl.add(e.get(i));
 				}
-				else if(this.world.getCamera().getRotation() != 0.0f){
+				else if(this.client.getWorld().getCamera().getRotation() != 0.0f){
 					pssbl.add(e.get(i));
 				}
 				else
@@ -604,11 +595,11 @@ public class GameFrame extends Frame {
 	private void mouseTileDebug()
 	{
 		float[] rpos = Utility.pixelToGL(Mouse.getX(), SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY());
-		float wx =  rpos[0] * SetKeys.WIN_ASPECT_RATIO.getValue(Float.class) - this.world.getCamera().getXmove();
-		float wy = rpos[1] - this.world.getCamera().getYmove();
+		float wx =  rpos[0] * SetKeys.WIN_ASPECT_RATIO.getValue(Float.class) - this.client.getWorld().getCamera().getXmove();
+		float wy = rpos[1] - this.client.getWorld().getCamera().getYmove();
 		
-		wx = wx / this.world.getCamera().getScale();
-		wy = wy / this.world.getCamera().getScale();
+		wx = wx / this.client.getWorld().getCamera().getScale();
+		wy = wy / this.client.getWorld().getCamera().getScale();
 		
 		
 		if(this.getWorld() != null)
@@ -624,24 +615,17 @@ public class GameFrame extends Frame {
 	
 	public void addEntity(IEntity e)
 	{
-		this.world.add(e);
-		this.nextId = this.world.getNextId();
+		this.client.getWorld().add(e);
 	}
 	
 	@Override
 	public void addComponent(Component c)
-	{
-		
+	{		
 		super.addComponent(c);
-		
-		if(this.world != null)
-		{
-			this.world.setNextId(this.nextId);
-		}
 	}
 
 	public Player getLocalPlayer() {
-		return this.world.getLocalPlayer();
+		return this.client.getWorld().getLocalPlayer();
 	}
 
 }

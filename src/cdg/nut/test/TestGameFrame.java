@@ -68,7 +68,7 @@ public class TestGameFrame extends GameFrame {
 			public void onClick(int x, int y, MouseButtons button, int grabx, int graby) {
 				
 				getWorld().serialize("world.sav");
-				setWorld(World.deserialize("world.sav"));
+				//setWorld(World.deserialize("world.sav"));
 			}});
 		this.gsont.setBorderHighlightColor(GLColor.random());
 		this.addComponent(gsont);
