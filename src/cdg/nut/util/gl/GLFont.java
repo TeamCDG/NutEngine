@@ -216,7 +216,7 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 		this.selectionArea.setAutoClipping(false);
 		this.setSelectable(false);
 		this.selectionArea.setColor(Colors.NAVY.getGlColor());
-		this.setAutoClipping(true);
+		this.setAutoClipping(false);
 		
 		this.initialised = true;
 	}

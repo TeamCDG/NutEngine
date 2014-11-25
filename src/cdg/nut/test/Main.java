@@ -133,7 +133,7 @@ public class Main {
 		
 		//Server.init();
 		
-		while (!Display.isCloseRequested() && !Main.closeRequested) {
+		while (!Display.isCloseRequested() && !Main.closeRequested && !Engine.closeRequested()) {
 			
 			Engine.setDelta(this.calculateDelta());
 			

@@ -7,15 +7,19 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
 import cdg.nut.interfaces.ICommandExecuter;
+import cdg.nut.interfaces.IServerFoundListener;
 import cdg.nut.logging.Logger;
 import cdg.nut.test.Main;
 import cdg.nut.util.BitmapFont;
 import cdg.nut.util.Engine;
 import cdg.nut.util.Matrix4x4;
 import cdg.nut.util.Utility;
+import cdg.nut.util.game.Player;
 import cdg.nut.util.gl.GLColor;
+import cdg.nut.util.net.Client;
 import cdg.nut.util.net.ServerInfo;
 import cdg.nut.util.net.Server;
+import cdg.nut.util.net.UDPListener;
 
 public enum SetKeys {
 	
@@ -127,6 +131,9 @@ public enum SetKeys {
 	
 	//--- REGION SERVER ---
 	SV_PORT("<int>", "portnumber", 1337),
+	SV_BROADCAST("<boolean>", "boradcast ?", true),
+	SV_BROADCAST_PORT("<int>", "boradcast portnumber", 1302),
+	SV_PINGTIME("<int>", "ping interval in milliseconds", 10000),
 	SV_AUTOSAVE_INTERVAL("<int>", "autosave interval in minutes", 15),
 	SV_TICKRATE("<int>", "ticks per second", 60),
 	SV_PACKAGE_COMPRESSION_SIZE("<int>", "min data size for compression", 256),
@@ -136,6 +143,7 @@ public enum SetKeys {
 	
 	
 	//--- REGION CLIENT ---
+	CL_LISTEN_BROADCAST("<boolean>", "listen to udp boradcast ?", true),
 	CL_TILE_OCCUPIED_COLOR("<color>", "default color of occupied tiles", new GLColor(1.0f, 0.0f, 0.0f, 1.0f)),
 	CL_TILE_NORMAL_COLOR("<color>", "default color of tiles", new GLColor(1.0f, 1.0f, 1.0f, 1.0f)),
 	CL_TILE_FREE_COLOR("<color>", "default color of free tiles", new GLColor(0.0f, 1.0f, 0.0f, 1.0f)),
@@ -173,6 +181,28 @@ public enum SetKeys {
 		public void exec(List<String> parameter) {
 				Logger.enable();
 		}}),
+	
+	DB_CONNECT("<string>", "debug connection", new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			String ip = parameter.get(0).split(":")[0];
+			int port = parameter.get(0).split(":").length>1?Integer.parseInt(parameter.get(0).split(":")[1]):1337;
+			
+			new Client(new Player(new GLColor(1.0f, 0.0f, 0.0f, 1.0f), "Baum")).connect(ip, port);
+		}}),
+		
+	DB_UDP_LISTEN("", "udp listen", new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			UDPListener u = new UDPListener();
+			u.addListener(new IServerFoundListener(){
+
+				@Override
+				public void serverFound(String ip, int port) {
+					Logger.info("found: "+ip+":"+port);
+					
+				}});
+		}}),
 			
 		
 	
@@ -208,13 +238,13 @@ public enum SetKeys {
 	EXIT("", "exit", new ICommandExecuter(){
 		@Override
 		public void exec(List<String> parameter) {
-			Main.closeRequested = true;
+			Engine.setCloseRequested(true);
 	}}),
 	
 	QUIT("", "exit", new ICommandExecuter(){
 		@Override
 		public void exec(List<String> parameter) {
-			Main.closeRequested = true;
+			Engine.setCloseRequested(true);
 	}}),
 	
 	SERV_INIT("", "[DEBUG] inits a server", new ICommandExecuter(){

@@ -2,8 +2,12 @@ package cdg.nut.util.net;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +33,7 @@ public class Server {
 	private World world;
 	private Thread tick;
 	private Thread serverThread;
+	private Thread udpBroadcast;
 	private ServerSocket server;
 	private int port = 1337;
 	private boolean closeRequested = false;
@@ -46,9 +51,30 @@ public class Server {
 				server();
 				
 			}});
+		this.world = this.initWorld();
 		this.serverThread.start();
+		
+		if(SetKeys.SV_BROADCAST.getValue(Boolean.class))
+		{
+			this.udpBroadcast = new Thread(new Runnable(){
+
+				@Override
+				public void run() {
+					try {
+						udpInfo();
+					} catch (SocketException e) {
+						Logger.log(e);
+					}
+					
+				}});
+			this.udpBroadcast.start();
+		}
 	}
 	
+	private World initWorld() {
+		return new World(1,1);
+	}
+
 	public void startTick()
 	{
 		this.tick = new Thread(new Runnable(){
@@ -98,6 +124,7 @@ public class Server {
 	{
 		try {
 			this.server = new ServerSocket(this.port);
+			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -143,16 +170,44 @@ public class Server {
 		cl.getListenerThread().interrupt();
 		player.remove(cl);
 		
-		if(cl.isPlayer())
+		if(cl.isPlayer() && this.world.getPlayer(cl.getId()) != null)
 		{
+			Logger.info("Player "+this.world.getPlayer(cl.getId()).getPlayerColor().toString()+this.world.getPlayer(cl.getId()).getName()+GLColor.TEXT_COLOR_RESET+" disconnected!");
 			this.world.removePlayer(cl.getId());
 			this.broadcast(new Package(cl.getId(), NetUpdates.PLAYER_DISCONNECTED, Package.UNCOMPRESSED, new byte[]{}));
 		}
 		
 	}
 
+	public boolean closeRequested()
+	{
+		return this.closeRequested || Engine.closeRequested();
+	}
+	
+	private void udpInfo() throws SocketException
+	{
+		DatagramSocket sock = new DatagramSocket();
+		while(!this.closeRequested())
+		{
+			try
+			{
+				InetAddress ia = InetAddress.getByName("255.255.255.255");
+				byte[] data = NetUtils.toByteArray(this.port);
+				DatagramPacket packet = new DatagramPacket( data, data.length, ia, SetKeys.SV_BROADCAST_PORT.getValue(Integer.class));
+				sock.send( packet );
+				Logger.debug("sent");
+				Thread.sleep(1000);
+			}
+			catch(Exception e)
+			{
+				Logger.log(e);
+			}
+		}
+	}
+	
 	private void client(NetPlayer cl)
 	{
+		
 		try
 		{
 			while(cl.getIn().available() < 8) { Thread.sleep(1); } //Wait till we have shit to read
@@ -196,8 +251,14 @@ public class Server {
 				
 				disconnect(cl);
 			}
+			else if(data[8] == NetUpdates.PING)
+			{
+				cl.getOut().write(new Package(0, NetUpdates.PONG, Package.UNCOMPRESSED, new byte[]{}).toData());
+				cl.getOut().flush();
+				disconnect(cl);
+			}
 			else
-			{				
+			{	
 				// it's a player who wants to play ...
 				//0-3: id, should be int 0
 				//4-7: length
@@ -219,11 +280,14 @@ public class Server {
 		        gzip.write(NetUtils.toByteArray(this.world.serialize()));
 		        gzip.close();
 				
-		        Package p = new Package(0, NetUpdates.WORLD_SYNC, Package.COMPRESSED, out.toByteArray());
+		        Package p = new Package(this.world.getPlayerCount(), NetUpdates.WORLD_SYNC, Package.COMPRESSED, out.toByteArray());
 		        cl.getOut().write(p.toData());     
 		        cl.getOut().flush(); //send world
 		        
-				this.world.addPlayer(NetUtils.toString(NetUtils.subArray(26, -1, data)), col, false);
+		        
+		        String name = NetUtils.toString(NetUtils.subArray(26, -1, data));
+				this.world.addPlayer(name, col, false);
+				Logger.info("Player "+col.toString()+name+GLColor.TEXT_COLOR_RESET+" connected!");
 				
 				
 				byte[] id = NetUtils.toByteArray(this.world.getPlayerCount() - 1);
@@ -246,26 +310,30 @@ public class Server {
 				byte compressed;
 				byte[] dataBuf = new byte[]{};
 				
-				while(!this.closeRequested && !Engine.closeRequested())
+				
+				while(!this.closeRequested())
 				{
+					
+					ping(cl);
+					
 					dataBuf = new byte[]{};
 					
 					for(int i = 0; i < 4; i++)
 					{
-						while(cl.getIn().available() == 0) { Thread.sleep(1); } // byte, bit, alles muss mit.....
+						while(cl.getIn().available() == 0) { Thread.sleep(1); ping(cl); if(this.closeRequested()) throw new CloseRequestedException("close requested"); } // byte, bit, alles muss mit.....
 						idBuf[i] = cl.getIn().readByte();
 					}
 					
 					for(int i = 0; i < 4; i++)
 					{
-						while(cl.getIn().available() == 0) { Thread.sleep(1); } // byte, bit, alles muss mit.....
+						while(cl.getIn().available() == 0) { Thread.sleep(1); ping(cl); if(this.closeRequested()) throw new CloseRequestedException("close requested"); } // byte, bit, alles muss mit.....
 						lenBuf[i] = cl.getIn().readByte();
 					}
 					
 					
-					while(cl.getIn().available() == 0) { Thread.sleep(1); } // byte, bit, alles muss mit.....
+					while(cl.getIn().available() == 0) { Thread.sleep(1); ping(cl); if(this.closeRequested()) throw new CloseRequestedException("close requested"); } // byte, bit, alles muss mit.....
 					usage = cl.getIn().readByte();
-					while(cl.getIn().available() == 0) { Thread.sleep(1); } // byte, bit, alles muss mit.....
+					while(cl.getIn().available() == 0) { Thread.sleep(1); ping(cl); if(this.closeRequested()) throw new CloseRequestedException("close requested"); } // byte, bit, alles muss mit.....
 					compressed = cl.getIn().readByte();
 					
 					
@@ -277,7 +345,7 @@ public class Server {
 						
 						for(int i = 0; i < bytesLeft; i++)
 						{
-							while(cl.getIn().available() == 0) { Thread.sleep(1); } // byte, bit, alles muss mit.....
+							while(cl.getIn().available() == 0) { Thread.sleep(1); ping(cl); if(this.closeRequested()) throw new CloseRequestedException("close requested");} // byte, bit, alles muss mit.....
 							dataBuf[i] = cl.getIn().readByte();
 						}
 					}
@@ -287,14 +355,42 @@ public class Server {
 					
 					this.packageRecieved(cl, pack);
 					
+					
+					
 				}
 			}
+		}
+		catch(CloseRequestedException e)
+		{
+			Logger.info(e.getMessage());
 		}
 		catch(IOException | InterruptedException e)
 		{
 			Logger.log(e);
 			disconnect(cl);
 		}
+	}
+	
+	public boolean ping(NetPlayer cl)
+	{
+		try {
+			cl.getOut().write(new byte[]{});
+			if(System.currentTimeMillis()-cl.getLastping() > SetKeys.SV_PINGTIME.getValue(Integer.class) && !cl.isPinging())
+			{
+				cl.setPinging(true);
+				cl.getOut().write(new Package(cl.getId(), NetUpdates.PING, Package.UNCOMPRESSED, new byte[]{}).toData());
+				cl.getOut().flush();
+				return true;
+				
+			}
+		}
+		catch (IOException e) {
+			Logger.log(e);
+			disconnect(cl);
+		} catch (Exception e) {
+			Logger.log(e);
+		}
+		return false;
 	}
 	
 	public void packageRecieved(NetPlayer cl, Package p) throws IOException
@@ -305,6 +401,12 @@ public class Server {
 				cl.getOut().write(new Package(0, NetUpdates.PONG, Package.UNCOMPRESSED, new byte[]{}).toData());
 				cl.getOut().flush();
 				break;
+			case NetUpdates.PONG:
+				cl.setPinging(false);
+				cl.pong();
+				this.world.getPlayer(p.getId()).setPing(cl.getPing());
+				this.broadcast(new Package(p.getId(), NetUpdates.PLAYER_PING_UPDATE, Package.UNCOMPRESSED, NetUtils.toByteArray(cl.getPing())));
+				break;				
 			case NetUpdates.CHAT_MSG:
 				this.chatmessage(p);
 				break;
@@ -333,7 +435,8 @@ public class Server {
 	
 	public void broadcast(int exclude, byte[] data)
 	{
-		for(NetPlayer cl: this.player)
+		NetPlayer[] pl = this.player.toArray(new NetPlayer[]{}); // avoid ConcurrentModificationException
+		for(NetPlayer cl: pl)
 		{
 			try
 			{

@@ -13,6 +13,7 @@ public class Player {
 	private boolean isLocal;
 	private int playerId;
 	private int ping;
+	private boolean ready = false;
 	
 	public Player() {}
 	
@@ -75,5 +76,15 @@ public class Player {
 	public void setPing(int ping) {
 		this.ping = ping;
 	}
+
+	public boolean isReady() {
+		return ready;
+	}
+
+	public void setReady(boolean ready) {
+		this.ready = ready;
+	}
+
+
 
 }

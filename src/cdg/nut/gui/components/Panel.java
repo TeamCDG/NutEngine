@@ -9,22 +9,28 @@ import org.lwjgl.input.Mouse;
 import cdg.nut.gui.Component;
 import cdg.nut.gui.Container;
 import cdg.nut.gui.ToolTip;
+import cdg.nut.interfaces.IDimensionChangedListener;
 import cdg.nut.interfaces.IGuiObject;
+import cdg.nut.interfaces.IMovedListener;
 import cdg.nut.interfaces.IParent;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.Utility;
 import cdg.nut.util.Vertex4;
 import cdg.nut.util.settings.SetKeys;
 
-public class Panel extends Component implements IParent {
+public class Panel extends Component implements IParent, IDimensionChangedListener, IMovedListener {
 
 	private Container con = new Container();
 	private int bufferId = 0;
 	
-	private List<Integer[]> positions = new ArrayList<Integer[]>();
+//	private List<Integer[]> positions = new ArrayList<Integer[]>();
 	
 	private int childX;
 	private int childY;
+	
+	private boolean autosizeWithContentX = false;
+	private boolean autosizeWithContentY = false;
+	private boolean scrolling;
 	
 	public Panel(float x, float y, float width, float height) {
 		super(x, y, width, height);
@@ -81,20 +87,24 @@ public class Panel extends Component implements IParent {
 		this.setHasBorder(false);
 		this.setTextSelectable(true);
 		this.setScrollable(false);
+		
+		this.setBackgroundHighlightColor(this.getBackgroundColor());
 	}
 	
 	@Override
-	public void setSelected(boolean b){}
-	
-	private Integer[] getPosById(int id)
-	{
-		for(int i = 0; i < this.positions.size(); i++)
-		{
-			if(this.positions.get(i)[0] == id)
-				return this.positions.get(i);
-		}
-		return new Integer[]{0,0,0};
+	public void setSelected(boolean b){
+		if(this.isSelectable()) super.setSelected(b);
 	}
+	
+//	private Integer[] getPosById(int id)
+//	{
+//		for(int i = 0; i < this.positions.size(); i++)
+//		{
+//			if(this.positions.get(i)[0] == id)
+//				return this.positions.get(i);
+//		}
+//		return new Integer[]{0,0,0};
+//	}
 	
 	@Override
 	protected void move(float x, float y)
@@ -113,7 +123,25 @@ public class Panel extends Component implements IParent {
 			//Integer[] posdata = getPosById(c.getId());
 			c.setPosition(c.getPixelX()-oldx+this.getPixelX(), c.getPixelY()-oldy+this.getPixelY());
 			//c.setClippingArea(new Vertex4(this.getX()+bs[0], this.getY()+bs[1], this.getX()+this.getWidth()-bs[0], this.getY()+this.getHeight()-bs[1]));
-			c.setClippingArea(new Vertex4(this.getX(), this.getY(), this.getX()+this.getWidth(), this.getY()+this.getHeight()));
+			//c.setClippingArea(new Vertex4(this.getX(), this.getY(), this.getX()+this.getWidth(), this.getY()+this.getHeight()));
+			
+			if(this.isAutoClipping())
+				c.setClippingArea(new Vertex4(this.getX(), this.getY(), this.getX()+this.getWidth()-Utility.pixelSizeToGLSize(this.getBorderSize(),0)[0], this.getY()+this.getHeight()));
+			else
+			{
+				Vertex4 ca = this.getClippingArea();
+				Vertex4 cca = this.getContentClippingArea();
+				
+				Vertex4 fin = new Vertex4(0,0,0,0);
+				
+				fin.setX(Math.max(ca.getX(), cca.getX()));
+				fin.setY(Math.min(ca.getY(), cca.getY()));
+				fin.setZ(Math.min(ca.getZ(), cca.getZ()));
+				fin.setW(Math.max(ca.getW(), cca.getW()));
+				
+				c.setClippingArea(fin);
+			}
+			
 			Logger.debug("moving panel and component...");
 		}
 	}
@@ -143,9 +171,7 @@ public class Panel extends Component implements IParent {
 	
 	@Override
 	protected void drawChildren(boolean selection)
-	{
-		super.drawChildren(selection);
-		
+	{		
 		List<Component> cl = this.con.getComponents();
 		for(int i = 0; i < this.con.getComponentCount(); i++)
 		{
@@ -160,6 +186,8 @@ public class Panel extends Component implements IParent {
 				c.draw();
 			}
 		}
+		
+		super.drawChildren(selection);
 	}
 
 	@Override
@@ -233,24 +261,53 @@ public class Panel extends Component implements IParent {
 	{
 		this.addToNextId(c.setId(this.getNextId()));
 		c.setParent(this);
-		this.positions.add(new Integer[]{c.getId(), c.getPixelX(), c.getPixelY()});
-		c.setPosition(this.getPixelX()+c.getPixelX(), this.getPixelY()+c.getPixelY());
+//		this.positions.add(new Integer[]{c.getId(), c.getPixelX(), c.getPixelY()});
+		c.setParentXDif(c.getPixelX()+(this.hasBorder()?this.getBorderSize():0));
+		c.setParentYDif(c.getPixelY()+(this.hasBorder()?this.getBorderSize():0));
+		c.setPosition(this.getPixelX()+(this.hasBorder()?this.getBorderSize():0)+c.getPixelX(), this.getPixelY()+(this.hasBorder()?this.getBorderSize():0)+c.getPixelY());
 		c.setClipping(true);
 		c.setAutoClipping(false);
-		c.setClippingArea(new Vertex4(this.getX(), this.getY(), this.getX()+this.getWidth(), this.getY()+this.getHeight()));
+		c.addMovedListener(this);
+	
+		if(this.isAutoClipping())
+			c.setClippingArea(this.getContentClippingArea());
+		else
+		{
+			Vertex4 ca = this.getClippingArea();
+			Vertex4 cca = this.getContentClippingArea();
+			
+			Vertex4 fin = new Vertex4(0,0,0,0);
+			
+			fin.setX(Math.max(ca.getX(), cca.getX()));
+			fin.setY(Math.min(ca.getY(), cca.getY()));
+			fin.setZ(Math.min(ca.getZ(), cca.getZ()));
+			fin.setW(Math.max(ca.getW(), cca.getW()));
+			
+			c.setClippingArea(fin);
+		}
+		
+		c.addDimensionChangedListener(this);
 		this.con.add(c);
+		if(this.autosizeWithContentX || this.autosizeWithContentY) this.autosize();
+		else if(this.isScrollable()) this.setScroll();
+		
+		
 	}
 
 	@Override
 	public void removeComponent(Component c)
 	{
 		this.con.remove(c);
+		if(this.autosizeWithContentX || this.autosizeWithContentY) this.autosize();
+		else if(this.isScrollable()) this.setScroll();
 	}
 	
 	@Override
 	public void removeComponent(int id)
 	{
 		this.con.remove(id);
+		if(this.autosizeWithContentX || this.autosizeWithContentY) this.autosize();
+		else if(this.isScrollable()) this.setScroll();
 	}
 	
 	@Override
@@ -332,7 +389,6 @@ public class Panel extends Component implements IParent {
 
 	@Override
 	public boolean isMouseGrabbed() {
-		// TODO Auto-generated method stub
 		return this.getParent().isMouseGrabbed();
 	}
 	
@@ -350,11 +406,26 @@ public class Panel extends Component implements IParent {
 	public void setDimension(float w, float h)
 	{
 		super.setDimension(w, h);
-		List<Component> cl = this.con.getComponents();
-		for(int i = 0; i < this.con.getComponentCount(); i++)
+		for(Component c: this.con.getComponents())
 		{
-			Component c = cl.get(i);
-			c.setClippingArea(new Vertex4(this.getX(), this.getY(), this.getX()+this.getWidth(), this.getY()+this.getHeight()));
+			if(this.isAutoClipping())
+				c.setClippingArea(this.getContentClippingArea());
+			else
+			{
+				Vertex4 ca = this.getClippingArea();
+				Vertex4 cca = this.getContentClippingArea();
+				
+				Vertex4 fin = new Vertex4(0,0,0,0);
+				
+				fin.setX(Math.max(ca.getX(), cca.getX()));
+				fin.setY(Math.min(ca.getY(), cca.getY()));
+				fin.setZ(Math.min(ca.getZ(), cca.getZ()));
+				fin.setW(Math.max(ca.getW(), cca.getW()));
+				
+				c.setClippingArea(fin);
+				
+				
+			}
 		}
 	}
 
@@ -390,8 +461,182 @@ public class Panel extends Component implements IParent {
 		
 		return pssbl;
 	}
+	
+	@Override
+	public void onScroll(int sv, boolean horizontal)
+	{
+		
+		this.scrolling = true;
+		
+		if(!this.getXScroll() && !this.getYScroll())
+			return;
+		
+		for(Component c: this.con.getComponents())
+		{
+			if(horizontal)
+			{
+				c.setX(this.getPixelX()+c.getParentXDif()-sv);
+			}
+			else
+			{
+				c.setY(this.getPixelY()+c.getParentYDif()-sv);
+			}
+		}
+		
+		this.scrolling = false;
+	}
 
 	public List<IGuiObject> getComponentsAG() {
 		return this.con.getComponentsAG();
 	}
+	
+	@Override
+	protected void setScroll()
+	{		
+		if(!this.isScrollable())
+			return;
+		
+		int mx = 0;
+		int my = 0;
+		
+		for(Component c: this.con.getComponents())
+		{
+			if(c.getPixelX()+c.getPixelWidth() > mx)
+				mx = c.getPixelX()+c.getPixelWidth();
+			
+			if(c.getPixelY()+c.getPixelHeight() > my)
+				my = c.getPixelY()+c.getPixelHeight();
+		}
+		
+		
+		int border = 1*(this.hasBorder()?this.getBorderSize():0);
+		int xsb = this.getXScroll()?this.getXsb().getPixelHeight():0;
+		int ysb = this.getYScroll()?this.getYsb().getPixelWidth():0;
+		
+		Logger.debug("mx: "+mx+" / xpw-b-x: "+(this.getPixelX()+this.getPixelWidth()-border-ysb)+" / dif: "+(mx-(this.getPixelX()+this.getPixelWidth()-border-ysb)));
+		Logger.debug("my: "+my+" / ypw-b-y: "+(this.getPixelY()+this.getPixelHeight()-border-xsb)+" / dif: "+(my-(this.getPixelY()+this.getPixelHeight()-border-xsb)));
+		
+		if(mx > this.getPixelX()+this.getPixelWidth()-border-ysb)
+		{
+			if(this.getXsb() != null) 
+			{
+				this.getXsb().setMaxValue(mx-(this.getPixelX()+this.getPixelWidth()-border-ysb));
+				this.setXScroll(true);
+			}				
+		}
+		else
+		{
+			this.setXScroll(false);
+			if(this.getXsb() != null) { this.getXsb().setScrollValue(0); this.getXsb().setMaxValue(0);}
+		}
+		
+		if(my > this.getPixelY()+this.getPixelHeight()-border-xsb)
+		{
+			if(this.getYsb() != null) 
+			{
+				this.getYsb().setMaxValue(my-(this.getPixelY()+this.getPixelHeight()-border-xsb));
+				this.setYScroll(true);
+			}				
+		}
+		else
+		{
+			this.setYScroll(false);
+			if(this.getYsb() != null) { this.getYsb().setScrollValue(0); this.getYsb().setMaxValue(0);}
+		}
+		
+		Logger.debug("xscroll: "+this.getXScroll()+" / yscroll: "+this.getYScroll());
+		
+		if(this.getXsb() != null) this.getXsb().setDoublescroll(this.getXScroll() && this.getYScroll());
+		if(this.getYsb() != null) this.getYsb().setDoublescroll(this.getXScroll() && this.getYScroll());
+		
+		for(Component c: this.con.getComponents())
+		{
+			if(this.isAutoClipping())
+				c.setClippingArea(this.getContentClippingArea());
+			else
+				c.setClippingArea(this.getClippingArea());
+		}
+	}
+
+	@Override
+	public void dimensionChanged(int id, int width, int height) {
+		
+		if(this.autosizeWithContentX || this.autosizeWithContentY) this.autosize();
+		else if(this.isScrollable()) this.setScroll();
+			
+	}
+	
+	private void autosize()
+	{
+		
+		if(!this.autosizeWithContentX && !this.autosizeWithContentY)
+			return;
+		
+		int mx = 0;
+		int my = 0;
+		
+		for(Component c: this.con.getComponents())
+		{
+			if(c.getPixelX()+c.getPixelWidth() > mx)
+				mx = c.getPixelX()+c.getPixelWidth();
+			
+			if(c.getPixelY()+c.getPixelHeight() > my)
+				my = c.getPixelY()+c.getPixelHeight();
+		}
+		
+		if(this.autosizeWithContentX && !this.autosizeWithContentY) this.setDimension(mx, this.getPixelHeight());
+		else if(!this.autosizeWithContentX && this.autosizeWithContentY) this.setDimension(this.getPixelWidth(), my);
+		else if(this.autosizeWithContentX && this.autosizeWithContentY) this.setDimension(mx, my);
+		
+		Logger.debug("X: "+this.autosizeWithContentX+"("+mx+") / Y: "+this.autosizeWithContentY+"("+my+")");
+	}
+
+	public boolean isAutosizeWithContentX() {
+		return autosizeWithContentX;
+	}
+
+	public void setAutosizeWithContentX(boolean autosizeWithContentX) {
+		this.autosizeWithContentX = autosizeWithContentX;
+		
+		if(this.autosizeWithContentX) this.autosize();
+	}
+	
+	public boolean isAutosizeWithContentY() {
+		return autosizeWithContentY;
+	}
+
+	public void setAutosizeWithContentY(boolean autosizeWithContentY) {
+		this.autosizeWithContentY = autosizeWithContentY;
+		
+		if(this.autosizeWithContentY) this.autosize();
+	}
+	
+	@Override
+	public void setAutoClipping(boolean b)
+	{
+		super.setAutoClipping(b);
+		
+		for(Component c: this.con.getComponents())
+		{
+			if(this.isAutoClipping())
+				c.setClippingArea(this.getContentClippingArea());
+			else
+				c.setClippingArea(this.getClippingArea());
+		}
+		
+		
+	}
+
+	@Override
+	public void moved(int id, int x, int y) {
+		
+		if(!this.scrolling)
+		{
+			this.get(id).setParentXDif(this.get(id).getPixelX()-this.getTextX());
+		}
+	}
+	
+	
+
+
 }

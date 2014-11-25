@@ -4,6 +4,7 @@ import java.util.List;
 
 import cdg.nut.gui.Component;
 import cdg.nut.gui.ToolTip;
+import cdg.nut.util.Vertex4;
 
 public interface IParent {
 	
@@ -50,5 +51,7 @@ public interface IParent {
 	public int getMouseY();
 
 	public int getMouseX();
+
+	public Vertex4 getClippingArea();
 
 }

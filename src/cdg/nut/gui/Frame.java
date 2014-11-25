@@ -20,6 +20,7 @@ import cdg.nut.interfaces.IParent;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.Engine;
 import cdg.nut.util.Utility;
+import cdg.nut.util.Vertex4;
 import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLPolygon;
@@ -90,7 +91,9 @@ public abstract class Frame implements IParent {
 	public void draw() //Never ever ask me to explain this method. it works, that's all, hua?
 	{
 		if(this.con.getComponents(Console.class).size() == 0)
-			this.add(Engine.console);
+		{
+			this.add(Engine.console); this.nextId++;
+		}
 		
 		//Logger.debug("console id: "+Engine.console.getId());
 		
@@ -128,7 +131,7 @@ public abstract class Frame implements IParent {
 		
 		int mdwheel = Mouse.getDWheel();
 		if(mdwheel != 0) Logger.debug("mdwheel: "+mdwheel,"Frame.draw");
-		if(this.lastId != 0 && this.con.get(this.lastId) != null && this.con.get(this.lastId).isScrollable() && mdwheel != 0) this.con.get(this.lastId).mwheel(mdwheel);
+		if(this.lastId != 0 && this.con.get(this.lastId) != null && this.con.get(this.lastId).isScroll() && mdwheel != 0) this.con.get(this.lastId).mwheel(mdwheel);
 		
 		if (Mouse.isButtonDown(MouseButtons.LEFT.getKey())) {
 			
@@ -141,7 +144,7 @@ public abstract class Frame implements IParent {
 			this.mouseGrabY = this.oldMouseY-(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY());
 			if(this.grabable && this.grabId!=0)
 			{
-				this.mouseGrabbed = this.mouseLeftPressed && this.con.get(this.grabId) !=null &&(this.con.get(this.grabId).isDragable() || this.con.get(this.grabId).isScrollable() || (this.con.get(this.grabId).isTextSelectable()));
+				this.mouseGrabbed = this.mouseLeftPressed && this.con.get(this.grabId) !=null &&(this.con.get(this.grabId).isDragable() || this.con.get(this.grabId).isScroll() || (this.con.get(this.grabId).isTextSelectable()));
 				
 				if(this.mouseGrabbed && !this.grabStart)
 				{
@@ -166,7 +169,7 @@ public abstract class Frame implements IParent {
 			//if(this.grabId != 0) Logger.debug("scrollable: "+this.con.get(this.grabId).isScrollable()+" / mgrabbed: "+this.mouseGrabbed,"Frame.draw");
 			
 			if(this.grabId != 0 && this.mouseGrabbed && this.con.get(this.grabId).isDragable()) this.con.get(this.grabId).dragged(this.mouseGrabX, this.mouseGrabY);
-			if(this.grabId != 0 && this.mouseGrabbed && (this.con.get(this.grabId).isTextSelectable() || this.con.get(this.grabId).isScrollable())) this.con.get(this.grabId).clicked(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()), MouseButtons.LEFT, this.mouseGrabbed && (Math.abs(this.mouseGrabSX - Mouse.getX()) >= 5 || Math.abs(this.mouseGrabSY - (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY())) >= 5), this.deltaMouseGrabbed, this.mouseGrabSX, this.mouseGrabSY);
+			if(this.grabId != 0 && this.mouseGrabbed && (this.con.get(this.grabId).isTextSelectable() || this.con.get(this.grabId).isScroll())) this.con.get(this.grabId).clicked(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()), MouseButtons.LEFT, this.mouseGrabbed && (Math.abs(this.mouseGrabSX - Mouse.getX()) >= 5 || Math.abs(this.mouseGrabSY - (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY())) >= 5), this.deltaMouseGrabbed, this.mouseGrabSX, this.mouseGrabSY);
 			
 			
 		} else if (!Mouse.isButtonDown(MouseButtons.LEFT.getKey())) {
@@ -473,5 +476,11 @@ public abstract class Frame implements IParent {
 			}
 		}
 		return pssbl;
+	}
+	
+	@Override
+	public Vertex4 getClippingArea()
+	{
+		return new Vertex4(-1, -1, 2, 2);
 	}
 }

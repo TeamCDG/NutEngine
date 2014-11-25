@@ -24,4 +24,6 @@ public interface IEntity extends IGuiObject{
 	public void deserialize(JsonObject json);
 
 	public UpdatePackage getUpdate();
+	
+	public void packageRecieved(cdg.nut.util.net.Package p);
 }

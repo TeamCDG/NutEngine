@@ -26,6 +26,7 @@ public class NetPlayer {
 		return in;
 	}
 
+	
 
 	private int playerId;
 	private Socket client;
@@ -36,6 +37,10 @@ public class NetPlayer {
 	private DataInputStream in;
 	private boolean isPlayer;
 	
+	private boolean pinging;
+	
+	private int ping;
+	private long lastping;
 	
 	public NetPlayer(int id, Socket cl)
 	{
@@ -49,7 +54,28 @@ public class NetPlayer {
 			Logger.log(e);
 		}
 	}
+	
+	public int getPing() {
+		return ping;
+	}
 
+	public void setPing(int ping) {
+		this.ping = ping;
+	}
+
+	protected long getLastping() {
+		return lastping;
+	}
+
+	protected void setLastping(long lastping) {
+		this.lastping = lastping;
+	}
+	
+	protected void pong() {
+		this.ping = (int) (System.currentTimeMillis() - this.lastping);			
+		this.lastping = System.currentTimeMillis();
+	}
+	
 	public Thread getListenerThread() {
 		return listenerThread;
 	}
@@ -82,5 +108,15 @@ public class NetPlayer {
 
 	public void setId(int i) {
 		this.playerId = i;
+	}
+
+
+	public boolean isPinging() {
+		return pinging;
+	}
+
+
+	public void setPinging(boolean pinging) {
+		this.pinging = pinging;
 	}
 }

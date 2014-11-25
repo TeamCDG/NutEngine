@@ -148,7 +148,7 @@ public class GameFrame extends Frame {
 	{
 		if(this.con.getComponents(Console.class).size() == 0)
 		{
-			 this.add(Engine.console);
+			this.add(Engine.console); this.nextId++;
 		}
 		
 		//Logger.debug("console id: "+Engine.console.getId());
@@ -189,7 +189,7 @@ public class GameFrame extends Frame {
 		
 		int mdwheel = Mouse.getDWheel();
 		if(mdwheel != 0) Logger.debug("mdwheel: "+mdwheel,"Frame.draw");
-		if(this.lastId != 0 && this.con.get(this.lastId) != null && this.con.get(this.lastId).isScrollable() && mdwheel != 0) this.con.get(this.lastId).mwheel(mdwheel);
+		if(this.lastId != 0 && this.con.get(this.lastId) != null && this.con.get(this.lastId).isScroll() && mdwheel != 0) this.con.get(this.lastId).mwheel(mdwheel);
 		
 		if (Mouse.isButtonDown(MouseButtons.LEFT.getKey())) {
 			
@@ -202,7 +202,7 @@ public class GameFrame extends Frame {
 			this.mouseGrabY = this.oldMouseY-(SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY());
 			if(this.grabable && this.grabId!=0)
 			{
-				this.mouseGrabbed = this.mouseLeftPressed && this.con.get(this.grabId) !=null &&(this.con.get(this.grabId).isDragable() || this.con.get(this.grabId).isScrollable() || (this.con.get(this.grabId).isTextSelectable()));
+				this.mouseGrabbed = this.mouseLeftPressed && this.con.get(this.grabId) !=null &&(this.con.get(this.grabId).isDragable() || this.con.get(this.grabId).isScroll() || (this.con.get(this.grabId).isTextSelectable()));
 				
 				if(this.mouseGrabbed && !this.grabStart)
 				{
@@ -227,7 +227,7 @@ public class GameFrame extends Frame {
 			//if(this.grabId != 0) Logger.debug("scrollable: "+this.con.get(this.grabId).isScrollable()+" / mgrabbed: "+this.mouseGrabbed,"Frame.draw");
 			
 			if(this.grabId != 0 && this.mouseGrabbed && this.con.get(this.grabId).isDragable()) this.con.get(this.grabId).dragged(this.mouseGrabX, this.mouseGrabY);
-			if(this.grabId != 0 && this.mouseGrabbed && (this.con.get(this.grabId).isTextSelectable() || this.con.get(this.grabId).isScrollable())) this.con.get(this.grabId).clicked(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()), MouseButtons.LEFT, this.mouseGrabbed && (Math.abs(this.mouseGrabSX - Mouse.getX()) >= 5 || Math.abs(this.mouseGrabSY - (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY())) >= 5), this.deltaMouseGrabbed, this.mouseGrabSX, this.mouseGrabSY);
+			if(this.grabId != 0 && this.mouseGrabbed && (this.con.get(this.grabId).isTextSelectable() || this.con.get(this.grabId).isScroll())) this.con.get(this.grabId).clicked(Mouse.getX(), (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY()), MouseButtons.LEFT, this.mouseGrabbed && (Math.abs(this.mouseGrabSX - Mouse.getX()) >= 5 || Math.abs(this.mouseGrabSY - (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY())) >= 5), this.deltaMouseGrabbed, this.mouseGrabSX, this.mouseGrabSY);
 			
 			
 		} else if (!Mouse.isButtonDown(MouseButtons.LEFT.getKey())) {

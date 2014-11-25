@@ -237,18 +237,7 @@ public class InnerWindow extends Component implements IPolygonGenerator{
 	}
 
 	
-	@Override
-	public boolean checkId(int id)
-	{
-		boolean r = this.contentPane.checkId(id);	
-		
-		if(super.checkId(id) &&!r)
-		{
-			r = true;
-		}
-		
-		return r;
-	}
+
 	
 	@Override
 	protected void onClick(int x, int y, MouseButtons button, boolean grabbed, int grabx, int graby)
@@ -375,8 +364,8 @@ public class InnerWindow extends Component implements IPolygonGenerator{
 	{
 		super.move(x, y);
 		
-		Logger.debug("moving panel to new position...");
-		Logger.debug("hh: "+this.headHeight+" / fh: "+this.getFO().getPixelHeight());
+//		Logger.debug("moving panel to new position...");
+//		Logger.debug("hh: "+this.headHeight+" / fh: "+this.getFO().getPixelHeight());
 		this.contentPane.setPosition(this.getPixelX()+this.getBorderSize(), this.getPixelY()+this.headHeight+this.getBorderSize());
 		this.cross.setPosition(this.getPixelX()+this.getPixelWidth()-headHeight, this.getPixelY()+this.getBorderSize());
 		this.crossBorder.setPosition(this.getPixelX()+this.getPixelWidth()-this.getBorderSize()-headHeight, this.getPixelY());

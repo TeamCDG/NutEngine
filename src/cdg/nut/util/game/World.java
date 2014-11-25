@@ -10,6 +10,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -27,8 +29,11 @@ import com.google.gson.stream.JsonReader;
 
 import cdg.nut.interfaces.IEntity;
 import cdg.nut.logging.Logger;
+import cdg.nut.util.Utility;
 import cdg.nut.util.enums.Colors;
 import cdg.nut.util.gl.GLColor;
+import cdg.nut.util.net.NetUpdates;
+import cdg.nut.util.net.NetUtils;
 import cdg.nut.util.net.Package;
 
 public class World {
@@ -97,6 +102,14 @@ public class World {
 	}
 	
 	public World() {this.player = new ArrayList<Player>();}
+	
+	public void init(int width, int height) {
+		this.width = width;
+		this.height = height;
+		
+		this.setCamera(new Camera());
+		this.type = this.getClass().getName();
+	}
 	
 	public void deserialize(int width, int height, Camera cam, List<Player> p, Grid g, List<IEntity> entities)
 	{
@@ -318,7 +331,12 @@ public class World {
 	
 	public Player getPlayer(int id)
 	{
-		return this.player.get(id);
+		for(int i = 0; i < this.player.size(); i++)
+		{
+			if(this.player.get(i).getPlayerId() == id)
+				return this.player.get(i);
+		}
+		return null;
 	}
 	
 	public Player getLocalPlayer()
@@ -469,7 +487,6 @@ public class World {
 			try {
 				writer.close();
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				Logger.log(e1);
 			}
 		}
@@ -485,7 +502,49 @@ public class World {
 	}
 
 	public void onPackage(Package p) {
-		// TODO Auto-generated method stub
+		if(p.getUsage() == NetUpdates.GRIDUPDATE)
+		{
+			JsonReader r = null;
+			try {
+				r = new JsonReader((Reader)new StringReader(Utility.decompressString(p.getData())));
+			} catch (IOException e) {
+				Logger.log(e);
+			}
+	        r.setLenient(true);
+	        
+	        JsonObject grid = new JsonParser().parse(r).getAsJsonObject();
+	        
+	        Grid g = null;
+			try {
+				g = (Grid) Class.forName(grid.getAsJsonObject().get("type").getAsString()).newInstance();
+			} catch (InstantiationException | IllegalAccessException
+					| ClassNotFoundException e) {
+				Logger.log(e);
+			}
+	        g.deserialize(grid.getAsJsonObject());
+	        g.setParent(this);
+	        
+	        Tile[][] gr = new Tile[g.getHTileCount()][g.getVTileCount()];
+	        JsonArray tiles = grid.getAsJsonObject().get("grid").getAsJsonArray();
+	        
+	        for(int y = 0; y < g.getHTileCount(); y++)
+	        {
+	        	for(int x = 0; x < g.getVTileCount(); x++)
+		        {
+	        		try {
+						gr[y][x] = (Tile) Class.forName(tiles.get(y).getAsJsonArray().get(x).getAsJsonObject().get("type").getAsString()).newInstance();
+					} catch (InstantiationException | IllegalAccessException
+							| ClassNotFoundException e) {
+						Logger.log(e);
+					}
+	        		gr[y][x].deserialize(tiles.get(y).getAsJsonArray().get(x).getAsJsonObject());
+	        		gr[y][x].setParent(this);
+		        }
+	        }
+	        
+	        g.setGrid(gr);
+	        
+		}
 		
 	}
 

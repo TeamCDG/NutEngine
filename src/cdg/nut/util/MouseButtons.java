@@ -2,16 +2,16 @@ package cdg.nut.util;
 
 public enum MouseButtons {
 	
-	LEFT(0), RIGHT(1), MIDDLE(2);
+	LEFT((byte) 0), RIGHT((byte) 1), MIDDLE((byte) 2);
 	
-	private int key;
+	private byte key;
 	
-	MouseButtons(int key)
+	MouseButtons(byte key)
 	{
 		this.key = key;
 	}
 	
-	public int getKey()
+	public byte getKey()
 	{
 		return this.key;
 	}

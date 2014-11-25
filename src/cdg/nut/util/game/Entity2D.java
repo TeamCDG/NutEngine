@@ -19,6 +19,8 @@ import cdg.nut.util.gl.GLColor;
 import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.net.NetUpdates;
+import cdg.nut.util.net.NetUtils;
+import cdg.nut.util.net.Package;
 import cdg.nut.util.net.UpdatePackage;
 import cdg.nut.util.settings.SetKeys;
 
@@ -54,8 +56,16 @@ public abstract class Entity2D extends GLPolygon implements IEntity{
 	
 	public Entity2D() {}
 	
+	public Entity2D(float x, float y, float width, float height, boolean noGL)
+	{
+		super(0.0f, 0.0f, width, height, true, noGL);
+		this.move(x, y);
+		//this.setColor(new GLColor(1.0f, 1.0f, 1.0f, 1.0f));
+	}
+	
 	public Entity2D(float x, float y, float width, float height)
 	{
+		
 		super(0.0f, 0.0f, width, height, true);
 		this.move(x, y);
 		this.setShader(Entity2D.DEFAULT_SHADER);
@@ -394,6 +404,60 @@ public abstract class Entity2D extends GLPolygon implements IEntity{
 	public void rightClickhappened(IEntity entity, float worldX, float worldY) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public void packageRecieved(cdg.nut.util.net.Package p)
+	{
+		switch(p.getUsage())
+		{
+			case NetUpdates.POSITION_UPDATE:
+				this.posUpdate(p);
+				break;
+			case NetUpdates.ROTATION_UPDATE:
+				this.rotUpdate(p);
+				break;
+			case NetUpdates.MOUSECLICK:
+				this.mouseDown(p);
+				break;
+		}
+	}
+	
+	private void mouseDown(Package p) {
+		//0: byte mouse button
+		//1-4: int enttity id hit
+		//5-9: float wx
+		//10-13: float wy
+		
+		byte[] data = p.getData();
+		byte mbutton = data[0];
+		int eid = NetUtils.toInt(NetUtils.subArray(1, 4, data));
+		float wx = NetUtils.toFloat(NetUtils.subArray(5, 4, data));
+		float wy = NetUtils.toFloat(NetUtils.subArray(5, 4, data));
+		
+		IEntity e = null;
+		if(this.parent != null)
+			e = this.parent.get(eid);
+		
+		if(mbutton == MouseButtons.RIGHT.getKey())
+			this.rightClickhappened(e, wx, wy);
+	}
+
+	private void posUpdate(cdg.nut.util.net.Package p)
+	{
+		byte[] data = p.getData();
+		float x = NetUtils.toFloat(NetUtils.subArray(0, 4, data));
+		float y = NetUtils.toFloat(NetUtils.subArray(4, 4, data));
+		
+		this.setPosition(x, y);
+	}
+	
+	private void rotUpdate(cdg.nut.util.net.Package p)
+	{
+		byte[] data = p.getData();
+		float r = NetUtils.toFloat(NetUtils.subArray(0, 4, data));
+		
+		this.setRotation(r);
 	}
 
 

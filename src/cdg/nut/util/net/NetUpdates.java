@@ -19,5 +19,10 @@ public abstract class NetUpdates {
 	public static final byte SERVER_INFO = 0x0E;
 	public static final byte MULTI_PACKAGE = 0x0F;
 	public static final byte SHUTDOWN = 0x10;
-	
+	public static final byte MOUSECLICK = 0x11;
+	public static final byte GRIDUPDATE = 0x12;
+	public static final byte READY = 0x13;
+	public static final byte WAIT = 0x14;
+	public static final byte KICK = 0x15;
+	public static final byte BAN = 0x16;
 }

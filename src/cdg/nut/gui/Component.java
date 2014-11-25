@@ -19,9 +19,12 @@ import cdg.nut.util.gl.GLPolygon;
 import cdg.nut.util.gl.GLTexture;
 import cdg.nut.util.settings.SetKeys;
 import cdg.nut.util.settings.Settings;
+import cdg.nut.interfaces.IDimensionChangedListener;
 import cdg.nut.interfaces.IGuiObject;
 import cdg.nut.interfaces.IKeyboardListener;
+import cdg.nut.interfaces.IMovedListener;
 import cdg.nut.interfaces.IParent;
+import cdg.nut.interfaces.IScrollChangedListener;
 import cdg.nut.interfaces.IScrollListener;
 import cdg.nut.interfaces.ISettingsListener;
 import cdg.nut.interfaces.IClickListener;
@@ -65,6 +68,9 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	
 	private List<IClickListener> clickListener = new ArrayList<IClickListener>();
 	private List<IKeyboardListener> keyListener = new ArrayList<IKeyboardListener>();
+	private List<IDimensionChangedListener> dimensionListener = new ArrayList<IDimensionChangedListener>();
+	private List<IScrollChangedListener> scrollListener = new ArrayList<IScrollChangedListener>();
+	private List<IMovedListener> movedListener = new ArrayList<IMovedListener>();
 	
 	private boolean hasBorder = true;
 	private GLColor fontActiveColor;
@@ -76,6 +82,9 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	private boolean autoscroll = false;
 
 	private boolean borderPaddingDisabled = false;
+	
+	private int parentXDif = 0;
+	private int parentYDif = 0;
 
 	public Component(float x, float y, float width, float height)
 	{
@@ -196,7 +205,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	
 	private void init()
 	{
-		this.setClippingArea(new Vertex4(-1, 1, 1, -1));
+		//this.setClippingArea(new Vertex4(-1, 1, 1, -1));
 		
 		this.setupPadding();
 		this.restoreDefaults();
@@ -225,6 +234,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		this.tooltip = new ToolTip("");
 		
 		this.text = new GLFont(this.getTextX(), this.getTextY(), "");
+		this.text.setAutoClipping(false);
 		
 	}
 	
@@ -363,7 +373,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 
 		this.padding = Utility.pixelSizeToGLSize(pabs, pabs);
 		
-		if(this.text != null) this.text.setPosition(this.getPixelX()+pabs, this.getPixelY()+pabs);
+		if(this.text != null) this.text.setPosition(this.getTextX()+pabs-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()+pabs-(this.ysb!=null?this.ysb.getScrollValue():0));
 	}
 	
 	@Override
@@ -376,30 +386,34 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		//Logger.debug("Pixel coordinates: "+this.getPixelX()+" ("+this.getX()+") / "+this.getPixelY()+" ("+this.getY()+")", "Component.move");
 		this.border.setPosition(this.getPixelX(), this.getPixelY());
 		
-		if(this.xsb != null) this.xsb.setPosition(this.getPixelX()+Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class), 
-				this.getPixelY()+this.getPixelHeight()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
-		
-		if(this.ysb != null) this.ysb.setPosition(this.getPixelX()+this.getPixelWidth()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 
-				this.getPixelY()+Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class));
-		
+		if(this.xsb != null) this.xsb.setPosition(this.getPixelX()+(this.border!=null&&this.hasBorder?this.border.getBordersize():0), this.getPixelY()+this.getPixelHeight()-(this.border!=null&&this.hasBorder?this.border.getBordersize():0)-this.xsb.getPixelHeight());
+//		if(this.xsb != null) this.xsb.setWidth(this.getPixelWidth()-(this.border!=null?this.border.getBordersize():0));
+		if(this.ysb != null) this.ysb.setPosition(this.getPixelX()+this.getPixelWidth()-2*(this.border!=null&&this.hasBorder?this.border.getBordersize():0)-this.ysb.getPixelWidth(), this.getPixelY()+(this.border!=null&&this.hasBorder?this.border.getBordersize():0));
+//		if(this.ysb != null) this.ysb.setHeight(this.getPixelHeight()-2*(this.border!=null?this.border.getBordersize():0));
+		if(this.dsBEx != null) this.dsBEx.setPosition(this.getPixelX()+this.getPixelWidth()-2*(this.border!=null&&this.hasBorder?this.border.getBordersize():0)-this.dsBEx.getPixelWidth(), this.getPixelY()+this.getPixelHeight()-(this.border!=null&&this.hasBorder?this.border.getBordersize():0)-this.dsBEx.getPixelHeight());
 		//int[] p = Utility.glSizeToPixelSize(this.padding[0], this.padding[1]);
 		//if(this.text != null) this.text.setPosition(this.getPixelX()+p[0], this.getPixelY()+p[1]);
 		
-		if(this.text != null){ this.text.setPosition(this.getTextX(), this.getTextY()); this.text.regen(); } //whatever, dunno why regen is needed but it seems.. ---> DAFUQ ?! (without regen it gets moved without moving ... -.- 
+		if(this.text != null){ this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0)); this.text.regen(); } //whatever, dunno why regen is needed but it seems.. ---> DAFUQ ?! (without regen it gets moved without moving ... -.- 
 			//this.text.setText(this.text.getColortext());
 		
-		if(this.dsBEx != null) this.dsBEx.setPosition(this.getPixelX()+this.getPixelWidth()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 
-													  this.getPixelY()+this.getPixelHeight()-Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class)-Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
+		
 		
 		this.setTextClipping();
 		
 		if(this.icon != null)
 		{
-			GLTexture tex = this.icon.getImage();
-			this.icon = null;
-			this.setIcon(tex);
+//			GLTexture tex = this.icon.getImage();
+//			this.icon = null;
+//			this.setIcon(tex);
+			
+			this.icon.setPosition(this.getIconX(), this.getIconY());
 		}
 		
+		for(int i = 0; i < this.movedListener.size(); i++)
+		{
+			this.movedListener.get(i).moved(this.getId(), this.getPixelX(), this.getPixelY());
+		}
 	}
 
 	@Override
@@ -448,14 +462,16 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 
 	public void setText(String text)
 	{
-		
+		Logger.debug(this.text.getText()+" ("+text+"): "+this.text.getPixelWidth());
 		if(this.text.getColortext().equals(text))
 			return; 
 		
 		this.text.setText(text);
 		
+		Logger.debug("TEXT CHANGED!: "+this.text.isHidden());
+		
 		if(this.centerText)
-			this.text.setPosition(this.getTextX(), this.getTextY());
+			this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0));
 		
 		this.setScroll();
 		
@@ -482,21 +498,26 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	{
 		if(this.icon != null)
 		{
-			GLTexture tex = this.icon.getImage();
-			this.icon = null;
-			this.setIcon(tex);
+//			GLTexture tex = this.icon.getImage();
+//			this.icon = null;
+//			this.setIcon(tex);
 		}
 		
 		if (this.autosizeWithText) {
-			this.xscroll = false;
-			this.yscroll = false;
+			this.setXScroll(false);
+			this.setYScroll(false);
+			boolean tmpct = this.centerText;
+			this.centerText = false;
+			
 			this.setDimension(this.text.getPixelWidth()+this.getTextX()+this.getTextPad()-this.getPixelX(), this.text.getPixelHeight()+this.getTextY()+this.getTextPad()-this.getPixelY());
-			//Logger.debug("fh: "+text.getPixelHeight(),"Component.autosize");
+//			Logger.debug(text.getText()+" ----> fh: "+text.getPixelHeight()+" / fw: "+text.getPixelWidth());
 			this.border.setDimension(this.text.getPixelWidth()+this.getTextX()+this.getTextPad()-this.getPixelX(), this.text.getPixelHeight()+this.getTextY()+this.getTextPad()-this.getPixelY());
+//			Logger.debug(text.getText()+" ----> w: "+(this.text.getPixelWidth()+this.getTextX()+this.getTextPad()-this.getPixelX())+" / h: "+(this.text.getPixelHeight()+this.getTextY()+this.getTextPad()-this.getPixelY()));
+			this.centerText = tmpct;
 		}
 		
 		this.setTextClipping(true);
-		this.text.setPosition(this.getTextX(), this.getTextY());
+		this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0));
 	}
 
 	public int getTextPad() {
@@ -595,7 +616,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	private int addPadY;
 	public final void clicked(int x, int y, MouseButtons button, boolean grabbed, boolean deltaDown, int grabx, int graby) {
 		
-		//Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed+" / yscrollGrabbed: "+this.yscrollGrabbed+" / deltadown: "+deltaDown,"Component.clicked");
+		Logger.debug("xscrollGrabbed: "+this.xscrollGrabbed+" / yscrollGrabbed: "+this.yscrollGrabbed+" / deltadown: "+deltaDown);
 		
 		if(!this.enabled)
 			return;
@@ -685,27 +706,39 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		super.setDimension(width, height);
 		this.setTextClipping();
 		this.border.setDimension(width, height);
-		int sbs = Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class);
-		int bs = Settings.get(SetKeys.GUI_CMP_BORDER_SIZE, Integer.class);
 		
 		
 		
-		this.xsb.setWidth(this.getPixelWidth() - 2*bs);
-		this.xsb.setPosition(this.getPixelX()+bs, 
-				this.getPixelY()+this.getPixelHeight()-bs-sbs);
+		if(this.xsb != null) this.xsb.setPosition(this.getPixelX()+(this.border!=null&&this.hasBorder?this.border.getBordersize():0), this.getPixelY()+this.getPixelHeight()-(this.border!=null&&this.hasBorder?this.border.getBordersize():0)-this.xsb.getPixelHeight());
+		if(this.xsb != null) this.xsb.setWidth(this.getPixelWidth()-(this.border!=null&&this.hasBorder?this.border.getBordersize():0));
+		if(this.ysb != null) this.ysb.setPosition(this.getPixelX()+this.getPixelWidth()-2*(this.border!=null&&this.hasBorder?this.border.getBordersize():0)-this.ysb.getPixelWidth(), this.getPixelY()+(this.border!=null&&this.hasBorder?this.border.getBordersize():0));
+		if(this.ysb != null) this.ysb.setHeight(this.getPixelHeight()-2*(this.border!=null&&this.hasBorder?this.border.getBordersize():0));
+		if(this.dsBEx != null) this.dsBEx.setPosition(this.getPixelX()+this.getPixelWidth()-(this.border!=null&&this.hasBorder?this.border.getBordersize():0)-this.dsBEx.getPixelWidth(), this.getPixelY()+this.getPixelHeight()-(this.border!=null&&this.hasBorder?this.border.getBordersize():0)-this.dsBEx.getPixelHeight());
 		
-		this.ysb.setHeight(this.getPixelHeight() - 2*bs);
-		this.ysb.setPosition(this.getPixelX()+this.getPixelWidth()-bs-sbs, 
-				this.getPixelY()+bs);
+		this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0));
 		
-		this.dsBEx.setPosition(this.ysb.getPixelX(),this.xsb.getPixelY());
+		for(int i = 0; i < this.dimensionListener.size(); i++)
+		{
+			this.dimensionListener.get(i).dimensionChanged(this.getId(), this.getPixelWidth(), this.getPixelHeight());
+		}
 		
-		this.text.setPosition(this.getTextX(), this.getTextY());
+		Vertex4 ca = this.getClippingArea();
+		
+		Vertex4 cca = this.getContentClippingArea();
+		
+		Vertex4 fin = new Vertex4(0,0,0,0);
+		
+		fin.setX(Math.max(ca.getX(), cca.getX()));
+		fin.setY(Math.min(ca.getY(), cca.getY()));
+		fin.setZ(Math.min(ca.getZ(), cca.getZ()));
+		fin.setW(Math.max(ca.getW(), cca.getW()));
+		
+		this.text.setClippingArea(fin);
 	}
 	
 	protected void setScroll()
 	{
-		
+//		Logger.debug(this.text.getText()+": "+this.text.getPixelWidth());
 		
 		if(!this.scrollable)
 			return;
@@ -720,31 +753,33 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		int tw = pr-pl;
 		int th = pb-pt;
 		
-		if(this.text.getPixelWidth() > tw)
+//		Logger.debug(this.text.getText()+": "+this.text.getPixelWidth());
+		
+		if(this.text.getPixelWidth() > tw && !this.text.isHidden())
 		{
 			if(this.xsb != null) 
 			{
 				this.xsb.setMaxValue(this.text.getPixelWidth()-tw);
-				this.xscroll = true;
+				this.setXScroll(true);
 			}				
 		}
 		else
 		{
-			this.xscroll = false;
+			this.setXScroll(false);
 			if(this.xsb != null) { this.xsb.setScrollValue(0); this.xsb.setMaxValue(0);}
 		}
 		
-		if(this.text.getPixelHeight() > th)
+		if(this.text.getPixelHeight() > th && !this.text.isHidden())
 		{
 			if(this.ysb != null) 
 			{
 				this.ysb.setMaxValue(this.text.getPixelHeight()-th);
-				this.yscroll = true;
+				this.setYScroll(true);
 			}				
 		}
 		else
 		{
-			this.yscroll = false;
+			this.setYScroll(false);
 			if(this.ysb != null) { this.ysb.setScrollValue(0); this.ysb.setMaxValue(0);}
 		}
 		
@@ -754,6 +789,19 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		if(this.ysb != null) this.ysb.setDoublescroll(this.xscroll && this.yscroll);
 		
 		this.setTextClipping(true);
+		
+		Vertex4 ca = this.getClippingArea();
+		
+		Vertex4 cca = this.getContentClippingArea();
+		
+		Vertex4 fin = new Vertex4(0,0,0,0);
+		
+		fin.setX(Math.max(ca.getX(), cca.getX()));
+		fin.setY(Math.min(ca.getY(), cca.getY()));
+		fin.setZ(Math.min(ca.getZ(), cca.getZ()));
+		fin.setW(Math.max(ca.getW(), cca.getW()));
+		
+		this.text.setClippingArea(fin);
 	}
 	
 	
@@ -776,11 +824,18 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 				tch = this.getClippingArea().getZ();
 			}*/
 			
-			Vertex4 ca = new Vertex4(this.getX()+pad[0],
-					 this.getY()+pad[1],
-					 (this.getX()+this.getWidth())-pad[0]-(yscroll?this.ysb.getWidth():0),
-					 (this.getY()+this.getHeight())-pad[1]-(xscroll?this.xsb.getHeight():0));
-			this.text.setClippingArea(ca);
+			Vertex4 ca = this.getClippingArea();
+			
+			Vertex4 cca = this.getContentClippingArea();
+			
+			Vertex4 fin = new Vertex4(0,0,0,0);
+			
+			fin.setX(Math.max(ca.getX(), cca.getX()));
+			fin.setY(Math.min(ca.getY(), cca.getY()));
+			fin.setZ(Math.min(ca.getZ(), cca.getZ()));
+			fin.setW(Math.max(ca.getW(), cca.getW()));
+			
+			this.text.setClippingArea(fin);
 
 			if(this.icon != null) this.icon.setClippingArea(this.text.getClippingArea());
 			
@@ -808,7 +863,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		
 		if(!this.hasBackground && !this.hasBorder)
 		{
-			this.text.setPosition(this.getTextX(), this.getTextY());
+			this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0));
 			this.setTextClipping();
 		}
 	}
@@ -1044,7 +1099,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		
 		if(!this.hasBackground && !this.hasBorder)
 		{
-			this.text.setPosition(this.getTextX(), this.getTextY());
+			this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0));
 			this.setTextClipping();
 		}
 	}
@@ -1063,6 +1118,30 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 
 	public void addClickListener(IClickListener clickListener) {
 		this.clickListener.add(clickListener);
+	}
+	
+	public void removeDimensionChangedListener(IDimensionChangedListener dimListener) {
+		this.dimensionListener.remove(dimListener);
+	}
+
+	public void addDimensionChangedListener(IDimensionChangedListener dimListener) {
+		this.dimensionListener.add(dimListener);
+	}
+	
+	public void removeScrollChangedListener(IScrollChangedListener scrListener) {
+		this.scrollListener.remove(scrListener);
+	}
+
+	public void addScrollChangedListener(IScrollChangedListener scrListener) {
+		this.scrollListener.add(scrListener);
+	}
+
+	public void removeMovedListener(IMovedListener movedListener) {
+		this.movedListener.remove(movedListener);
+	}
+
+	public void addMovedListener(IMovedListener movedListener) {
+		this.movedListener.add(movedListener);
 	}
 
 	public void dragged(int mouseGrabX, int mouseGrabY) {
@@ -1101,9 +1180,10 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		this.text.setPasswordChar(passwordChar);
 	}
 	
-	public int getTextX()
+	public int getIconX()
 	{
-		int pabs = this.getTextPad()+(this.icon!=null?this.icon.getPixelWidth()+Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class):0);
+		int pabs = this.getTextPad();
+		
 		
 		if(this.centerText)
 		{
@@ -1111,6 +1191,39 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 			return this.getPixelX()+Math.max(pabs, xoff);
 		}
 		else
+		{
+			return this.getPixelX() + pabs + this.addPadX;
+		}
+	}
+	
+	public int getIconY()
+	{
+		int pabs = this.getTextPad();
+		
+		if(this.centerText)
+		{
+			int yoff = (this.getPixelHeight()-2*pabs-this.text.getPixelHeight()-this.addPadY)/2;
+			return this.getPixelY()+Math.max(pabs, yoff);
+		}
+		else
+		{
+			return this.getPixelY() + pabs + this.addPadY;
+		}
+	}
+	
+	public int getTextX()
+	{
+		int pabs = this.getTextPad()+(this.icon!=null?this.icon.getPixelWidth()+Settings.get(SetKeys.GUI_CMP_FONT_PADDING, Integer.class):0);
+		
+		if(this.icon != null) Logger.debug("icon width: "+this.icon.getPixelWidth());
+		
+		if(this.centerText)
+		{
+			int xoff = (this.getPixelWidth()-2*pabs-this.text.getPixelWidth()-this.addPadX)/2;
+			return this.getPixelX()+Math.max(pabs, xoff);
+		}
+		else
+			
 		{
 			return this.getPixelX() + pabs + this.addPadX;
 		}
@@ -1143,7 +1256,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	 */
 	public void setAddPadX(int addPadX) {
 		this.addPadX = addPadX;
-		this.text.setPosition(this.getTextX(), this.getTextY());
+		this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0));
 	
 	}
 
@@ -1159,7 +1272,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	 */
 	public void setAddPadY(int addPadY) {
 		this.addPadY = addPadY;
-		this.text.setPosition(this.getTextX(), this.getTextY());
+		this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0));
 	
 	}
 
@@ -1179,9 +1292,14 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		return this.active;
 	}
 	
-	public boolean isScrollable()
+	public boolean isScroll()
 	{
 		return this.xscroll || this.yscroll;
+	}
+	
+	public boolean isScrollable()
+	{
+		return this.scrollable;
 	}
 
 	public boolean isTextSelectable() {
@@ -1225,12 +1343,12 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		}
 	}
 	
-	protected XScrollBar getXsb()
+	public XScrollBar getXsb()
 	{
 		return this.xsb;
 	}
 	
-	protected YScrollBar getYsb()
+	public YScrollBar getYsb()
 	{
 		return this.ysb;
 	}
@@ -1340,17 +1458,20 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		this.parent = parent;
 	}
 	
+	
 	public void setScrollable(boolean value)
 	{
+		Logger.debug("scorllable: "+value);
 		
 		if(this.scrollable && !value)
 		{
-			this.yscroll = false;
-			this.xscroll = false;
+			this.setYScroll(false);
+			this.setXScroll(false);
 		}
 		else if(!this.scrollable && value)
 		{
 			this.setScroll();
+			this.setDragable(true);
 		}
 		
 		this.scrollable = value;
@@ -1364,7 +1485,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 
 	public void setCenterText(boolean centerText) {
 		this.centerText = centerText;
-		this.text.setPosition(this.getTextX(), this.getTextY());
+		this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0));
 		//Logger.error("text size ("+this.getText()+"): "+this.text.getPixelWidth());
 	}
 	
@@ -1372,7 +1493,7 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	{
 		this.addPadX = addPadX;
 		this.addPadY = addPadY;
-		this.text.setPosition(this.getTextX(), this.getTextY());
+		this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0));
 	}
 
 	public boolean isEnabled() {
@@ -1450,10 +1571,12 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		this.icon.setClipping(true);
 		if(this.icon != null) this.icon.setClippingArea(this.text.getClippingArea());
 		
-		this.text.setPosition(this.getTextX(), this.getTextY());
+		this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0));
 		this.icon.setSelectable(false);
 		this.icon.setColor(Colors.WHITE.getGlColor());
 		this.icon.setShader(DefaultShader.image);
+		
+		if(this.autosizeWithText) this.autosize();
 	}
 	
 	public void setIcon(String icon) {
@@ -1474,7 +1597,9 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	public void setIcon(GLPolygon icon) {
 		this.icon = icon;
 		
-		this.text.setPosition(this.getTextX(), this.getTextY());
+		this.text.setPosition(this.getTextX()-(this.xsb!=null?this.xsb.getScrollValue():0), this.getTextY()-(this.ysb!=null?this.ysb.getScrollValue():0));
+		
+		
 	}
 
 	public Component getById(int id) {
@@ -1487,13 +1612,20 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	public int getBorderSize()
 	{
 		//TODO IMPLEMENT FANCY STUFF.
-		return 4;
+		return this.border.getBordersize(); //fancy stuff implemented.
 	}
 	
 	public void setBorderSize(int value)
 	{
 		if(this.border != null)
 			this.border.setBordersize(value);
+		
+		if(this.xsb != null) this.xsb.setPosition(this.getPixelX()+value, this.getPixelY()+this.getPixelHeight()-value-this.xsb.getPixelHeight());
+		if(this.xsb != null) this.xsb.setWidth(this.getPixelWidth()-2*value);
+		if(this.ysb != null) this.ysb.setPosition(this.getPixelX()+this.getPixelWidth()-value-this.ysb.getPixelWidth(), this.getPixelY()+value);
+		if(this.ysb != null) this.ysb.setHeight(this.getPixelHeight()-2*value);
+		if(this.dsBEx != null) this.dsBEx.setPosition(this.getPixelX()+this.getPixelWidth()-value-this.dsBEx.getPixelWidth(), this.getPixelY()+this.getPixelHeight()-value-this.dsBEx.getPixelHeight());
+													
 	}
 
 	public boolean isAutoscroll() {
@@ -1526,30 +1658,60 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		float tcw = Math.min(corg.getZ(), ca.getZ());
 		float tch = Math.max(corg.getW(), ca.getW());
 		
+		
+		
+		
+		Vertex4 cca = this.getContentClippingArea();
+		
+		Vertex4 fin = new Vertex4(0,0,0,0);
+		
+		fin.setX(Math.max(ca.getX(), cca.getX()));
+		fin.setY(Math.min(ca.getY(), cca.getY()));
+		fin.setZ(Math.min(ca.getZ(), cca.getZ()));
+		fin.setW(Math.max(ca.getW(), cca.getW()));
+		
+//		Logger.debug(this.getId()+": "+ca.toString()+" / "+cca.toString()+ " / "+fin.toString() );
+		
+		//c.setClippingArea(fin);
+		
 		if(this.text != null)
 		{
-			this.text.setClippingArea(new Vertex4(ca.getX(), ca.getY(), tcw, tch));
+			this.text.setClippingArea(fin);
 		}
 		
 		if(this.icon != null)
 		{
-			this.icon.setClippingArea(new Vertex4(ca.getX(), ca.getY(), tcw, tch));
+			this.icon.setClippingArea(fin);
 		}
 		
 		if(this.xsb != null)
 		{
-			this.xsb.setClippingArea(new Vertex4(ca.getX(), ca.getY(), tcw, tch));
+			this.xsb.setClippingArea(fin);
 		}
 		
 		if(this.ysb != null)
 		{
-			this.ysb.setClippingArea(new Vertex4(ca.getX(), ca.getY(), tcw, tch));
+			this.ysb.setClippingArea(fin);
 		}
 		
 		if(this.dsBEx != null)
 		{
-			this.dsBEx.setClippingArea(new Vertex4(ca.getX(), ca.getY(), tcw, tch));
+			this.dsBEx.setClippingArea(fin);
 		}
+	}
+	
+	protected Vertex4 getContentClippingArea()
+	{
+		int cx = this.getPixelX()+(this.hasBorder()?this.getBorderSize():0);
+		int cy = this.getPixelY()+(this.hasBorder()?this.getBorderSize():0);
+		
+		int cdimx = cx + this.getPixelWidth()-2*(this.hasBorder()?this.getBorderSize():0)-(this.getYScroll()?this.getYsb().getPixelWidth():0);
+		int cdimy = cy + this.getPixelHeight()-2*(this.hasBorder()?this.getBorderSize():0)-(this.getXScroll()?this.getXsb().getPixelHeight():0);
+		
+		float[] p = Utility.pixelToGL(cx, cy);
+		float[] pdim = Utility.pixelToGL(cdimx, cdimy);
+			
+		return new Vertex4(p[0], p[1], pdim[0], pdim[1]);
 	}
 	
 	@Override
@@ -1583,5 +1745,51 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 	public void selected() {
 		this.setSelected(true);
 		
+	}
+	
+	protected void setXScroll(boolean b)
+	{
+		this.xscroll = b;
+		
+		for(int i = 0; i < this.scrollListener.size(); i++)
+		{
+			this.scrollListener.get(i).scrollChanged(this.getId(), this.xscroll, this.yscroll);
+		}
+	}
+	
+	protected boolean getXScroll()
+	{
+		return this.xscroll;		
+	}
+	
+	protected void setYScroll(boolean b)
+	{
+		this.yscroll = b;
+		
+		for(int i = 0; i < this.scrollListener.size(); i++)
+		{
+			this.scrollListener.get(i).scrollChanged(this.getId(), this.xscroll, this.yscroll);
+		}
+	}
+	
+	protected boolean getYScroll()
+	{
+		return this.yscroll;
+	}
+
+	public int getParentXDif() {
+		return parentXDif;
+	}
+
+	public void setParentXDif(int parentXDif) {
+		this.parentXDif = parentXDif;
+	}
+
+	public int getParentYDif() {
+		return parentYDif;
+	}
+
+	public void setParentYDif(int parentYDif) {
+		this.parentYDif = parentYDif;
 	}
 }

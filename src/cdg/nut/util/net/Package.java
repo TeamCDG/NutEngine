@@ -3,6 +3,8 @@ package cdg.nut.util.net;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -50,7 +52,7 @@ public class Package {
 	/**
 	 * @return the id
 	 */
-	protected int getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -58,20 +60,20 @@ public class Package {
 	/**
 	 * @return the length
 	 */
-	protected int getLength() {
+	public int getLength() {
 		return length;
 	}
 	/**
 	 * @return the usage
 	 */
-	protected byte getUsage() {
+	public byte getUsage() {
 		return usage;
 	}
 
 	/**
 	 * @return the data
 	 */
-	protected byte[] getData() {
+	public byte[] getData() {
 		if(this.compressed == Package.UNCOMPRESSED)
 			return data;
 		else
@@ -156,4 +158,26 @@ public class Package {
 		return fin;
 	}
 	
+	public static List<Package> multiPackageDownbreak(Package multi)
+	{
+		List<Package> pack = new ArrayList<Package>();
+		
+		int id = multi.getId();
+		int nxtidx = 0;
+		
+		byte[] tmpdata = multi.getData();
+		
+		while(nxtidx < tmpdata.length)
+		{
+			int len = NetUtils.toInt(NetUtils.subArray(nxtidx, 4, tmpdata));
+			byte usage = tmpdata[nxtidx+4];
+			byte[] subdata = NetUtils.subArray(nxtidx+6, len-2, tmpdata);
+			
+			pack.add(new Package(id, usage, Package.UNCOMPRESSED, subdata));
+			
+			nxtidx += len+4;
+		}
+		
+		return pack;
+	}
 }

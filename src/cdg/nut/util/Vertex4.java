@@ -33,6 +33,34 @@ public class Vertex4 implements IVertex {
 		this(vertex2.getX(), vertex2.getY(), 0.0f, 1.0f);
 	}
 
+	/**
+	 * @param x the x to set
+	 */
+	public void setX(float x) {
+		this.x = x;
+	}
+
+	/**
+	 * @param y the y to set
+	 */
+	public void setY(float y) {
+		this.y = y;
+	}
+
+	/**
+	 * @param z the z to set
+	 */
+	public void setZ(float z) {
+		this.z = z;
+	}
+
+	/**
+	 * @param w the w to set
+	 */
+	public void setW(float w) {
+		this.w = w;
+	}
+
 	public Vertex4(float[] xyzw) {
 		this(xyzw[0], xyzw[1], xyzw[2], xyzw[3]);
 	}

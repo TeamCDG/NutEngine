@@ -30,7 +30,7 @@ public class Console extends InnerWindow {
 	public int setId(int id)
 	{
 		super.setId(id);
-		return 10;
+		return 11;
 	}
 	
 	public Console()

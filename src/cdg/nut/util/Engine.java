@@ -6,6 +6,7 @@ import cdg.nut.gui.Console;
 import cdg.nut.gui.components.InnerWindow;
 import cdg.nut.util.net.Client;
 import cdg.nut.util.net.Server;
+import cdg.nut.util.net.UDPListener;
 
 public abstract class Engine {
 
@@ -18,6 +19,7 @@ public abstract class Engine {
 		
 		private static Server server;
 		private static Client client;
+		private static UDPListener udpListener;
 		
 		
 		public static float getDelta() {
@@ -71,6 +73,8 @@ public abstract class Engine {
 		}
 
 		public static void setClient(Client client) {
+			if(Engine.client != null)
+				Engine.client.setCloseRequested(true);
 			Engine.client = client;
 		}
 
@@ -79,7 +83,19 @@ public abstract class Engine {
 		}
 
 		public static void setServer(Server server) {
+			if(Engine.server != null)
+				Engine.server.shutdown();
 			Engine.server = server;
+		}
+
+		public static UDPListener getUdpListener() {
+			return udpListener;
+		}
+
+		public static void setUdpListener(UDPListener udpListener) {
+			if(Engine.udpListener != null)
+				Engine.udpListener.close();
+			Engine.udpListener = udpListener;
 		}
 		
 }

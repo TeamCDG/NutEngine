@@ -61,4 +61,6 @@ public class FishGameEntity extends Entity2D{
 	public void setHp(int hp) {
 		this.hp = hp;
 	}
+
+	
 }

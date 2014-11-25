@@ -140,7 +140,7 @@ public void setDoublescroll(boolean doublescroll) {
 			}
 			else
 			{
-				this.setDimension(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), this.height);
+				this.setDimension(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), this.height+Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
 			}
 			this.setMaxValue(this.maxValue);
 			this.setScrollValue(this.scrollValue);
@@ -160,13 +160,9 @@ public void setDoublescroll(boolean doublescroll) {
 	public void setDimension(float w, float h)
 	{
 		float nh = h;
-		
-		if(this.doublescroll)
-		{
-			nh -= Utility.pixelSizeToGLSize(0, Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class))[1];
-		}
-		
 		super.setDimension(w, nh);
+		
+		this.height = this.getPixelHeight();
 		
 		this.setScrollValue(this.scrollValue);
 	}

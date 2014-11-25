@@ -46,7 +46,7 @@ public class TextBox extends Component implements IKeyboardListener{
 		this.setActiveable(true);
 		this.setTextSelectable(true);
 		this.addKeyListener(this);
-		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 1, this.getFontPixelSize());
 		this.cursor.setColor(this.getFontColor());
 	}
 
@@ -56,7 +56,7 @@ public class TextBox extends Component implements IKeyboardListener{
 		this.setActiveable(true);
 		this.setTextSelectable(true);
 		this.addKeyListener(this);
-		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 1, this.getFontPixelSize());
 		this.cursor.setColor(this.getFontColor());
 	}
 	
@@ -66,7 +66,7 @@ public class TextBox extends Component implements IKeyboardListener{
 		this.setActiveable(true);
 		this.setTextSelectable(true);
 		this.addKeyListener(this);
-		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 1, this.getFontPixelSize());
 		this.cursor.setColor(this.getFontColor());
 	}
 
@@ -75,7 +75,7 @@ public class TextBox extends Component implements IKeyboardListener{
 		this.setActiveable(true);
 		this.setTextSelectable(true);
 		this.addKeyListener(this);
-		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 1, this.getFontPixelSize());
 		this.cursor.setColor(this.getFontColor());
 	}
 	
@@ -86,7 +86,7 @@ public class TextBox extends Component implements IKeyboardListener{
 	{
 		super.setFontSize(f);
 		
-		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 1, this.getFontPixelSize());
 		this.cursor.setColor(this.getFontColor());
 	}
 	
@@ -95,7 +95,7 @@ public class TextBox extends Component implements IKeyboardListener{
 	{
 		super.setFontSize(f);
 		
-		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 4, this.getFontPixelSize());
+		this.cursor = new GLPolygon(this.getTextX(), this.getTextY(), 1, this.getFontPixelSize());
 		this.cursor.setColor(this.getFontColor());
 	}
 	

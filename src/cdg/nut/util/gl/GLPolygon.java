@@ -54,7 +54,7 @@ public class GLPolygon implements ISelectable {
 	protected transient boolean drawing = false;
 	private boolean selectable = true;
 	private boolean hidden;
-	private transient ShaderProgram shader = DefaultShader.simple;;
+	private transient ShaderProgram shader = DefaultShader.simple;
 	private int id;
 	private boolean selected = false;
 	private boolean autoClipping = true;
@@ -71,6 +71,16 @@ public class GLPolygon implements ISelectable {
 	private String type;
 	
 	protected GLPolygon(){}
+	
+	protected GLPolygon(float x, float y, float width, float height, boolean cref, boolean gl_less)
+	{
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.centerRef = cref;
+		this.gl_less = gl_less;
+	}
 	
 	protected void load(float x, float y, float width, float height, IPolygonGenerator gen)
 	{
@@ -109,6 +119,7 @@ public class GLPolygon implements ISelectable {
 		this.edgeCount = json.get("edgeCount").getAsInt();
 		this.autoClipping = json.get("autoClipping").getAsBoolean();
 		this.scaleWithBoundingBox = json.get("scaleWithBoundingBox").getAsBoolean();
+		//this.gl_less = json.get("gl_less").getAsBoolean();
 		
 		if(!this.gl_less) this.createQuad();
 		if(!this.gl_less) this.setupGL();
@@ -124,8 +135,8 @@ public class GLPolygon implements ISelectable {
 		this.height = height;
 		this.centerRef = cref;
 		
-		this.createQuad();
-		this.setupGL();
+		if(!this.gl_less) this.createQuad();
+		if(!this.gl_less) this.setupGL();
 	}
 	
 	protected void load(int x, int y, int width, int height, IPolygonGenerator gen)
@@ -339,7 +350,8 @@ public class GLPolygon implements ISelectable {
 	{
 		if(this.centerRef)
 		{
-			this.points = Utility.generateCenterQuadPoints(this.x, this.y, this.width, this.height);		
+			this.points = Utility.generateCenterQuadPoints(this.x, this.y, this.width, this.height);	
+			Logger.debug("w: "+this.width+" / h: "+this.height);
 			Vertex2[] st = Utility.generateSTPoints(1.0f, 0.0f, -1.0f, 1.0f);
 			this.data = Utility.generateQuadData(this.points, this.idColor, st);
 			this.indices = Utility.createQuadIndicesInt(1);
@@ -613,6 +625,9 @@ public class GLPolygon implements ISelectable {
 		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, VBO);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, verticesBuffer, GL15.GL_STATIC_DRAW);
+		
+		verticesBuffer.clear();
+		verticesBuffer = null;
 			
 		
 		// Put the position coordinates in attribute list 0
@@ -637,6 +652,9 @@ public class GLPolygon implements ISelectable {
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 		
+		indicesBuffer.clear();
+		indicesBuffer = null;
+		
 		if(this.autoClipping) this.setupClippingArea();
 	}
 	
@@ -656,6 +674,9 @@ public class GLPolygon implements ISelectable {
 			
 			//upload it to the GPU memory overriding the old value(s)
 			GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, i * VertexData.STRIDE + VertexData.COLOR_BYTE_OFFSET, colorBuffer);
+			
+			colorBuffer.clear();
+			colorBuffer = null;
 		}
 		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0); //unbind cause we are done
@@ -663,6 +684,7 @@ public class GLPolygon implements ISelectable {
 	
 	protected void move(float nx, float ny)
 	{
+		
 		while(drawing) { } //don't change the VBO if we are currently drawing and wait until drawing has finished
 		
 		if(this.points != null && this.VAO != -1)
@@ -672,7 +694,7 @@ public class GLPolygon implements ISelectable {
 			float xm = this.x - nx;
 			float ym = this.y - ny;	
 			
-			//Logger.debug("moving: "+xm+"; "+ym);
+//			Logger.debug("moving: "+xm+"; "+ym);
 			
 			for(int i = 0; i < points.length; i++)
 			{
@@ -686,6 +708,9 @@ public class GLPolygon implements ISelectable {
 				
 				//upload it to the GPU memory overriding the old value(s)
 				GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, i * VertexData.STRIDE + 0, posBuffer);
+				
+				posBuffer.clear();
+				posBuffer = null;
 				this.points[i] = new Vertex4(pos[0], pos[1]);
 			}
 			
@@ -948,50 +973,53 @@ public class GLPolygon implements ISelectable {
 		this.height = height;
 		this.width = width;
 		
-
-		if (this.gen != null)
-		{
-			while(drawing) { };
-			if(this.scaleWithBoundingBox)
-			{
-				this.data = gen.generateData(x, y, width, height); 
-				this.indices = gen.generateIndicies();
-				if(this.data != null) this.points = Utility.extractPoints(this.data);
-				this.setupGL();
-			}
-			
-		}
-		else if(this.edgeCount == 4)
-		{
-			while(drawing) { };
-			if(this.scaleWithBoundingBox)
-			{
-				if(this.bs != -1)
-					this.createBorderQuad();
-				else
-					this.createQuad();
-				
-				this.setupGL();
-			}
-			
-			//this.setupGL(Utility.generateQuadData(this.points[0].getX(), this.points[0].getY(), width, height, new GLColor(this.id)), Utility.createQuadIndicesByte(4));
-		}
-		else
-		{
-			while(drawing) { };	
-			if(this.scaleWithBoundingBox)
-			{
-				this.xrad = this.getPixelWidth()/2;
-				this.yrad = this.getPixelHeight()/2;
-				//Logger.debug("xrad: "+xrad+" / yrad: "+yrad, "GLPolygon.setDimension");
-				
-				if(this.bs != -1)
-					this.generateBorderCrefPoly();
-				else
-					this.generateCrefPoly();
-				this.setupGL();
-			}
-		}
+		this.regen();
+		
+//		if (this.gen != null)
+//		{
+//			while(drawing) { };
+//			if(this.scaleWithBoundingBox)
+//			{
+//				this.data = gen.generateData(x, y, width, height); 
+//				this.indices = gen.generateIndicies();
+//				if(this.data != null) this.points = Utility.extractPoints(this.data);
+//				this.setupGL();
+//			}
+//			
+//		}
+//		else if(this.edgeCount == 4)
+//		{
+//			while(drawing) { };
+//			Logger.debug("scale with bounding box: "+this.scaleWithBoundingBox);
+//			if(this.scaleWithBoundingBox)
+//			{
+//				Logger.debug("w: "+this.getPixelWidth()+" / h: "+this.getPixelHeight());
+//				if(this.bs != -1)
+//					this.createBorderQuad();
+//				else
+//					this.createQuad();
+//				
+//				this.setupGL();
+//			}
+//			
+//			//this.setupGL(Utility.generateQuadData(this.points[0].getX(), this.points[0].getY(), width, height, new GLColor(this.id)), Utility.createQuadIndicesByte(4));
+//		}
+//		else
+//		{
+//			while(drawing) { };	
+//			if(this.scaleWithBoundingBox)
+//			{
+//				this.xrad = this.getPixelWidth()/2;
+//				this.yrad = this.getPixelHeight()/2;
+//				//Logger.debug("xrad: "+xrad+" / yrad: "+yrad, "GLPolygon.setDimension");
+//				
+//				if(this.bs != -1)
+//					this.generateBorderCrefPoly();
+//				else
+//					this.generateCrefPoly();
+//				this.setupGL();
+//			}
+//		}
 		
 		if(this.autoClipping) this.setupClippingArea();
 	}
@@ -1042,18 +1070,20 @@ public class GLPolygon implements ISelectable {
 	}
 
 	public Vertex4 getClippingArea() {
+		if(this.clippingArea == null)
+			this.setupClippingArea();
 		return clippingArea;
 	}
 
 	public void setClippingArea(Vertex4 clippingArea) {
-		this.autoClipping = false;
+		//this.autoClipping = false;
 		this.clippingArea = clippingArea;
 		this.onClippingChange(clippingArea);
 	}
 	
 	public void onClippingChange(Vertex4 c){}
 	
-	private void setupClippingArea()
+	protected void setupClippingArea()
 	{
 		this.clippingArea = new Vertex4(this.x, this.y, this.x+this.width, this.y+this.height);
 		this.onClippingChange(new Vertex4(this.x, this.y, this.x+this.width, this.y+this.height));
@@ -1085,6 +1115,7 @@ public class GLPolygon implements ISelectable {
 
 	public void regen()
 	{
+		this.gl_less = false;
 		if (this.gen != null)
 		{
 			while(drawing) { };

@@ -88,6 +88,30 @@ public abstract class Logger {
 	
 	public static void disable()
 	{
+//		System.out.println("disabled logger.");
+//		 try
+//		 {
+//			 StackTraceElement[] se = Thread.currentThread().getStackTrace();
+//			 String[] tmp = se[1].getClassName().split("\\.");
+//			 String cn = tmp[tmp.length - 1];
+//			 int idx = 1;
+//			 while(cn.equals("Logger") && idx+1 < se.length)
+//			 {
+//				 idx++;
+//				 tmp = se[idx].getClassName().split("\\.");
+//				 cn = tmp[tmp.length - 1];
+//			 }
+//			 
+//			 /*
+//			 for(int i = 0; i < se.length; i++)
+//			 {
+//				 if(se[i].getClassName().contains("Console"))
+//					 return;
+//			 }*/
+//			 
+//			 System.out.println(cn+"[:"+se[idx].getLineNumber()+"]."+se[idx].getMethodName());
+//		 }
+//		 catch(Exception e) { e.printStackTrace(); }
 		Logger.disabled = true;
 	}
 

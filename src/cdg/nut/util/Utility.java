@@ -9,9 +9,12 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -19,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -36,6 +41,28 @@ import cdg.nut.util.settings.Settings;
 
 public abstract class Utility 
 {
+
+    public static byte[] compressString(String str) throws IOException {
+        if (str == null || str.length() == 0) {
+            return new byte[]{};
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        GZIPOutputStream gzip = new GZIPOutputStream(out);
+        gzip.write(str.getBytes());
+        gzip.close();
+        return out.toByteArray();
+     }
+    
+    public static String decompressString(byte[] str) throws IOException {
+        GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(str));
+        BufferedReader bf = new BufferedReader(new InputStreamReader(gis, "ISO-8859-1"));
+        String outStr = "";
+        String line;
+        while ((line=bf.readLine())!=null) {
+          outStr += line;
+        }
+        return outStr;
+     }
 	
 	public static HashMap<String, String> loadInfoTxt(String filename)
 	{

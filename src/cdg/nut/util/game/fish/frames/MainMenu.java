@@ -4,8 +4,11 @@ import java.io.IOException;
 
 import cdg.nut.gui.Frame;
 import cdg.nut.gui.components.Button;
+import cdg.nut.interfaces.IClickListener;
+import cdg.nut.test.Main;
 import cdg.nut.util.BitmapFont;
 import cdg.nut.util.Engine;
+import cdg.nut.util.enums.MouseButtons;
 import cdg.nut.util.settings.SetKeys;
 
 public class MainMenu extends Frame{
@@ -38,6 +41,14 @@ public class MainMenu extends Frame{
 		this.multiplayer.setFontSize(40);
 		this.multiplayer.getFO().setFont(daedra);
 		this.multiplayer.setBorderSize(2);
+		this.multiplayer.addClickListener(new IClickListener(){
+
+			@Override
+			public void onClick(int x, int y, MouseButtons button, int grabx,
+					int graby) {
+				Main.activeFrame = new ServerBrowser();
+				
+			}});
 		this.add(this.multiplayer);
 		
 		this.loadGame = new Button(20, this.multiplayer.getPixelY() + this.multiplayer.getPixelHeight() + 20, w, 60, "Load Game");

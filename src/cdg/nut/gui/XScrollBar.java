@@ -137,7 +137,7 @@ public class XScrollBar extends GLPolygon {
 			}
 			else
 			{
-				this.setDimension(this.width, Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
+				this.setDimension(this.width+Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class));
 			}
 			this.setMaxValue(this.maxValue);
 			this.setScrollValue(this.scrollValue);
@@ -151,13 +151,12 @@ public class XScrollBar extends GLPolygon {
 	{
 		float nw = w;
 		
-		if(this.doublescroll)
-		{
-			nw -= Utility.pixelSizeToGLSize(Settings.get(SetKeys.GUI_CMP_SCROLLBAR_SIZE, Integer.class), 0)[0];
-		}
+		
 		
 		super.setDimension(nw, h);
 				
+		this.width = this.getPixelWidth();
+		
 		this.setScrollValue(this.scrollValue);
 	}
 	

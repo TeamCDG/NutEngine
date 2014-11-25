@@ -16,6 +16,8 @@ public class ServerInfo {
 	private int playerCount;
 	private int maxPlayerCount;
 	private int ping;
+	private int port;
+	private String ip;
 	
 	
 	public static ServerInfo fromServer(String ip, int port)
@@ -122,7 +124,7 @@ public class ServerInfo {
 			
 			so.close();
 			
-			return new ServerInfo(name, motd, cpc, mpc, ping);
+			return new ServerInfo(ip, port, name, motd, cpc, mpc, ping);
 		}		
 		catch(IOException e)
 		{
@@ -139,15 +141,33 @@ public class ServerInfo {
 	}
 	
 	
-	public ServerInfo(String name, String motd, int playerCount,
+	public ServerInfo(String ip, int port, String name, String motd, int playerCount,
 			int maxPlayerCount, int ping) {
 		super();
+		this.ip = ip;
+		this.port = port;
 		this.name = name;
 		this.motd = motd;
 		this.playerCount = playerCount;
 		this.maxPlayerCount = maxPlayerCount;
 		this.ping = ping;
 	}
+
+	/**
+	 * @return the port
+	 */
+	protected int getPort() {
+		return port;
+	}
+
+
+	/**
+	 * @return the ip
+	 */
+	protected String getIp() {
+		return ip;
+	}
+
 
 	/**
 	 * @return the name
