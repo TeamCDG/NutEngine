@@ -1,0 +1,38 @@
+ShaderProgram.compile: Unable to compile shader: 0(1) : error C0201: unsupported version 30
+0(1) : error C0206: invalid token "core" in version line
+0(2) : error C7532: global type mat4 requires "#version 100" or later
+0(2) : error C7583: Initialization of uniform variables requires #version 120 or later
+0(3) : error C7532: global type vec4 requires "#version 100" or later
+0(3) : error C7583: Initialization of uniform variables requires #version 120 or later
+0(4) : error C7532: global type int requires "#version 100" or later
+0(4) : error C7583: Initialization of uniform variables requires #version 120 or later
+0(7) : error C7532: global type vec2 requires "#version 100" or later
+0(8) : error C5060: out can't be used with non-varying pass_Color
+0(9) : error C5060: out can't be used with non-varying pass_Position
+0(10) : error C5060: out can't be used with non-varying pass_TextureCoord
+0(13) : error C7532: global variable gl_Position requires "#version 100" or later
+ (simple.vert)
+OS: Windows 7 (amd64) 6.1
+Java: Oracle Corporation 1.8.0_25
+GLVendor: NVIDIA Corporation
+Renderer: GeForce 310M/PCIe/SSE2
+Version: 3.2.0
+GL Error: No error
+-----------------------------------------------------
+#version 30 core
+uniform mat4 window_Matrix = mat4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+uniform vec4 clippingArea = vec4(0.0,0.0,0.0,0.0);
+uniform int selection = 0;
+in vec4 in_Position;
+in vec4 in_Color;
+in vec2 in_TextureCoord;
+out vec4 pass_Color;
+out vec4 pass_Position;
+out vec2 pass_TextureCoord;
+void main(void) {
+	vec4 v = window_Matrix * in_Position;
+	gl_Position = v;
+	pass_Color = in_Color;
+	pass_Position = v;
+	pass_TextureCoord = in_TextureCoord;
+}

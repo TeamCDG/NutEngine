@@ -2,7 +2,7 @@ package cdg.nut.util;
 
 public abstract class DefaultShader {
 
-	public static final ShaderProgram simple = new ShaderProgram("#version 150 core\n"+
+	public static final ShaderProgram simple = new ShaderProgram("#version 330 core\n"+
 			"uniform mat4 window_Matrix = mat4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);\n"+
 			"uniform vec4 clippingArea = vec4(0.0,0.0,0.0,0.0);\n"+
 			"uniform int selection = 0;\n"+
@@ -30,7 +30,7 @@ public abstract class DefaultShader {
 			"void main(void) {\n"+
 			"	vec4 c = texture2D(texture_diffuse, vec2(pass_TextureCoord.x * -1, pass_TextureCoord.y));\n"+
 			"	if(selection == 0) {\n"+
-			"	if(c == vec4(0.0, 0.0, 0.0, 0.0)) {\n"+
+			"	if(c == vec4(0.0, 0.0, 0.0, 1.0)) {\n"+
 			"		out_Color = color;\n"+
 			"	 } else {\n"+
 			"		out_Color = color*c; }\n"+
@@ -44,7 +44,7 @@ public abstract class DefaultShader {
 			"	}\n"+
 			"}", "simple");
 	
-	public static final ShaderProgram image = new ShaderProgram("#version 150 core\n"+
+	public static final ShaderProgram image = new ShaderProgram("#version 330 core\n"+
 			"uniform mat4 window_Matrix = mat4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);\n"+
 			"uniform vec4 clippingArea = vec4(0.0,0.0,0.0,0.0);\n"+
 			"uniform int selection = 0;\n"+
@@ -79,11 +79,11 @@ public abstract class DefaultShader {
 			"	if(!(v.x+1 >= clippingArea.x+1 && v.x+1 <= clippingArea.z+1 && \n"+
 			"	   v.y+1 <= clippingArea.y+1 && v.y+1 >= clippingArea.w+1) && selection == 0 && clippingArea != vec4(0.0, 0.0, 0.0, 0.0)) {\n"+
 			"		//outside of the clipping area. do not draw it.\n"+
-			"		out_Color = vec4(0.0, 0.0, 0.0, 0.0);"+
+			"		out_Color = vec4(0.0, 0.0, 0.0, 0.0);\n"+
 			"	}\n"+
 			"}", "image");
 	
-	public static final ShaderProgram text = new ShaderProgram("#version 150 core\n"+
+	public static final ShaderProgram text = new ShaderProgram("#version 330 core\n"+
 			"uniform mat4 window_Matrix = mat4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);\n"+
 			"uniform vec4 clippingArea = vec4(0.0,0.0,0.0,0.0);\n"+
 			"uniform int selection = 0;\n"+
@@ -126,6 +126,6 @@ public abstract class DefaultShader {
 			"		} else {\n"+
 			"			out_Color = color*c;\n"+
 			"		}\n"+
-			"	}\n"+
+			"	}  \n"+
 			"}", "text");
 }
