@@ -216,3 +216,6 @@ pip-log.txt
 
 # Ignore the crashdumps
 crashdump*.txt
+
+## ignore dll
+./*.dll
