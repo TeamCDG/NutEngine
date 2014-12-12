@@ -36,6 +36,7 @@ import cdg.nut.util.Utility;
 import cdg.nut.util.VertexData;
 import cdg.nut.util.enums.Colors;
 import cdg.nut.util.gl.GLColor;
+import cdg.nut.util.gl.GLFont;
 import cdg.nut.util.net.Server;
 import cdg.nut.util.settings.CfgReader;
 import cdg.nut.util.settings.Cmd;
@@ -118,7 +119,6 @@ public class Main {
 		
 		Logger.debug("gui_cmp_font_size: "+Settings.get(SetKeys.GUI_CMP_FONT_SIZE, Float.class));
 		Logger.debug(""+GLColor.random());
-		Button f = new Button(30, 450, Colors.BLUE+"G"+Colors.RED+"o"+Colors.YELLOW+"o"+Colors.BLUE+"g"+Colors.DARKGREEN+"l"+Colors.RED+"e");
 		//FontObject f = new FontObject(0.0f, 0.0f, Colors.BLUE+"G"+Colors.RED+"o"+Colors.YELLOW+"o"+Colors.BLUE+"g"+Colors.DARKGREEN+"l"+Colors.RED+"e");
 		/*
 		for(int i = 0; i< c; i++)
@@ -132,6 +132,13 @@ public class Main {
 		//b.setShader(DefaultShader.simple);
 		
 		//Server.init();
+		
+		GLFont ov_fps = new GLFont(5, 5, "Fps: 0");
+		ov_fps.setAutoClipping(true);
+		ov_fps.setFontSize(20);
+		GLFont ov_allRam = new GLFont(5, 30, "allocated RAM: 0");
+		ov_allRam.setAutoClipping(true);
+		ov_allRam.setFontSize(20);
 		
 		while (!Display.isCloseRequested() && !Main.closeRequested && !Engine.closeRequested()) {
 			
@@ -152,6 +159,7 @@ public class Main {
 			//if(new Random().nextInt(100) == 420) b.setText(Utility.randomString(100));
 			
 			
+			
 			Main.activeFrame.draw();
 			//b.draw();
 			//f.draw();
@@ -166,6 +174,16 @@ public class Main {
 				fps = 0;
 			}
 			
+			if(Engine.showDebugOverlay())
+			{
+				ov_allRam.setText("allocated RAM: "+Runtime.getRuntime().totalMemory()/1024);
+				ov_fps.setText("Fps: "+Engine.getFPS());
+				
+				ov_allRam.draw();
+ 				ov_fps.draw();
+			}
+			
+			Engine.timeDebug();
 			Display.update();
 			//Display.sync(SetKeys.R_MAX_FPS.getValue(Integer.class));
 			Display.sync(60);

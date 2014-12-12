@@ -90,6 +90,7 @@ public abstract class Frame implements IParent {
 
 	public void draw() //Never ever ask me to explain this method. it works, that's all, hua?
 	{
+		long d_start = System.nanoTime();
 		if(this.con.getComponents(Console.class).size() == 0)
 		{
 			this.add(Engine.console); this.nextId++;
@@ -218,6 +219,9 @@ public abstract class Frame implements IParent {
 
 		while (Keyboard.next()) {
 			if (Keyboard.getEventKeyState() && this.active!=null) {
+				
+				if(Keyboard.getEventKey() == Keyboard.KEY_F3)
+					Engine.setShowDebugOverlay(!Engine.showDebugOverlay());
 				this.active.key(Keyboard.getEventKey(), Keyboard.getEventCharacter());
 			}
 		}
@@ -238,6 +242,8 @@ public abstract class Frame implements IParent {
 			this.oldMouseX = Mouse.getX();
 			this.oldMouseY = (SetKeys.WIN_HEIGHT.getValue(Integer.class)-Mouse.getY());
 		}
+		
+		long d_end = System.nanoTime();
 
 		if (this.background != null) this.background.draw();
 
@@ -245,6 +251,10 @@ public abstract class Frame implements IParent {
 		
 		if(this.activeToolTip != null)
 			this.activeToolTip.draw();
+		
+		long dr_end = System.nanoTime();
+		
+//		Logger.debug("logic took: "+((float)(d_end-d_start)/1000.0f)+"mys / draw took: "+((float)(dr_end-d_end)/1000.0f)+"mys");
 	}
 
 	protected int select()

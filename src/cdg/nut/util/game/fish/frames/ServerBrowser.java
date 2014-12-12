@@ -1,8 +1,12 @@
 package cdg.nut.util.game.fish.frames;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cdg.nut.gui.Frame;
 import cdg.nut.gui.TableViewItem;
 import cdg.nut.gui.components.Button;
+import cdg.nut.gui.components.Label;
 import cdg.nut.gui.components.TableView;
 import cdg.nut.gui.components.TextBox;
 import cdg.nut.interfaces.IClickListener;
@@ -10,13 +14,16 @@ import cdg.nut.logging.Logger;
 import cdg.nut.test.Main;
 import cdg.nut.util.Utility;
 import cdg.nut.util.enums.MouseButtons;
+import cdg.nut.util.gl.*;
 
 public class ServerBrowser extends Frame {
 
 	private Button addColumn;
 	private TableView serverList;
 	private Button addItem;
-	private TextBox testBox;
+	private Button test;
+	
+	private List<GLPolygon> ftest = new ArrayList<GLPolygon>();
 	
 	public ServerBrowser()
 	{
@@ -51,12 +58,34 @@ public class ServerBrowser extends Frame {
 		this.add(this.addItem);
 //		Logger.debug("#########################################################");
 		
-		this.testBox = new  TextBox(300, 5, 200, 34, "");
-		this.testBox.setFontSize(16);
-		this.addComponent(this.testBox);
+		this.test = new  Button(300, 5, 200, 34, "");
+		this.test.setFontSize(16);
+		this.test.addClickListener(new IClickListener(){
+
+			@Override
+			public void onClick(int x, int y, MouseButtons button, int grabx,
+					int graby) {
+				for(int i = 0; i < 10000; i++)
+				{
+//					ftest.add(new GLPolygon(20, 20, 100, 100, false, 7));
+					ftest.add(new TextBox(20, 20, Utility.randomString(10)));
+				}
+				Logger.debug("ftest size: "+ftest.size());
+			}});
+		this.addComponent(this.test);
 		
 		this.serverList = new TableView(5, 70, 500, 500);
 		this.add(this.serverList);
+	}
+	
+	@Override 
+	public void draw()
+	{
+		super.draw();
+		for(int i = 0; i < ftest.size(); i++)
+		{
+			ftest.get(i).draw();
+		}
 	}
 	
 }

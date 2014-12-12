@@ -209,7 +209,7 @@ public enum SetKeys {
 	//--- REGION RENDERER ---
 	R_DRAW("<boolean>", "true for vsync", true),
 	
-	R_VSYNC("<boolean>", "true for vsync", true, new ICommandExecuter(){
+	R_VSYNC("<boolean>", "true for vsync", false, new ICommandExecuter(){
 		@Override
 		public void exec(List<String> parameter) {
 			boolean value = parameter.get(0).toLowerCase().equals("true") || parameter.get(0).toLowerCase().equals("1");
@@ -245,6 +245,12 @@ public enum SetKeys {
 		@Override
 		public void exec(List<String> parameter) {
 			Engine.setCloseRequested(true);
+	}}),
+	
+	GC("", "garbace collect", new ICommandExecuter(){
+		@Override
+		public void exec(List<String> parameter) {
+			System.gc();
 	}}),
 	
 	SERV_INIT("", "[DEBUG] inits a server", new ICommandExecuter(){

@@ -142,7 +142,7 @@ public class Panel extends Component implements IParent, IDimensionChangedListen
 				c.setClippingArea(fin);
 			}
 			
-			Logger.debug("moving panel and component...");
+//			Logger.debug("moving panel and component...");
 		}
 	}
 	
@@ -513,8 +513,8 @@ public class Panel extends Component implements IParent, IDimensionChangedListen
 		int xsb = this.getXScroll()?this.getXsb().getPixelHeight():0;
 		int ysb = this.getYScroll()?this.getYsb().getPixelWidth():0;
 		
-		Logger.debug("mx: "+mx+" / xpw-b-x: "+(this.getPixelX()+this.getPixelWidth()-border-ysb)+" / dif: "+(mx-(this.getPixelX()+this.getPixelWidth()-border-ysb)));
-		Logger.debug("my: "+my+" / ypw-b-y: "+(this.getPixelY()+this.getPixelHeight()-border-xsb)+" / dif: "+(my-(this.getPixelY()+this.getPixelHeight()-border-xsb)));
+//		Logger.debug("mx: "+mx+" / xpw-b-x: "+(this.getPixelX()+this.getPixelWidth()-border-ysb)+" / dif: "+(mx-(this.getPixelX()+this.getPixelWidth()-border-ysb)));
+//		Logger.debug("my: "+my+" / ypw-b-y: "+(this.getPixelY()+this.getPixelHeight()-border-xsb)+" / dif: "+(my-(this.getPixelY()+this.getPixelHeight()-border-xsb)));
 		
 		if(mx > this.getPixelX()+this.getPixelWidth()-border-ysb)
 		{
@@ -544,7 +544,7 @@ public class Panel extends Component implements IParent, IDimensionChangedListen
 			if(this.getYsb() != null) { this.getYsb().setScrollValue(0); this.getYsb().setMaxValue(0);}
 		}
 		
-		Logger.debug("xscroll: "+this.getXScroll()+" / yscroll: "+this.getYScroll());
+//		Logger.debug("xscroll: "+this.getXScroll()+" / yscroll: "+this.getYScroll());
 		
 		if(this.getXsb() != null) this.getXsb().setDoublescroll(this.getXScroll() && this.getYScroll());
 		if(this.getYsb() != null) this.getYsb().setDoublescroll(this.getXScroll() && this.getYScroll());
@@ -588,7 +588,7 @@ public class Panel extends Component implements IParent, IDimensionChangedListen
 		else if(!this.autosizeWithContentX && this.autosizeWithContentY) this.setDimension(this.getPixelWidth(), my);
 		else if(this.autosizeWithContentX && this.autosizeWithContentY) this.setDimension(mx, my);
 		
-		Logger.debug("X: "+this.autosizeWithContentX+"("+mx+") / Y: "+this.autosizeWithContentY+"("+my+")");
+//		Logger.debug("X: "+this.autosizeWithContentX+"("+mx+") / Y: "+this.autosizeWithContentY+"("+my+")");
 	}
 
 	public boolean isAutosizeWithContentX() {

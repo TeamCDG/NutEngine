@@ -53,7 +53,8 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	 */
 	public void setPasswordMode(boolean passwordMode) {
 		this.passwordMode = passwordMode;
-		this.setDimension(this.getWidth(), this.getHeight());
+//		this.setDimension(this.getWidth(), this.getHeight());
+		this.regen();
 	}
 
 	public BitmapFont getFont()
@@ -74,7 +75,8 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 	public void setColor(GLColor color)
 	{
 		this.color = color;
-		this.setDimension(this.getWidth(), this.getHeight());
+//		this.setDimension(this.getWidth(), this.getHeight());
+		this.regen();
 	}
 
 	public String getText()
@@ -95,7 +97,8 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 			{
 				this.setHidden(false);
 				this.colorText = text;
-				this.setDimension(this.getWidth(), this.getHeight());
+//				this.setDimension(this.getWidth(), this.getHeight());
+				this.regen();
 			}
 		}
 		
@@ -302,7 +305,8 @@ public class GLFont extends GLPolygon implements IPolygonGenerator{
 		this.selectionStart = Math.min(start,end);
 		this.selectionEnd = Math.max(start,end);
 		
-		this.selectionArea.setDimension(0, 0);
+//		this.selectionArea.setDimension(0, 0);
+		this.selectionArea.regen();
 	}
 	public String getSelectedText()
 	{

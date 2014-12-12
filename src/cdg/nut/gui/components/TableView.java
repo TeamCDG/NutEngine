@@ -25,6 +25,7 @@ import cdg.nut.util.settings.SetKeys;
 public class TableView extends Component implements IDimensionChangedListener, IScrollChangedListener{
 
 	private Panel contentPane;	
+	private Panel headPanel;
 	private List<TableViewColumnHeader> columns;
 	private GLPolygon headerBorder;
 	private List<TableViewItem> items;
@@ -44,6 +45,15 @@ public class TableView extends Component implements IDimensionChangedListener, I
 	
 	private void init()
 	{
+		this.headPanel = new Panel(this.getPixelX(), this.getPixelY(), this.getPixelWidth(), this.getPixelWidth());
+		this.headPanel.setHasBorder(true);
+		this.headPanel.setBorderSize(2);
+		this.headPanel.setAutoClipping(true);
+		this.headPanel.setSelectable(true);
+		this.headPanel.setHasBackground(true);
+		this.headPanel.setDragable(false);
+		
+		
 		this.contentPane = new Panel(this.getPixelX(), this.getPixelY(), this.getPixelWidth(), this.getPixelWidth());
 		this.contentPane.setScrollable(true);
 		
@@ -58,6 +68,8 @@ public class TableView extends Component implements IDimensionChangedListener, I
 		this.contentPane.setHasBackground(true);
 		this.contentPane.addScrollChangedListener(this);
 		this.contentPane.setDragable(false);
+		
+		
 		
 		this.setSelectable(true);
 		this.setHasBackground(false);

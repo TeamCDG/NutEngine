@@ -18,6 +18,7 @@ import cdg.nut.interfaces.IPolygonGenerator;
 import cdg.nut.interfaces.ISelectable;
 import cdg.nut.logging.Logger;
 import cdg.nut.util.DefaultShader;
+import cdg.nut.util.Engine;
 import cdg.nut.util.ShaderProgram;
 import cdg.nut.util.Utility;
 import cdg.nut.util.Vertex2;
@@ -731,6 +732,7 @@ public class GLPolygon implements ISelectable {
 			return;
 		
 		this.drawing = true;
+		long pre_start = System.nanoTime();
 		
 		
 		
@@ -751,19 +753,27 @@ public class GLPolygon implements ISelectable {
 		//tell the GPU where to find information about drawing this GLObject
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, this.iVBO);
 		
+		long pre_end = System.nanoTime();
+		
 		this.passUniforms(); //pass the unfiforms from the user
 		this.shader.pass1i("selection", selection?1:0);
 		this.shader.passVertex4("clippingArea", this.clipping&&this.clippingArea!=null?this.clippingArea:new Vertex4(0.0f,0.0f,0.0f,0.0f));
 		if(this.color != null) this.getShader().passColor("color", this.color);
+		
+		long uniform_end = System.nanoTime();
+		
 		//this.mainShader.pass4f("visible_Area",this.visibleArea.getX(),this.visibleArea.getY(),this.visibleArea.getZ(),this.visibleArea.getW());
 		// Draw the vertices
-		if(SetKeys.R_DRAW.getValue(Boolean.class)) GL11.glDrawElements(GL11.GL_TRIANGLES, this.iCount, GL11.GL_UNSIGNED_INT, 0); //finallay draw
-				
+		GL11.glDrawElements(GL11.GL_TRIANGLES, this.iCount, GL11.GL_UNSIGNED_INT, 0); //finallay draw
+		
+		
+		
+		long draw_end = System.nanoTime();
 		//reset everything (undpoint pointing pointers... ;) )
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0); 
-		GL20.glDisableVertexAttribArray(0);
-		GL20.glDisableVertexAttribArray(1);
-		GL20.glDisableVertexAttribArray(2);
+//		GL20.glDisableVertexAttribArray(0);
+//		GL20.glDisableVertexAttribArray(1);
+//		GL20.glDisableVertexAttribArray(2);
 		GL30.glBindVertexArray(0);
 		
 		
@@ -773,9 +783,16 @@ public class GLPolygon implements ISelectable {
 			if(this.image != null) this.image.unbind();
 		}
 		
-		this.shader.unbind();
+//		this.shader.unbind();
 		
-		GL13.glActiveTexture(GL13.GL_TEXTURE0);
+//		GL13.glActiveTexture(GL13.GL_TEXTURE0);
+		
+		long cleanup_end = System.nanoTime();
+		
+		Engine.addPreTime(pre_end - pre_start);
+		Engine.addUniformTime(uniform_end - pre_end);
+		Engine.addDrawTime(draw_end - uniform_end);
+		Engine.addCleanupTime(cleanup_end - draw_end);
 		
 		this.drawChildren(selection);
 		  
