@@ -78,6 +78,8 @@ public class TableViewColumnHeader extends Label {
 		super.move(x,y);
 		if(this.seperator != null) this.seperator.setPosition(this.getPixelX()+this.getPixelWidth(), this.getPixelY());
 //		this.setupClippingArea();
+		Logger.debug(this.getId()+" ----> moved to x: "+this.getPixelX());
+		Logger.printStackTrace();
 	}
 	
 	
@@ -92,13 +94,16 @@ public class TableViewColumnHeader extends Label {
 		
 		if(mouseGrabX != 0)
 		{
-			this.setWidth(this.getPixelWidth()-mouseGrabX);
-			if(this.getPixelWidth() < 5) this.setWidth(5);
+			if(this.getPixelWidth()-mouseGrabX > 5)
+				this.setWidth(this.getPixelWidth()-mouseGrabX);				
+			
 			this.seperator.setX(this.getPixelX()+this.getPixelWidth());
 			this.dragging = true;
 		}
 		
 	}
+	
+	
 	
 	@Override
 	public void unselected()

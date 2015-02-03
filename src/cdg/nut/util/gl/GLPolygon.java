@@ -789,10 +789,10 @@ public class GLPolygon implements ISelectable {
 		
 		long cleanup_end = System.nanoTime();
 		
-		Engine.addPreTime(pre_end - pre_start);
-		Engine.addUniformTime(uniform_end - pre_end);
-		Engine.addDrawTime(draw_end - uniform_end);
-		Engine.addCleanupTime(cleanup_end - draw_end);
+//		Engine.addPreTime(pre_end - pre_start);
+//		Engine.addUniformTime(uniform_end - pre_end);
+//		Engine.addDrawTime(draw_end - uniform_end);
+//		Engine.addCleanupTime(cleanup_end - draw_end);
 		
 		this.drawChildren(selection);
 		  

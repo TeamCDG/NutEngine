@@ -183,7 +183,7 @@ public class Main {
  				ov_fps.draw();
 			}
 			
-			Engine.timeDebug();
+//			Engine.timeDebug();
 			Display.update();
 			//Display.sync(SetKeys.R_MAX_FPS.getValue(Integer.class));
 			Display.sync(60);

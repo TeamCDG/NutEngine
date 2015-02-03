@@ -67,8 +67,8 @@ public class ServerBrowser extends Frame {
 					int graby) {
 				for(int i = 0; i < 10000; i++)
 				{
-//					ftest.add(new GLPolygon(20, 20, 100, 100, false, 7));
-					ftest.add(new TextBox(20, 20, Utility.randomString(10)));
+					ftest.add(new GLPolygon(20, 20, 100, 100, false, 7));
+//					ftest.add(new GLFont(20, 20, Utility.randomString(10)));
 				}
 				Logger.debug("ftest size: "+ftest.size());
 			}});

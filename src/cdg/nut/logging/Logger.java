@@ -18,7 +18,7 @@ public abstract class Logger {
 
 	private static LogLevel logfileLevel = LogLevel.ERROR;
 	private static LogLevel outputLevel = LogLevel.DEBUG;
-	private static LogLevel glConsoleLevel = LogLevel.INFO;
+	private static LogLevel glConsoleLevel = LogLevel.ERROR;
 	private static DateFormat crashDumpDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 	private static DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
@@ -29,7 +29,7 @@ public abstract class Logger {
 	private static ConsoleColor errorColor = ConsoleColor.RED;
 
 	private static PrintWriter logfile = null;
-	private static boolean disabled;
+	private static boolean disabled = false;
 
 	public static LogLevel getLogfileLevel() {
 		return logfileLevel;
@@ -662,5 +662,44 @@ public abstract class Logger {
 	{
 		int errorValue = GL11.glGetError();
 			Logger.error("GL Error: "+GLU.gluErrorString(errorValue));
+	}
+	
+	
+	public static void printStackTrace()
+	{
+		Logger.printStackTrace(-1);
+	}
+	
+	
+	public static void printStackTrace(int limit)
+	{
+		try
+		 {
+			
+			 StackTraceElement[] se = Thread.currentThread().getStackTrace();
+			 if(limit == -1) limit = se.length;
+			 String[] tmp = se[1].getClassName().split("\\.");
+			 String cn = tmp[tmp.length - 1];
+			 int idx = 1;
+			 while(cn.equals("Logger") && idx+1 < se.length)
+			 {
+				 idx++;
+				 tmp = se[idx].getClassName().split("\\.");
+				 cn = tmp[tmp.length - 1];
+			 }
+			 
+			// location = cn+"[:"+se[idx].getLineNumber()+"]."+se[idx].getMethodName();
+			 String st = "";
+			 for(int i = idx; i < se.length && i < limit; i++)
+			 {
+				 tmp = se[i].getClassName().split("\\.");
+					cn = tmp[tmp.length - 1];
+				st +=  cn+"[:"+se[i].getLineNumber()+"]."+se[i].getMethodName()+"\n";
+				
+				
+			 }
+			 Logger.info(st);
+		 }
+		catch(Exception e){}
 	}
 }

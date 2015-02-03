@@ -468,7 +468,7 @@ public class Panel extends Component implements IParent, IDimensionChangedListen
 		
 		this.scrolling = true;
 		
-		if(!this.getXScroll() && !this.getYScroll())
+		if(!this.getXScroll() && !this.getYScroll() && !this.isManualScrollX() && !this.isManualScrollY())
 			return;
 		
 		for(Component c: this.con.getComponents())
@@ -484,6 +484,8 @@ public class Panel extends Component implements IParent, IDimensionChangedListen
 		}
 		
 		this.scrolling = false;
+		
+		super.fireOnScrollChanged(horizontal);
 	}
 
 	public List<IGuiObject> getComponentsAG() {

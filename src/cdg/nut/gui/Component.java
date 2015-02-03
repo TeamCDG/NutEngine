@@ -1320,26 +1320,41 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 		return this.text.getSelectedText();
 	}
 	
+	private boolean manualScrollX = false;
+	private boolean manualScrollY = false;
+	
 	@Override
 	public void onScroll(int sv, boolean horizontal)
 	{
-		if(horizontal && this.xscroll)
+		if(horizontal && (this.xscroll || this.manualScrollX))
 		{
 			//Logger.debug("scrollvalue: "+sv, "Component.onScroll");
 			if(this.text != null) this.text.setX(this.getTextX()-sv);
+			this.fireOnScrollChanged(horizontal);
 		}
 		else if(!this.xscroll && horizontal)
 		{
 			if(this.text != null && this.text.getPixelX() != this.getTextX()) this.text.setX(this.getTextX());
 		}
-		else if(!horizontal && this.yscroll)
+		else if(!horizontal && (this.yscroll || this.manualScrollY))
 		{
 			//Logger.debug("scrollvalue: "+sv, "Component.onScroll");
 			if(this.text != null) this.text.setY(this.getTextY()-sv);
+			this.fireOnScrollChanged(horizontal);
 		}
 		else if(!this.yscroll && !horizontal)
 		{
 			if(this.text != null && this.text.getPixelY() != this.getTextY()) this.text.setY(this.getTextY());
+		}
+		
+		
+	}
+	
+	protected void fireOnScrollChanged(boolean horizontal)
+	{
+		for(int i = 0; i < this.scrollListener.size(); i++)
+		{
+			this.scrollListener.get(i).scrollChanged(this.getId(), horizontal, !horizontal);
 		}
 	}
 	
@@ -1791,5 +1806,21 @@ public abstract class Component extends GLPolygon implements ISettingsListener, 
 
 	public void setParentYDif(int parentYDif) {
 		this.parentYDif = parentYDif;
+	}
+
+	public boolean isManualScrollX() {
+		return manualScrollX;
+	}
+
+	public void setManualScrollX(boolean manualScrollX) {
+		this.manualScrollX = manualScrollX;
+	}
+
+	public boolean isManualScrollY() {
+		return manualScrollY;
+	}
+
+	public void setManualScrollY(boolean manualScrollY) {
+		this.manualScrollY = manualScrollY;
 	}
 }
